@@ -3,6 +3,7 @@ package com.example.davide.myfinance.fragments;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,9 @@ public class AddExpenseFragment extends Fragment {
         mPictureButton = (ImageButton) mRootView.findViewById(R.id.pictureImageButton);
         mIsRepeatedExpense = (CheckBox)mRootView.findViewById(R.id.checkbox_set_as_repeated_event);
         mExpenseAmount = (EditText)mRootView.findViewById(R.id.edit_text_expense_amount);
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.hide();
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
