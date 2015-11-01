@@ -6,7 +6,7 @@ public class Expense {
 
     private String expenseName;
     private boolean isRepeatingExpense;
-    private Date expenseDate;
+    private int[] expenseDate = new int[3];
     private String expenseImage;
 
     public String getExpenseName() {
@@ -17,11 +17,11 @@ public class Expense {
         this.expenseName = expenseName;
     }
 
-    public Date getExpenseDate() {
+    public int[] getExpenseDate() {
         return expenseDate;
     }
 
-    public void setExpenseDate(Date expenseDate) {
+    public void setExpenseDate(int[] expenseDate) {
         this.expenseDate = expenseDate;
     }
 

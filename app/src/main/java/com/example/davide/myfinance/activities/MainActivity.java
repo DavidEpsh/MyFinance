@@ -1,4 +1,4 @@
-package com.example.davide.myfinance;
+package com.example.davide.myfinance.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.AddExpenseFragment;
 import com.example.davide.myfinance.fragments.ExpensesFragment;
 

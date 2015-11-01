@@ -2,8 +2,6 @@ package com.example.davide.myfinance.fragments;
 
 
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,10 +12,8 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.davide.myfinance.MainActivity;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 
@@ -29,10 +25,15 @@ import java.util.Calendar;
 public class AddExpenseFragment extends Fragment {
 
     private EditText mNameOfExpense;
-    private Button mExpenseDate;
+    private Button mButtonExpenseDate;
     private CheckBox mIsRepeatedExpense;
     private Button mSaveButton;
     private ImageButton mPictureButton;
+    private EditText mExpenseAmount;
+    private int[] mExpenseDate = new int[3];
+    int mYear;
+    int mMonth;
+    int mDay;
 
     private View mRootView;
 
@@ -52,18 +53,33 @@ public class AddExpenseFragment extends Fragment {
 
     private void initView() {
         mNameOfExpense = (EditText) mRootView.findViewById(R.id.edit_text_name_of_expense);
-        mExpenseDate = (Button) mRootView.findViewById(R.id.event_date_button);
+        mButtonExpenseDate = (Button) mRootView.findViewById(R.id.expense_date_button);
         mSaveButton = (Button) mRootView.findViewById(R.id.save_button);
         mPictureButton = (ImageButton) mRootView.findViewById(R.id.pictureImageButton);
         mIsRepeatedExpense = (CheckBox)mRootView.findViewById(R.id.checkbox_set_as_repeated_event);
+        mExpenseAmount = (EditText)mRootView.findViewById(R.id.edit_text_expense_amount);
+
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
 
         final DatePickerDialog datePicker = new DatePickerDialog(mRootView.getContext(), new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                int newYear = year;
+                int newMonth = monthOfYear;
+                int newDay = dayOfMonth;
 
+                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
+                mExpenseDate[0] = dayOfMonth;
+                mExpenseDate[1] = monthOfYear;
+                mExpenseDate[2] = year;
             }
 
-        },2015,1,11);
+        },mYear,mMonth,mDay);
 
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +91,7 @@ public class AddExpenseFragment extends Fragment {
             }
         });
 
-        mExpenseDate.setOnClickListener(new View.OnClickListener() {
+        mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 datePicker.show();
@@ -100,6 +116,8 @@ public class AddExpenseFragment extends Fragment {
 
         Expense mStudent = new Expense();
         mStudent.setExpenseName(mNameOfExpense.getText().toString());
+        mStudent.setRepeatingEvent(mIsRepeatedExpense.isChecked());
+        mStudent.setExpenseDate(mExpenseDate);
 
         //todo Save to database
 
@@ -111,12 +129,9 @@ public class AddExpenseFragment extends Fragment {
     private void resetFields() {
 
         mNameOfExpense.setText("");
-        mExpenseDate.setText("");
-    }
+        mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        mExpenseAmount.setText("");
 
-    public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePickerFragment();
-            newFragment.show(getActivity().getFragmentManager(),"date_picker");
     }
 
 }
