@@ -1,0 +1,43 @@
+<resources>
+
+    <string name="app_name">MyFinance</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_preference">Settings</string>
+    <string name="attendance_list">Attendants List</string>
+    <string name="events_list">Events List</string>
+    <string name="add_attendant">Add Attendants</string>
+    <string name="add_event">Add Events</string>
+    <string name="directions">Directions</string>
+    <string name="settings">Settings</string>
+
+        <string name="hint_event_name">Event Name</string>
+        <string name="hint_event_venue">Event Venue</string>
+        <string name="hint_event_date">Event Date</string>
+        <string name="hint_event_city">City</string>
+        <string name="hint_event_image">Event Venue Image Url</string>
+        <string name="set_as_repeated_event">Set As Repeated Event?</string>
+        <string name="expense_name">Name Your Expense</string>
+        <string name="hint_guest_email">Email</string>
+        <string name="hint_guest_amount">Expense Amount</string>
+        <string name="hint_guest_street_address">Street Address</string>
+        <string name="hint_guest_city">City</string>
+        <string name="state">State</string>
+        <string name="hint_zip_code">Zip Code</string>
+        <string name="save">Save</string>
+        <string name="hint_event_organizer">Organizer</string>
+        <string name="title_create_event">Create Event</string>
+        <string name="image_description">Event</string>
+        <string name="button_profile">Profile</string>
+        <string name="required_fields_empty">Required Field Empty</string>
+        <string name="share">Share Event</string>
+        <string name="delete_events">Delete Event</string>
+        <string name="set_active_event">Set Event as Active</string>
+        <string name="cancel">Cancel</string>
+        <string name="description_attendant_image">Attendant Image</string>
+        <string name="no_event_date">" Event Date required"</string>
+
+</resources>
