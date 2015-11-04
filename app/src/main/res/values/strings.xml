@@ -13,6 +13,7 @@
     <string name="add_event">Add Events</string>
     <string name="directions">Directions</string>
     <string name="settings">Settings</string>
+    <string name="add_expense_fragment">Add New Expense</string>
 
     <string name="set_as_repeated_event">Set As Repeated Event?</string>
     <string name="expense_name">Name Your Expense</string>
@@ -20,8 +21,14 @@
     <string name="save">Save</string>
     <string name="required_fields_empty">Required Field Empty</string>
     <string name="cancel">Cancel</string>
-    <string name="hint_expense_date">Expense Date:</string>
+
     <string name="description_expense_image">Expense Image</string>
     <string name="no_event_date">" Event Date required"</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+
+
+    <string name="hint_expense_date">Expense Date:</string>
+    <string name="txt_add_your_expense">Add Your Expense</string>
+    <string name="hint_add_your_expense">Type the name your expense here</string>
 
 </resources>

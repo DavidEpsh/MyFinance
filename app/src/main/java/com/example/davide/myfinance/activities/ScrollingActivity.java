@@ -1,13 +1,15 @@
-package com.example.davide.myfinance.fragments;
-
+package com.example.davide.myfinance.activities;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -20,10 +22,7 @@ import com.example.davide.myfinance.models.Expense;
 
 import java.util.Calendar;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class AddExpenseFragment extends Fragment {
+public class ScrollingActivity extends AppCompatActivity {
 
     private EditText mNameOfExpense;
     private Button mButtonExpenseDate;
@@ -36,32 +35,33 @@ public class AddExpenseFragment extends Fragment {
     int mMonth;
     int mDay;
 
-    private View mRootView;
-
-    public AddExpenseFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        mRootView = inflater.inflate(R.layout.fragment_add_expense, container, false);
-        initView();
-        return mRootView;
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    private void initView() {
-        mNameOfExpense = (EditText) mRootView.findViewById(R.id.edit_text_name_of_expense);
-        mButtonExpenseDate = (Button) mRootView.findViewById(R.id.expense_date_button);
-        mSaveButton = (Button) mRootView.findViewById(R.id.save_button);
-        mPictureButton = (ImageButton) mRootView.findViewById(R.id.pictureImageButton);
-        mIsRepeatedExpense = (CheckBox)mRootView.findViewById(R.id.checkbox_set_as_repeated_event);
-        mExpenseAmount = (EditText)mRootView.findViewById(R.id.edit_text_expense_amount);
+        setContentView(R.layout.activity_scrolling);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("");
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
 
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        fab.hide();
+        mNameOfExpense = (EditText) findViewById(R.id.edit_text_name_of_expense);
+        mButtonExpenseDate = (Button) findViewById(R.id.expense_date_button);
+        mSaveButton = (Button) findViewById(R.id.save_button);
+        mPictureButton = (ImageButton) findViewById(R.id.pictureImageButton);
+        mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event);
+        mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -70,7 +70,7 @@ public class AddExpenseFragment extends Fragment {
 
         mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
 
-        final DatePickerDialog datePicker = new DatePickerDialog(mRootView.getContext(), new DatePickerDialog.OnDateSetListener(){
+        final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 int newYear = year;
@@ -101,6 +101,22 @@ public class AddExpenseFragment extends Fragment {
                 datePicker.show();
             }
         });
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                return super.onOptionsItemSelected(item);
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     private boolean requiredFieldCompleted() {
@@ -127,7 +143,7 @@ public class AddExpenseFragment extends Fragment {
 
         resetFields();
 
-        Toast.makeText(getActivity(), mStudent.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, mStudent.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
     }
 
     private void resetFields() {
@@ -137,5 +153,4 @@ public class AddExpenseFragment extends Fragment {
         mExpenseAmount.setText("");
 
     }
-
 }

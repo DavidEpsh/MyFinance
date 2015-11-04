@@ -4,8 +4,6 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/events_list" android:icon="@android:drawable/ic_menu_camera"
             android:title="My Expenses" />
-        <item android:id="@+id/new_expense" android:icon="@android:drawable/ic_menu_gallery"
-            android:title="New Expense" />
         <item android:id="@+id/nav_slideshow" android:icon="@android:drawable/ic_menu_slideshow"
             android:title="Slideshow" />
         <item android:id="@+id/nav_manage" android:icon="@android:drawable/ic_menu_manage"
