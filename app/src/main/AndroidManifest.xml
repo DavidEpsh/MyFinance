@@ -19,9 +19,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:parentActivityName="com.example.davide.myfinance.activities.MainActivity"
-            android:name=".activities.ScrollingActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:name=".activities.AddExpenseActivity"
+            android:label="@string/title_activity_add_expense"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.MainActivity">
+        </activity>
+        <activity
+            android:name=".activities.ViewExpenseActivity"
+            android:label="@string/title_activity_edit_expense"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.MainActivity">
+        </activity>
+        <activity
+            android:name=".activities.EditExpenseActivity"
+            android:label="@string/title_activity_edit_expense"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.ViewExpenseActivity">
         </activity>
     </application>
 

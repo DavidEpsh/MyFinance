@@ -22,12 +22,11 @@ import com.example.davide.myfinance.models.Expense;
 
 import java.util.Calendar;
 
-public class ScrollingActivity extends AppCompatActivity {
+public class AddExpenseActivity extends AppCompatActivity {
 
     private EditText mNameOfExpense;
     private Button mButtonExpenseDate;
     private CheckBox mIsRepeatedExpense;
-    private Button mSaveButton;
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
     private int[] mExpenseDate = new int[3];
@@ -39,16 +38,14 @@ public class ScrollingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_scrolling);
+        setContentView(R.layout.activity_add_expense);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("");
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
 
         mNameOfExpense = (EditText) findViewById(R.id.edit_text_name_of_expense);
         mButtonExpenseDate = (Button) findViewById(R.id.expense_date_button);
-        mSaveButton = (Button) findViewById(R.id.save_button);
         mPictureButton = (ImageButton) findViewById(R.id.pictureImageButton);
         mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event);
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount);
@@ -85,7 +82,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         },mYear,mMonth,mDay);
 
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
