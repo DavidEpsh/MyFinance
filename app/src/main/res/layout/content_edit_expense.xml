@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -23,7 +24,7 @@
         tools:context="com.example.davide.myfinance.activities.ScrollingActivity">
 
         <RelativeLayout
-            android:id="@+id/relative_layout_add_attendant"
+            android:id="@+id/relative_layout_add_attendant_edit_activity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="20dp"
@@ -32,12 +33,12 @@
             android:paddingBottom="5dp">
 
             <RelativeLayout
-                android:id="@+id/relative_layout_attendant_image"
+                android:id="@+id/relative_layout_expense_image_edit_activity"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
 
                 <ImageButton
-                    android:id="@+id/pictureImageButton"
+                    android:id="@+id/pictureImageButton_edit_activity"
                     android:layout_alignParentLeft="true"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
@@ -51,39 +52,39 @@
                 <ImageView
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:layout_alignBottom="@id/pictureImageButton"
-                    android:layout_alignRight="@id/pictureImageButton"
+                    android:layout_alignBottom="@id/pictureImageButton_edit_activity"
+                    android:layout_alignRight="@id/pictureImageButton_edit_activity"
                     android:contentDescription="@string/description_expense_image"
-                    android:id="@+id/imageView2" />
+                    android:id="@+id/imageView2_edit_activity" />
 
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/text_expense_date"
+                android:id="@+id/text_expense_date_edit_activity"
                 android:text="@string/hint_expense_date"
                 android:textSize="18sp"
                 android:layout_width="120dp"
                 android:layout_weight="1"
                 android:layout_marginLeft="3dp"
                 android:layout_marginTop="8dp"
-                android:layout_below="@id/relative_layout_attendant_image"
+                android:layout_below="@id/relative_layout_expense_image_edit_activity"
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/expense_date_button"
+                android:id="@+id/expense_date_button_edit_activity"
                 style="android:Widget.Holo.Light.Spinner"
                 android:layout_height="40dp"
                 android:layout_width="100dp"
                 android:layout_weight="2"
                 android:paddingLeft="12dp"
-                android:layout_toRightOf="@id/text_expense_date"
-                android:layout_below="@id/relative_layout_attendant_image"
+                android:layout_toRightOf="@id/text_expense_date_edit_activity"
+                android:layout_below="@id/relative_layout_expense_image_edit_activity"
                 android:textColor="@color/material_blue_grey_800"/>
 
             <EditText
-                android:id="@+id/edit_text_name_of_expense"
+                android:id="@+id/edit_text_name_of_expense_edit_activity"
                 android:hint="@string/expense_name"
-                android:layout_below="@+id/expense_date_button"
+                android:layout_below="@+id/expense_date_button_edit_activity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -93,26 +94,26 @@
                 android:imeOptions="actionNext" />
 
             <EditText
-                android:id="@+id/edit_text_expense_amount"
+                android:id="@+id/edit_text_expense_amount_edit_activity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:layout_alignParentLeft="true"
                 android:gravity="center_vertical"
-                android:layout_below="@+id/edit_text_name_of_expense"
+                android:layout_below="@+id/edit_text_name_of_expense_edit_activity"
                 android:hint="@string/hint_guest_amount"
-                android:imeOptions="actionNext"
+                android:imeOptions="actionDone"
                 android:inputType="numberDecimal"/>
 
             <CheckBox
-                android:id="@+id/checkbox_set_as_repeated_event"
+                android:id="@+id/checkbox_set_as_repeated_event_edit_activity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:layout_alignParentLeft="true"
                 android:gravity="center_vertical"
                 android:layout_marginTop="10dp"
-                android:layout_below="@+id/edit_text_expense_amount"
+                android:layout_below="@+id/edit_text_expense_amount_edit_activity"
                 android:text="@string/set_as_repeated_event" />
 
         </RelativeLayout>

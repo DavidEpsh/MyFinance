@@ -1,29 +1,24 @@
 package com.example.davide.myfinance;
 
-import android.media.Image;
+
+import com.example.davide.myfinance.models.Expense;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by David on 11/4/15.
- */
 public class ExpenseDB {
+
+    private List<Expense> expensesDB;
+
     private static ExpenseDB ourInstance = new ExpenseDB();
 
     public static ExpenseDB getInstance() {
         return ourInstance;
     }
 
-    public static ArrayList<Expense> expensesDB= new ArrayList<>();
-
     private ExpenseDB() {
-        initNewDB();
-    }
-
-    public void initNewDB(){
-        int[] temp = {1,1,2016};
-        Expense newExpense = new Expense("Ice Cream", true, temp);
-        expensesDB.add(newExpense);
+        expensesDB = new ArrayList<>();
+        addTestData();
     }
 
     public int getSize(){
@@ -34,66 +29,37 @@ public class ExpenseDB {
         expensesDB.add(expense);
     }
 
+    public void editExpense(Expense expense, int position){
+        expensesDB.remove(position);
+        expensesDB.add(position, expense);
+    }
+
+    public Expense getExpense(int position){
+        return expensesDB.get(position);
+    }
+
     public void changeDate(int pos, int[] date){
         Expense temp = expensesDB.get(pos);
         temp.setExpenseDate(date);
 
-        expensesDB.set(pos,temp);
+        expensesDB.set(pos, temp);
     }
 
-    public static class Expense {
+    public List getList(){
+        return expensesDB;
+    }
 
-        private String expenseName;
-        private boolean isRepeatingExpense;
-        private int[] expenseDate = new int[3];
-        private String expenseImage;
+    private void addTestData() {
+        int[] temp = {1, 0, 2015};
+        Expense guest1 = new Expense("aaa", true, temp, R.mipmap.ic_launcher);
+        expensesDB.add(guest1);
 
-        public Expense(String name, Boolean isRepeating, int[] date){
-            this.expenseName = name;
-            this.isRepeatingExpense = isRepeating;
-            this.expenseDate = date;
+        int[] temp2 = {2, 0, 2015};
+        Expense guest2 = new Expense("bbb", true, temp2, R.mipmap.ic_launcher);
+        expensesDB.add(guest2);
 
-        }
-
-        public Expense(String name, Boolean isRepeating, int[] date, String expenseImage){
-            this.expenseName = name;
-            this.isRepeatingExpense = isRepeating;
-            this.expenseDate = date;
-            this.expenseImage = expenseImage;
-
-        }
-
-        public String getExpenseName() {
-            return expenseName;
-        }
-
-        public void setExpenseName(String expenseName) {
-            this.expenseName = expenseName;
-        }
-
-        public int[] getExpenseDate() {
-            return expenseDate;
-        }
-
-        public void setExpenseDate(int[] expenseDate) {
-            this.expenseDate = expenseDate;
-        }
-
-        public boolean isRepeatingExpense() {
-            return isRepeatingExpense;
-        }
-
-        public void setRepeatingEvent(boolean isCheckedIn) {
-            this.isRepeatingExpense = isCheckedIn;
-        }
-
-        public String getExpenseImage() {
-            return expenseImage;
-        }
-
-        public void setExpenseImage(String expenseImage) {
-            this.expenseImage = expenseImage;
-        }
-
+        int[] temp3 = {3, 0, 2015};
+        Expense guest3 = new Expense("ccc", true, temp3, R.mipmap.ic_launcher);
+        expensesDB.add(guest3);
     }
 }

@@ -102,7 +102,7 @@
                 android:gravity="center_vertical"
                 android:layout_below="@+id/edit_text_name_of_expense"
                 android:hint="@string/hint_guest_amount"
-                android:imeOptions="actionNext"
+                android:imeOptions="actionDone"
                 android:inputType="numberDecimal"/>
 
             <CheckBox

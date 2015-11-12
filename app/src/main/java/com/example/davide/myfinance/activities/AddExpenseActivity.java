@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 
@@ -51,14 +52,6 @@ public class AddExpenseActivity extends AppCompatActivity {
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -131,16 +124,11 @@ public class AddExpenseActivity extends AppCompatActivity {
 
     private void saveExpense() {
 
-        Expense mStudent = new Expense();
-        mStudent.setExpenseName(mNameOfExpense.getText().toString());
-        mStudent.setRepeatingEvent(mIsRepeatedExpense.isChecked());
-        mStudent.setExpenseDate(mExpenseDate);
+        Expense mExpense = new Expense(mNameOfExpense.getText().toString(),mIsRepeatedExpense.isChecked(),mExpenseDate,R.mipmap.ic_launcher);
+        ExpenseDB.getInstance().addExpense(mExpense);
+        finish();
 
-        //todo Save to database
-
-        resetFields();
-
-        Toast.makeText(this, mStudent.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, mExpense.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
     }
 
     private void resetFields() {
