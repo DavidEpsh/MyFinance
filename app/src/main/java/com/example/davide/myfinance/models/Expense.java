@@ -6,6 +6,7 @@ public class Expense {
     private boolean isRepeatingExpense;
     private int[] expenseDate = new int[3];
     private int expenseImage;
+    private double expenseAmount;
 
     public Expense(String name, Boolean isRepeating, int[] date){
         this.expenseName = name;
@@ -21,6 +22,16 @@ public class Expense {
         this.expenseImage = expenseImage;
 
     }
+
+    public Expense(String name, Boolean isRepeating, int[] date, int expenseImage, double amount){
+        this.expenseName = name;
+        this.isRepeatingExpense = isRepeating;
+        this.expenseDate = date;
+        this.expenseImage = expenseImage;
+        this.expenseAmount = amount;
+
+    }
+
 
     public String getExpenseName() {
         return expenseName;
@@ -52,6 +63,14 @@ public class Expense {
 
     public void setExpenseImage(int expenseImage) {
         this.expenseImage = expenseImage;
+    }
+
+    public double getExpenseAmount(){
+        return this.expenseAmount;
+    }
+
+    public void setExpenseAmount(double amount){
+        this.expenseAmount = amount;
     }
 
 }

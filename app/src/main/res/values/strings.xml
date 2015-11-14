@@ -25,6 +25,15 @@
     <string name="txt_add_your_expense">Add Your Expense</string>
     <string name="hint_add_your_expense">Type the name your expense here</string>
     <string name="title_activity_add_expense">Add New Expense</string>
+
+    <string name="currency">$</string>
+
+
+    <!-- Edit Expense Activity-->
     <string name="title_activity_edit_expense">EditExpenseActivity</string>
+    <string name="title_edit_expense">Edit Yor Expense</string>
+
+    <!-- View Expense ativity-->
+    <string name="title_view_expense">Review Expense</string>
 
 </resources>

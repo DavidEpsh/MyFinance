@@ -22,12 +22,43 @@
 
     <include layout="@layout/content_edit_expense" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/fab_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_done_white" />
+        android:src="@drawable/ic_mode_edit_white"
+        app:fab_addButtonStrokeVisible="true"
+        app:fab_labelStyle="@style/menu_labels_style"
+        app:fab_labelsPosition="left"
+        app:fab_addButtonColorNormal="@color/accent"
+        app:fab_addButtonColorPressed="@color/primary_dark">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/accent"
+            app:fab_colorPressed="@color/primary_dark"
+            app:fab_plusIconColor="?attr/colorPrimary"
+            app:fab_icon="@drawable/ic_mode_edit_white"
+            app:fab_size="mini"
+            app:fab_title="Save Changes" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/accent"
+            app:fab_colorPressed="?attr/colorPrimary"
+            app:fab_plusIconColor="?attr/colorPrimary"
+            app:fab_icon="@drawable/ic_mode_edit_white"
+            app:fab_size="mini"
+            app:fab_title="Delete Expense" />
+
+
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>

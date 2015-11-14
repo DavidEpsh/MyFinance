@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.EditExpenseActivity;
+import com.example.davide.myfinance.activities.ViewExpenseActivity;
 import com.example.davide.myfinance.models.Expense;
 import com.squareup.picasso.Picasso;
 
@@ -34,7 +35,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
                 int pos = (int)v.getTag();
                 Log.i("dfs",Integer.toString(pos));
 
-                Intent intent = new Intent(_context, EditExpenseActivity.class);
+                Intent intent = new Intent(_context, ViewExpenseActivity.class);
                 intent.putExtra("item", pos);
                 _context.startActivity(intent);
             }
@@ -51,6 +52,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
         holder.expenseName.setText(selectedExpense.getExpenseName());
         holder.repeatingEvent.setChecked(selectedExpense.isRepeatingExpense());
         holder.parent.setTag(position);
+        holder.expenseAmount.setText(Double.toString(selectedExpense.getExpenseAmount()));
 
         int[] temp = selectedExpense.getExpenseDate();
         String tempText = Integer.toString(temp[0]) + "/" + Integer.toString(temp[1] + 1) + "/" + Integer.toString(temp[2]);
@@ -70,6 +72,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
         ImageView expemseImage;
         TextView expenseName, expenseDate;
         CheckBox repeatingEvent;
+        TextView expenseAmount;
         View parent;
 
         public ViewHolder(View itemView) {
@@ -77,6 +80,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
             expemseImage = (ImageView) itemView.findViewById(R.id.image_view_expense_image);
             expenseName = (TextView)itemView.findViewById(R.id.text_view_expense_name_row);
             expenseDate = (TextView)itemView.findViewById(R.id.text_view_expense_date_row);
+            expenseAmount = (TextView)itemView.findViewById(R.id.text_expense_amount_row);
             repeatingEvent = (CheckBox)itemView.findViewById(R.id.checkbox_row);
             parent = itemView.findViewById(R.id.item_parent_row);
         }

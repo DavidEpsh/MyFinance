@@ -29,6 +29,8 @@ public class ExpenseDB {
         expensesDB.add(expense);
     }
 
+    public void removeExpense(int position){expensesDB.remove(position);}
+
     public void editExpense(Expense expense, int position){
         expensesDB.remove(position);
         expensesDB.add(position, expense);
@@ -51,15 +53,15 @@ public class ExpenseDB {
 
     private void addTestData() {
         int[] temp = {1, 0, 2015};
-        Expense guest1 = new Expense("aaa", true, temp, R.mipmap.ic_launcher);
+        Expense guest1 = new Expense("aaa", true, temp, R.mipmap.ic_launcher, 111.1);
         expensesDB.add(guest1);
 
         int[] temp2 = {2, 0, 2015};
-        Expense guest2 = new Expense("bbb", true, temp2, R.mipmap.ic_launcher);
+        Expense guest2 = new Expense("bbb", true, temp2, R.mipmap.ic_launcher, 222.2);
         expensesDB.add(guest2);
 
         int[] temp3 = {3, 0, 2015};
-        Expense guest3 = new Expense("ccc", true, temp3, R.mipmap.ic_launcher);
+        Expense guest3 = new Expense("ccc", true, temp3, R.mipmap.ic_launcher, 333.3);
         expensesDB.add(guest3);
     }
 }
