@@ -42,7 +42,7 @@ public class EditExpenseActivity extends AppCompatActivity {
     int mDay;
 
     int itemPosition;
-    FloatingActionsMenu fab = (FloatingActionsMenu) findViewById(R.id.fab_menu);
+    private FloatingActionsMenu fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +52,27 @@ public class EditExpenseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setTitle(R.string.title_edit_expense);
 
+        fab = (FloatingActionsMenu)findViewById(R.id.fab_menu);
+
         mNameOfExpense = (EditText) findViewById(R.id.edit_text_name_of_expense_edit_activity);
         mButtonExpenseDate = (Button) findViewById(R.id.expense_date_button_edit_activity);
         mPictureButton = (ImageButton) findViewById(R.id.pictureImageButton_edit_activity);
         mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event_edit_activity);
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_edit_activity);
+
+        mNameOfExpense.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.collapse();
+            }
+        });
+
+        mExpenseAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.collapse();
+            }
+        });
 
         if(getIntent() != null){
             itemPosition = getIntent().getIntExtra("item", 0);
@@ -70,10 +86,10 @@ public class EditExpenseActivity extends AppCompatActivity {
         }
 
 
+
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
-
 
 
         final Calendar c = Calendar.getInstance();
@@ -123,6 +139,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fab.collapse();
                 datePicker.show();
             }
         });

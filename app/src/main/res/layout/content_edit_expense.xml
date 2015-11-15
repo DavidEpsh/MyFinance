@@ -91,7 +91,7 @@
                 android:layout_marginBottom="-5dp"
                 android:layout_alignParentLeft="true"
                 android:gravity="center_vertical"
-                android:imeOptions="actionNext" />
+                android:imeOptions="actionDone" />
 
             <EditText
                 android:id="@+id/edit_text_expense_amount_edit_activity"

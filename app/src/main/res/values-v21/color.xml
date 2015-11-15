@@ -13,4 +13,5 @@
     <color name="white_transparent">#D9FFFFFF</color>
     <color name="btn_global_ginger_pressed_color">#7dbababa</color>
     <color name="lbl_theme_pressed_color">#7FEDEDED</color>
+
 </resources>
