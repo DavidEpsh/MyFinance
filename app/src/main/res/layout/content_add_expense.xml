@@ -32,7 +32,7 @@
             android:paddingBottom="5dp">
 
             <RelativeLayout
-                android:id="@+id/relative_layout_attendant_image"
+                android:id="@+id/relative_layout_expense_image"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
 
@@ -46,45 +46,50 @@
                     android:layout_centerHorizontal="true"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/sym_def_app_icon"
-                    android:contentDescription="@string/description_expense_image"
-                    android:padding="20dp" />
+                    android:contentDescription="@string/description_expense_image"/>
                 <ImageView
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:layout_alignBottom="@id/pictureImageButton"
                     android:layout_alignRight="@id/pictureImageButton"
                     android:contentDescription="@string/description_expense_image"
-                    android:id="@+id/imageView2" />
+                    android:id="@+id/imageViewAddExpense" />
 
             </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/linear_layout_expense_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/relative_layout_expense_image"
+                android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/text_expense_date"
                 android:text="@string/hint_expense_date"
                 android:textSize="18sp"
-                android:layout_width="120dp"
+                android:layout_width="110dp"
                 android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginTop="8dp"
-                android:layout_below="@id/relative_layout_attendant_image"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                />
 
             <Button
-
                 android:id="@+id/expense_date_button"
                 style="android:Widget.Holo.Light.Spinner"
                 android:layout_height="40dp"
                 android:layout_width="100dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:paddingLeft="12dp"
-                android:layout_toRightOf="@id/text_expense_date"
-                android:layout_below="@id/relative_layout_attendant_image"
-                android:textColor="@color/material_blue_grey_800"/>
+                android:textColor="@color/material_blue_grey_800"
+                android:gravity="center"/>
+
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/edit_text_name_of_expense"
                 android:hint="@string/expense_name"
-                android:layout_below="@+id/expense_date_button"
+                android:layout_below="@+id/linear_layout_expense_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
