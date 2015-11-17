@@ -2,11 +2,14 @@ package com.example.davide.myfinance.activities;
 
 import android.app.DatePickerDialog;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,10 +29,13 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.utils.ImagePicker;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -49,6 +55,9 @@ public class AddExpenseActivity extends AppCompatActivity {
     int mMonth;
     int mDay;
     Bitmap bitmap;
+    File photoFile;
+    Uri mCapturedImageURI;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,11 +120,15 @@ public class AddExpenseActivity extends AppCompatActivity {
         mPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
                 galleryIntent.setType("image/*");
+                galleryIntent.putExtra("isCamera", false);
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
+                cameraIntent.putExtra("isCamera",true);
 
                 Intent chooser = new Intent(Intent.ACTION_CHOOSER);
                 chooser.putExtra(Intent.EXTRA_INTENT, galleryIntent);
@@ -173,23 +186,39 @@ public class AddExpenseActivity extends AppCompatActivity {
 
     }
 
-    public void getNewImage() {
+    String mCurrentPhotoPath;
 
-        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        String title = getResources().getString(R.string.pick_image_intent_text);
-        Intent chooser = Intent.createChooser(intent, title);
+    private File createImageFileAndSave(Intent data) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName =timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-// Verify the intent will resolve to at least one activity
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(chooser);
-        }
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
 
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        return image;
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PICK_IMAGE_ID && resultCode == RESULT_OK) {
+        boolean isCamera = data.getBooleanExtra("isCamera", false);
+        if (resultCode == RESULT_OK) {
+
+            if(isCamera) {
+                try {
+                    photoFile = createImageFileAndSave(data);
+                    Uri savedImage = Uri.fromFile(photoFile);
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                }
+            }
+
             if (data.getData() != null) {
                 try {
                     if (bitmap != null) {
@@ -206,6 +235,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             } else {
+
                 bitmap = (Bitmap) data.getExtras().get("data");
                 mPictureButton.setImageBitmap(bitmap);
             }
