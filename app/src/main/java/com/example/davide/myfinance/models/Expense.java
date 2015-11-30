@@ -5,7 +5,8 @@ public class Expense {
     private String expenseName;
     private boolean isRepeatingExpense;
     private int[] expenseDate = new int[3];
-    private int expenseImage;
+    private String expenseImage;
+    private int tempExpenseImage;
     private double expenseAmount;
 
     public Expense(String name, Boolean isRepeating, int[] date){
@@ -15,15 +16,23 @@ public class Expense {
 
     }
 
-    public Expense(String name, Boolean isRepeating, int[] date, int expenseImage){
+    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
         this.expenseDate = date;
         this.expenseImage = expenseImage;
 
+}
+
+    public Expense(String name, Boolean isRepeating, int[] date, int tempExpenseImage, double amount) {
+        this.expenseName = name;
+        this.isRepeatingExpense = isRepeating;
+        this.expenseDate = date;
+        this.tempExpenseImage = tempExpenseImage;
+        this.expenseAmount = amount;
     }
 
-    public Expense(String name, Boolean isRepeating, int[] date, int expenseImage, double amount){
+    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
         this.expenseDate = date;
@@ -57,11 +66,11 @@ public class Expense {
         this.isRepeatingExpense = isCheckedIn;
     }
 
-    public int getExpenseImage() {
+    public String getExpenseImage() {
         return expenseImage;
     }
 
-    public void setExpenseImage(int expenseImage) {
+    public void setExpenseImage(String expenseImage) {
         this.expenseImage = expenseImage;
     }
 
@@ -71,6 +80,14 @@ public class Expense {
 
     public void setExpenseAmount(double amount){
         this.expenseAmount = amount;
+    }
+
+    public int getTempExpenseImage() {
+        return tempExpenseImage;
+    }
+
+    public void setTempExpenseImage(int tempExpenseImage) {
+        this.tempExpenseImage = tempExpenseImage;
     }
 
 }

@@ -64,6 +64,10 @@ public class ViewExpenseActivity extends AppCompatActivity {
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpense());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
+
+            if(currExpense.getExpenseImage() != null){
+                AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
+            }
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -89,28 +93,6 @@ public class ViewExpenseActivity extends AppCompatActivity {
 
         mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
 
-//        final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
-//            @Override
-//            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-//                int newYear = year;
-//                int newMonth = monthOfYear;
-//                int newDay = dayOfMonth;
-//
-//                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
-//                mExpenseDate[0] = dayOfMonth;
-//                mExpenseDate[1] = monthOfYear;
-//                mExpenseDate[2] = year;
-//            }
-//
-//        },mYear,mMonth,mDay);
-//
-//        mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                datePicker.show();
-//            }
-//        });
-
     }
 
     @Override
@@ -128,19 +110,6 @@ public class ViewExpenseActivity extends AppCompatActivity {
         }
     }
 
-    private boolean requiredFieldCompleted() {
-        boolean isFilled = false;
-
-        if (mNameOfExpense.getText() != null && !mNameOfExpense.getText().toString().isEmpty()) {
-            isFilled = true;
-        } else {
-            mNameOfExpense.setError(getString(R.string.required_fields_empty));
-        }
-
-
-        return isFilled;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         int result;
@@ -156,7 +125,7 @@ public class ViewExpenseActivity extends AppCompatActivity {
                 }
             }
             if (resultCode == EditExpenseActivity.RESULT_CANCELED) {
-                //Write your code if there's no result
+                //User pressed back button
             }
         }
     }

@@ -84,6 +84,9 @@ public class EditExpenseActivity extends AppCompatActivity {
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpense());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
 
+            if(currExpense.getExpenseImage() != null){
+                AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
+            }
         }
 
         mPictureButton.setOnClickListener(new View.OnClickListener() {
@@ -111,22 +114,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         mMonth = mExpenseDate[1];
         mDay = mExpenseDate[0];
 
-        mButtonExpenseDate.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
 
-        final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                int newYear = year;
-                int newMonth = monthOfYear;
-                int newDay = dayOfMonth;
-
-                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
-                mExpenseDate[0] = dayOfMonth;
-                mExpenseDate[1] = monthOfYear;
-                mExpenseDate[2] = year;
-            }
-
-        },mYear,mMonth,mDay);
 
         com.getbase.floatingactionbutton.FloatingActionButton fabSaveChanges = (com.getbase.floatingactionbutton.FloatingActionButton)findViewById(R.id.fab_save);
         com.getbase.floatingactionbutton.FloatingActionButton fabDelete = (com.getbase.floatingactionbutton.FloatingActionButton)findViewById(R.id.fab_delete);
@@ -149,15 +137,6 @@ public class EditExpenseActivity extends AppCompatActivity {
                 saveExpense();
             }
         });
-
-        mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fab.collapse();
-                datePicker.show();
-            }
-        });
-
     }
 
     @Override
@@ -200,5 +179,32 @@ public class EditExpenseActivity extends AppCompatActivity {
 
         Toast.makeText(this, mExpense.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
 
+    }
+
+    private void setCalendar(){
+        mButtonExpenseDate.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
+
+        final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                int newYear = year;
+                int newMonth = monthOfYear;
+                int newDay = dayOfMonth;
+
+                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
+                mExpenseDate[0] = dayOfMonth;
+                mExpenseDate[1] = monthOfYear;
+                mExpenseDate[2] = year;
+            }
+
+        },mYear,mMonth,mDay);
+
+        mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.collapse();
+                datePicker.show();
+            }
+        });
     }
 }

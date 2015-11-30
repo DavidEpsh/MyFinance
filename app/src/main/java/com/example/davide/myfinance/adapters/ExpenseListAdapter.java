@@ -2,6 +2,11 @@ package com.example.davide.myfinance.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,14 +15,13 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.activities.EditExpenseActivity;
 import com.example.davide.myfinance.activities.ViewExpenseActivity;
 import com.example.davide.myfinance.models.Expense;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.ViewHolder>{
@@ -59,7 +63,13 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
         String tempText = Integer.toString(temp[0]) + "/" + Integer.toString(temp[1] + 1) + "/" + Integer.toString(temp[2]);
         holder.expenseDate.setText(tempText);
 
-        Picasso.with(_context).load(selectedExpense.getExpenseImage()).into(holder.expemseImage);
+        if(selectedExpense.getExpenseImage() == null) {
+            Picasso.with(_context).load(selectedExpense.getTempExpenseImage()).into(holder.expenseImage);
+        }else{
+
+            setPic(holder, selectedExpense.getExpenseImage());
+            //Picasso.with(_context).load(new File(selectedExpense.getExpenseImage())).into(holder.expenseImage);
+        }
     }
 
     @Override
@@ -70,7 +80,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView expemseImage;
+        ImageView expenseImage;
         TextView expenseName, expenseDate;
         CheckBox repeatingEvent;
         TextView expenseAmount;
@@ -78,7 +88,7 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
 
         public ViewHolder(View itemView) {
             super(itemView);
-            expemseImage = (ImageView) itemView.findViewById(R.id.image_view_expense_image);
+            expenseImage = (ImageView) itemView.findViewById(R.id.image_view_expense_image);
             expenseName = (TextView)itemView.findViewById(R.id.text_view_expense_name_row);
             expenseDate = (TextView)itemView.findViewById(R.id.text_view_expense_date_row);
             expenseAmount = (TextView)itemView.findViewById(R.id.text_expense_amount_row);
@@ -92,4 +102,27 @@ public class ExpenseListAdapter extends RecyclerView.Adapter<ExpenseListAdapter.
         _context = context;
     }
 
+    private void setPic(ViewHolder holder, String photoPath) {
+        // Get the dimensions of the View
+        int targetW = holder.expenseImage.getMaxWidth();
+        int targetH = holder.expenseImage.getMaxHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(photoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
+        holder.expenseImage.setImageBitmap(bitmap);
+    }
 }
