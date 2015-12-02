@@ -2,20 +2,16 @@ package com.example.davide.myfinance.activities;
 
 import android.app.DatePickerDialog;
 
-import android.content.ContentValues;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -31,16 +27,9 @@ import android.widget.Toast;
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
-import com.example.davide.myfinance.utils.ImagePicker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 
 public class AddExpenseActivity extends AppCompatActivity {
@@ -81,6 +70,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount);
         mExpenseImage = (ImageView)findViewById(R.id.imageViewAddExpense);
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         setCalender();
@@ -106,7 +96,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 chooser.putExtra(Intent.EXTRA_TITLE, R.string.pick_image_intent_text);
                 Intent[] intentArray =  {cameraIntent};
                 chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivity(chooser);
+                startActivityForResult(chooser,5);
             }
         });
     }
@@ -143,7 +133,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         Expense mExpense;
 
         if (imagePath == null) {
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.toString()));
+            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.getText().toString()));
         }else{
             mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()));
         }
