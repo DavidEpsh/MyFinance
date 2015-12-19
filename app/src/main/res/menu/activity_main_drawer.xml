@@ -2,10 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item android:id="@+id/events_list" android:icon="@android:drawable/ic_menu_camera"
+        <item
+            android:id="@+id/drawer_home"
+            android:icon="@android:drawable/ic_menu_camera"
+            android:title="Home" />
+        <item
+            android:id="@+id/drawer_expense_list"
+            android:icon="@android:drawable/ic_menu_slideshow"
             android:title="My Expenses" />
-        <item android:id="@+id/nav_slideshow" android:icon="@android:drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
         <item android:id="@+id/nav_manage" android:icon="@android:drawable/ic_menu_manage"
             android:title="Tools" />
     </group>

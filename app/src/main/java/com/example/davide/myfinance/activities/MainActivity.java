@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,13 +13,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.ExpenseListFragment;
+import com.example.davide.myfinance.fragments.FragmentExpenseList;
+import com.example.davide.myfinance.fragments.HomeFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static String ITEM_IN_LIST = "position";
+    public static int RESULT_FINISHED_EDITING = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        openFragment(new ExpenseListFragment());
+        openFragment(new HomeFragment());
     }
 
     @Override
@@ -88,12 +90,13 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.events_list) {
+        if (id == R.id.drawer_home) {
+            openFragment(new HomeFragment());
+            setTitle("My Finance");
 
-            openFragment(new ExpenseListFragment());
+        } else if (id == R.id.drawer_expense_list) {
+            openFragment(new FragmentExpenseList());
             setTitle("My Expenses");
-
-        } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
 

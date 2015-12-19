@@ -8,21 +8,17 @@ public class Expense {
     private String expenseImage;
     private int tempExpenseImage;
     private double expenseAmount;
+    private String category;
 
-    public Expense(String name, Boolean isRepeating, int[] date){
+
+    public Expense(String name, Boolean isRepeating, int[] date, int tempExpenseImage, double amount, String category) {
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
         this.expenseDate = date;
-
+        this.tempExpenseImage = tempExpenseImage;
+        this.expenseAmount = amount;
+        this.category = category;
     }
-
-    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage){
-        this.expenseName = name;
-        this.isRepeatingExpense = isRepeating;
-        this.expenseDate = date;
-        this.expenseImage = expenseImage;
-
-}
 
     public Expense(String name, Boolean isRepeating, int[] date, int tempExpenseImage, double amount) {
         this.expenseName = name;
@@ -39,6 +35,15 @@ public class Expense {
         this.expenseImage = expenseImage;
         this.expenseAmount = amount;
 
+    }
+
+    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount, String category){
+        this.expenseName = name;
+        this.isRepeatingExpense = isRepeating;
+        this.expenseDate = date;
+        this.expenseImage = expenseImage;
+        this.expenseAmount = amount;
+        this.category = category;
     }
 
 
@@ -89,5 +94,14 @@ public class Expense {
     public void setTempExpenseImage(int tempExpenseImage) {
         this.tempExpenseImage = tempExpenseImage;
     }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
 
 }

@@ -36,15 +36,15 @@ public class ExpenseListFragment extends Fragment {
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_expense_list, container, false);
 
-        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.attendants_recycler_view);
-
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mExpenseList = ExpenseDB.getInstance().getList();
-
-        mAdapter = new ExpenseListAdapter(mExpenseList, getActivity());
-        mRecyclerView.setAdapter(mAdapter);
+//        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.attendants_recycler_view);
+//
+//        mLayoutManager = new LinearLayoutManager(getActivity());
+//        mRecyclerView.setLayoutManager(mLayoutManager);
+//
+//        mExpenseList = ExpenseDB.getInstance().getList();
+//
+//        mAdapter = new ExpenseListAdapter(mExpenseList, getActivity());
+//        mRecyclerView.setAdapter(mAdapter);
 
         return mRootView;
     }

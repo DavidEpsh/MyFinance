@@ -16,21 +16,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.fragments.HomeFragment;
 import com.example.davide.myfinance.models.Expense;
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
+import com.github.mikephil.charting.charts.LineChart;
 
 import java.io.File;
 import java.util.Calendar;
-
 
 public class AddExpenseActivity extends AppCompatActivity {
 
@@ -45,13 +50,10 @@ public class AddExpenseActivity extends AppCompatActivity {
     private EditText mExpenseAmount;
     private int[] mExpenseDate = new int[3];
     private String imagePath;
+    private Spinner spinnerCategories;
     int mYear;
     int mMonth;
     int mDay;
-    Bitmap bitmap;
-    File photoFile;
-    Uri mCapturedImageURI;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +71,12 @@ public class AddExpenseActivity extends AppCompatActivity {
         mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event);
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount);
         mExpenseImage = (ImageView)findViewById(R.id.imageViewAddExpense);
-
+        spinnerCategories = (Spinner)findViewById(R.id.spinner_category_add_expense);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         setCalender();
+        initializeSpinner();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,9 +99,10 @@ public class AddExpenseActivity extends AppCompatActivity {
                 chooser.putExtra(Intent.EXTRA_TITLE, R.string.pick_image_intent_text);
                 Intent[] intentArray =  {cameraIntent};
                 chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivityForResult(chooser,5);
+                startActivityForResult(chooser, PICK_IMAGE_ID);
             }
         });
+
     }
 
     @Override
@@ -114,6 +118,13 @@ public class AddExpenseActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    public void initializeSpinner(){
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ExpenseDB.getInstance().getCategoryNames());
+        spinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinnerCategories.setAdapter(spinnerAdapter);
+        //spinnerCategories.setOnItemSelectedListener(this);
     }
 
     private boolean requiredFieldCompleted() {
@@ -133,11 +144,12 @@ public class AddExpenseActivity extends AppCompatActivity {
         Expense mExpense;
 
         if (imagePath == null) {
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.getText().toString()));
+            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.getText().toString()),spinnerCategories.getSelectedItem().toString());
         }else{
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()));
+            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString());
         }
 
+        HomeFragment.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         ExpenseDB.getInstance().addExpense(mExpense);
         finish();
 
@@ -149,7 +161,6 @@ public class AddExpenseActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
                     Uri selectedImage = data.getData();
                     imagePath =  getRealPathFromURI(selectedImage);
-
                     setPic(mPictureButton, imagePath);
 
             super.onActivityResult(requestCode, resultCode, data);

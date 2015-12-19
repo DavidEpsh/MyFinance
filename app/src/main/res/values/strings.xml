@@ -10,7 +10,7 @@
     <string name="directions">Directions</string>
     <string name="settings">Settings</string>
 
-    <string name="set_as_repeated_event">Set As Repeated Event?</string>
+    <string name="set_as_repeated_event">Set As Repeated Expense?</string>
     <string name="expense_name">Name Your Expense</string>
     <string name="hint_guest_amount">Expense Amount</string>
     <string name="save">Save</string>
@@ -38,4 +38,7 @@
 
     <!-- Images-->
     <string name="pick_image_intent_text">Choose Source</string>
+
+    <!-- Add Expense Activity-->
+    <string name="pick_category">Select Category</string>
 </resources>
