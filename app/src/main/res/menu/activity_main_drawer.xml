@@ -10,8 +10,10 @@
             android:id="@+id/drawer_expense_list"
             android:icon="@android:drawable/ic_menu_slideshow"
             android:title="My Expenses" />
-        <item android:id="@+id/nav_manage" android:icon="@android:drawable/ic_menu_manage"
-            android:title="Tools" />
+        <item
+            android:id="@+id/overview"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="Overview" />
     </group>
 
     <item android:title="Communicate">

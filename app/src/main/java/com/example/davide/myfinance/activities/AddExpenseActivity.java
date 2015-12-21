@@ -28,13 +28,9 @@ import android.widget.Toast;
 
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.fragments.HomeFragment;
+import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
-import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.commons.IntentPickerSheetView;
-import com.github.mikephil.charting.charts.LineChart;
 
-import java.io.File;
 import java.util.Calendar;
 
 public class AddExpenseActivity extends AppCompatActivity {
@@ -149,7 +145,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString());
         }
 
-        HomeFragment.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
+        FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         ExpenseDB.getInstance().addExpense(mExpense);
         finish();
 

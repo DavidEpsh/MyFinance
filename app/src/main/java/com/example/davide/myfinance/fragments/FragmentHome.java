@@ -1,9 +1,7 @@
 package com.example.davide.myfinance.fragments;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.SpannableString;
@@ -15,8 +13,6 @@ import android.view.ViewGroup;
 
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.activities.AddExpenseActivity;
-import com.example.davide.myfinance.activities.MainActivity;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -24,13 +20,13 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 
-public class HomeFragment extends SimpleFragment implements OnChartValueSelectedListener {
+public class FragmentHome extends SimpleFragment implements OnChartValueSelectedListener {
 
     public static boolean isFirstLaunch = true;
     public static boolean needsUpdatingChart = false;
 
     public static Fragment newInstance() {
-        return new HomeFragment();
+        return new FragmentHome();
     }
 
     private PieChart mChart;

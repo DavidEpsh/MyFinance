@@ -14,9 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.fragments.ExpenseListFragment;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
-import com.example.davide.myfinance.fragments.HomeFragment;
+import com.example.davide.myfinance.fragments.FragmentHome;
+import com.example.davide.myfinance.fragments.FragmentOverview;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        openFragment(new HomeFragment());
+        openFragment(new FragmentHome());
     }
 
     @Override
@@ -91,14 +91,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.drawer_home) {
-            openFragment(new HomeFragment());
+            openFragment(new FragmentHome());
             setTitle("My Finance");
 
         } else if (id == R.id.drawer_expense_list) {
             openFragment(new FragmentExpenseList());
             setTitle("My Expenses");
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.overview) {
+            openFragment(new FragmentOverview());
+            setTitle("Overview");
 
         } else if (id == R.id.nav_share) {
 
