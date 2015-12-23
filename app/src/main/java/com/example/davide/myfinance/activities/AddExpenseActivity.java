@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -31,7 +32,9 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class AddExpenseActivity extends AppCompatActivity {
 
@@ -52,7 +55,7 @@ public class AddExpenseActivity extends AppCompatActivity {
     int mDay;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_add_expense);
@@ -139,11 +142,7 @@ public class AddExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
         Expense mExpense;
 
-        if (imagePath == null) {
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.getText().toString()),spinnerCategories.getSelectedItem().toString());
-        }else{
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString());
-        }
+        mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString(), GregorianCalendar.getInstance().toString());
 
         FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         ExpenseDB.getInstance().addExpense(mExpense);

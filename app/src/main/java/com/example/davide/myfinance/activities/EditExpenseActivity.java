@@ -25,6 +25,7 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class EditExpenseActivity extends AppCompatActivity {
 
@@ -181,11 +182,7 @@ public class EditExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
 
         Expense mExpense;
-        if(imagePath == null) {
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, R.mipmap.ic_launcher, Double.valueOf(mExpenseAmount.getText().toString()));
-        }else {
-            mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()));
-        }
+        //mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()));
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", SAVED_EXPENSE);

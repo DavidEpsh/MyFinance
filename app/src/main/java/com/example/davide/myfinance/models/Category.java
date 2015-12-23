@@ -1,12 +1,15 @@
 package com.example.davide.myfinance.models;
 
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class Category {
+public class Category{
 
     ArrayList<Expense> expensesPerCategory;
     private String categoryName;

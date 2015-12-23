@@ -22,7 +22,7 @@ import java.util.List;
 import static com.example.davide.myfinance.activities.AddExpenseActivity.setPic;
 
 
-public class AdapterExpenseList extends BaseAdapter {
+public class AdapterExpenseList extends BaseAdapter{
 
     private List<Expense> mExpenseList;
     private Context _context;

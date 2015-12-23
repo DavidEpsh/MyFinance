@@ -3,8 +3,10 @@ package com.example.davide.myfinance;
 
 import com.example.davide.myfinance.models.Category;
 import com.example.davide.myfinance.models.Expense;
+import com.parse.ParseObject;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ExpenseDB {
@@ -81,15 +83,15 @@ public class ExpenseDB {
 
     private void addTestData() {
         int[] temp = {1, 0, 2015};
-        Expense guest1 = new Expense("aaa", true, temp, R.mipmap.ic_launcher, 111.1,"Shopping");
+        Expense guest1 = new Expense("aaa", true, temp, null, 111.1,"Shopping", GregorianCalendar.getInstance().toString());
         addExpense(guest1);
 
         int[] temp2 = {2, 0, 2015};
-        Expense guest2 = new Expense("bbb", true, temp2, R.mipmap.ic_launcher, 222.2,"Travel");
+        Expense guest2 = new Expense("bbb", true, temp2, null, 222.2,"Travel", GregorianCalendar.getInstance().toString());
         addExpense(guest2);
 
         int[] temp3 = {3, 0, 2015};
-        Expense guest3 = new Expense("ccc", true, temp3, R.mipmap.ic_launcher, 333.3,"Transportation");
+        Expense guest3 = new Expense("ccc", true, temp3, null, 333.3,"Transportation", GregorianCalendar.getInstance().toString());
         addExpense(guest3);
     }
 

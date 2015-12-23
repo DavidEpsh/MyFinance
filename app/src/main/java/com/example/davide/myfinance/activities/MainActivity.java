@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +18,12 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
+import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
+
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -30,6 +37,16 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+        Model.instance().init(getApplicationContext());
+
+
+        //Model.instance().addStudent(st);
+
+        List<Expense> data = Model.instance().getExpenses();
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

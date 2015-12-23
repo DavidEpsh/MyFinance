@@ -1,6 +1,8 @@
 package com.example.davide.myfinance.models;
 
-public class Expense {
+import com.example.davide.myfinance.R;
+
+public class Expense{
 
     private String expenseName;
     private boolean isRepeatingExpense;
@@ -9,41 +11,29 @@ public class Expense {
     private int tempExpenseImage;
     private double expenseAmount;
     private String category;
+    private String timeStamp;
 
 
-    public Expense(String name, Boolean isRepeating, int[] date, int tempExpenseImage, double amount, String category) {
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount, String category, String timeStamp){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
         this.expenseDate = date;
-        this.tempExpenseImage = tempExpenseImage;
+        if(expenseImage != null) {
+            this.expenseImage = expenseImage;
+        }else{
+            tempExpenseImage = R.mipmap.ic_launcher;
+        }
         this.expenseAmount = amount;
         this.category = category;
-    }
-
-    public Expense(String name, Boolean isRepeating, int[] date, int tempExpenseImage, double amount) {
-        this.expenseName = name;
-        this.isRepeatingExpense = isRepeating;
-        this.expenseDate = date;
-        this.tempExpenseImage = tempExpenseImage;
-        this.expenseAmount = amount;
-    }
-
-    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount){
-        this.expenseName = name;
-        this.isRepeatingExpense = isRepeating;
-        this.expenseDate = date;
-        this.expenseImage = expenseImage;
-        this.expenseAmount = amount;
-
-    }
-
-    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount, String category){
-        this.expenseName = name;
-        this.isRepeatingExpense = isRepeating;
-        this.expenseDate = date;
-        this.expenseImage = expenseImage;
-        this.expenseAmount = amount;
-        this.category = category;
+        this.timeStamp = timeStamp;
     }
 
 
@@ -102,6 +92,5 @@ public class Expense {
     public void setCategory(String category) {
         this.category = category;
     }
-
 
 }
