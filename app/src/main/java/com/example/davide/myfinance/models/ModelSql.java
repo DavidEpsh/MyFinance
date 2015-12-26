@@ -4,11 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.davide.myfinance.activities.MainActivity;
+
 import java.util.List;
 
-/**
- * Created by eliav.menachi on 02/12/2015.
- */
 public class ModelSql implements Model.ModelInterface {
     private MyOpenHelper dbHelper;
 
@@ -28,12 +27,17 @@ public class ModelSql implements Model.ModelInterface {
 
     @Override
     public Expense getExpense(String id) {
-        return  ExpenseSql.getStudent(dbHelper,id);
+        return  ExpenseSql.getExpense(dbHelper, id);
     }
 
     @Override
     public List<Expense> getExpenses() {
-        return ExpenseSql.getStudents(dbHelper);
+        return ExpenseSql.getExpenses(dbHelper);
+    }
+
+    @Override
+    public List<Expense> getExpensesByCategory(String category) {
+        return ExpenseSql.getExpensesByCategory(dbHelper, category);
     }
 
     class MyOpenHelper extends SQLiteOpenHelper {

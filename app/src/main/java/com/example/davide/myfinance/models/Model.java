@@ -11,6 +11,7 @@ public class Model {
         public void deleteExpense(Expense expense);
         public Expense getExpense(String id);
         public List<Expense> getExpenses();
+        public List<Expense> getExpensesByCategory(String category);
     }
 
     private static final Model instance = new Model();
@@ -28,7 +29,7 @@ public class Model {
         return instance;
     }
 
-    public void addStudent(Expense expense){
+    public void addExpense(Expense expense){
         modelImpl.addExpense(expense);
     }
 
@@ -42,6 +43,10 @@ public class Model {
 
     public List<Expense> getExpenses(){
         return modelImpl.getExpenses();
+    }
+
+    public List<Expense> getExpensesByCategory(String category){
+        return modelImpl.getExpensesByCategory(category);
     }
 }
 

@@ -12,6 +12,7 @@ import android.content.CursorLoader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +25,9 @@ import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import java.sql.Date;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -37,11 +41,10 @@ public class EditExpenseActivity extends AppCompatActivity {
     private CheckBox mIsRepeatedExpense;
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
-    private int[] mExpenseDate = new int[3];
-    int mYear;
-    int mMonth;
-    int mDay;
+
     private String imagePath;
+    String dateSql;
+    GregorianCalendar cal = new GregorianCalendar();
 
     int itemPosition;
     private FloatingActionsMenu fab;
@@ -80,9 +83,9 @@ public class EditExpenseActivity extends AppCompatActivity {
             itemPosition = getIntent().getIntExtra("item", 0);
             Expense currExpense  = ExpenseDB.getInstance().getExpense(itemPosition);
 
-            mExpenseDate = currExpense.getExpenseDate();
+            dateSql = currExpense.getDateSql();
             mNameOfExpense.setText(currExpense.getExpenseName());
-            mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpense());
+            mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
 
             if(currExpense.getExpenseImage() != null){
@@ -195,27 +198,30 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     private void setCalendar(){
 
-        final Calendar c = Calendar.getInstance();
-        mYear = mExpenseDate[2];
-        mMonth = mExpenseDate[1];
-        mDay = mExpenseDate[0];
+        cal = new GregorianCalendar();
+        java.util.Date date = new Date(cal.getTimeInMillis());
+        try {
+            date = MainActivity.sdf.parse(dateSql);
+            Log.i("MyLog", "Converting from u.Date to s.Date Success");
+        } catch (ParseException e) {
+            Log.i("MyLog","Converting from u.Date to s.Date Error");
+        }
+        cal.setTime(date);
 
-        mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        mButtonExpenseDate.setText(cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR));
 
         final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                int newYear = year;
-                int newMonth = monthOfYear;
-                int newDay = dayOfMonth;
 
-                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
-                mExpenseDate[0] = dayOfMonth;
-                mExpenseDate[1] = monthOfYear;
-                mExpenseDate[2] = year;
+                mButtonExpenseDate.setText(dayOfMonth + "/" + (monthOfYear+ 1) + "/" + year);
+                cal.set(year, monthOfYear,dayOfMonth);
+
             }
 
-        },mYear,mMonth,mDay);
+        },cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+
+        dateSql = MainActivity.sdf.format(cal.getTime());
 
         mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
             @Override

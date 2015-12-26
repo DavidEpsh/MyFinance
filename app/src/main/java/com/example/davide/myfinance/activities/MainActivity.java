@@ -20,9 +20,13 @@ import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
+import com.example.davide.myfinance.models.ModelSql;
 
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -30,6 +34,8 @@ public class MainActivity extends AppCompatActivity
 
     public static String ITEM_IN_LIST = "position";
     public static int RESULT_FINISHED_EDITING = 1111;
+    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +44,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
         Model.instance().init(getApplicationContext());
-
-
-        //Model.instance().addStudent(st);
-
+        //addTestSql();
         List<Expense> data = Model.instance().getExpenses();
 
+        List<Expense> data2 = Model.instance().getExpensesByCategory("Travel");
+
+        //Expense expense = Model.instance().getExpense("2015-04-04");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -135,5 +139,13 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.container,fragment)
                 .commit();
+    }
+
+    public void addTestSql(){
+
+
+        Expense expense = new Expense("sql1", true, "2015-04-04", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
+        Model.instance().addExpense(expense);
+
     }
 }

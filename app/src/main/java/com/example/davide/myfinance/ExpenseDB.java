@@ -1,6 +1,7 @@
 package com.example.davide.myfinance;
 
 
+import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.models.Category;
 import com.example.davide.myfinance.models.Expense;
 import com.parse.ParseObject;
@@ -82,16 +83,16 @@ public class ExpenseDB {
 
 
     private void addTestData() {
-        int[] temp = {1, 0, 2015};
-        Expense guest1 = new Expense("aaa", true, temp, null, 111.1,"Shopping", GregorianCalendar.getInstance().toString());
+        GregorianCalendar temp = new GregorianCalendar(2015,0,1);
+        Expense guest1 = new Expense("aaa", true, MainActivity.sdf.format(temp.getTime()), null, 111.1,"Shopping", GregorianCalendar.getInstance().getTimeInMillis());
         addExpense(guest1);
 
-        int[] temp2 = {2, 0, 2015};
-        Expense guest2 = new Expense("bbb", true, temp2, null, 222.2,"Travel", GregorianCalendar.getInstance().toString());
+        GregorianCalendar temp2 = new GregorianCalendar(2015,1,2);
+        Expense guest2 = new Expense("bbb", true, MainActivity.sdf.format(temp2.getTime()), null, 222.2,"Travel", GregorianCalendar.getInstance().getTimeInMillis());
         addExpense(guest2);
 
-        int[] temp3 = {3, 0, 2015};
-        Expense guest3 = new Expense("ccc", true, temp3, null, 333.3,"Transportation", GregorianCalendar.getInstance().toString());
+        GregorianCalendar temp3 = new GregorianCalendar(2015,2,3);
+        Expense guest3 = new Expense("ccc", true, MainActivity.sdf.format(temp3.getTime()), null, 333.3,"Transportation", GregorianCalendar.getInstance().getTimeInMillis());
         addExpense(guest3);
     }
 

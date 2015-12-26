@@ -14,7 +14,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,7 +31,6 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
 
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -47,12 +45,11 @@ public class AddExpenseActivity extends AppCompatActivity {
     private ImageButton mPictureButton;
     private ImageView mExpenseImage;
     private EditText mExpenseAmount;
-    private int[] mExpenseDate = new int[3];
     private String imagePath;
     private Spinner spinnerCategories;
-    int mYear;
-    int mMonth;
-    int mDay;
+
+    GregorianCalendar cal;
+    String dateSql;
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +139,13 @@ public class AddExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
         Expense mExpense;
 
-        mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString(), GregorianCalendar.getInstance().toString());
+        mExpense = new Expense(mNameOfExpense.getText().toString(),
+                mIsRepeatedExpense.isChecked(),
+                dateSql,
+                imagePath,
+                Double.valueOf(mExpenseAmount.getText().toString()),
+                spinnerCategories.getSelectedItem().toString(),
+                GregorianCalendar.getInstance().getTimeInMillis());
 
         FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         ExpenseDB.getInstance().addExpense(mExpense);
@@ -198,31 +201,22 @@ public class AddExpenseActivity extends AppCompatActivity {
     }
 
     private void setCalender(){
-        final Calendar c = Calendar.getInstance();
-        mYear = c.get(Calendar.YEAR);
-        mMonth = c.get(Calendar.MONTH);
-        mDay = c.get(Calendar.DAY_OF_MONTH);
-
-        mExpenseDate[0] = mDay;
-        mExpenseDate[1] = mMonth;
-        mExpenseDate[2] = mYear;
-
-        mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        cal = new GregorianCalendar();
+        dateSql = MainActivity.sdf.format(cal.getTime());
+        mButtonExpenseDate.setText(cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR));
 
         final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                int newYear = year;
-                int newMonth = monthOfYear;
-                int newDay = dayOfMonth;
 
-                mButtonExpenseDate.setText(newDay + "/" + (newMonth + 1) + "/" + newYear);
-                mExpenseDate[0] = dayOfMonth;
-                mExpenseDate[1] = monthOfYear;
-                mExpenseDate[2] = year;
+                mButtonExpenseDate.setText(dayOfMonth + "/" + (monthOfYear+ 1) + "/" + year);
+                cal.set(year, monthOfYear,dayOfMonth);
+
             }
 
-        },mYear,mMonth,mDay);
+        },cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
+
+        dateSql = MainActivity.sdf.format(cal.getTime());
 
         mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
             @Override

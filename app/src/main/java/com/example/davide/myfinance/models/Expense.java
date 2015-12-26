@@ -6,26 +6,37 @@ public class Expense{
 
     private String expenseName;
     private boolean isRepeatingExpense;
+    private int isRepeatingExpenseSql;
     private int[] expenseDate = new int[3];
     private String expenseImage;
     private int tempExpenseImage;
     private double expenseAmount;
     private String category;
-    private String timeStamp;
+    private Long timeStamp;
+
+    String dateSql;
 
 
-    public String getTimeStamp() {
+    public Long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
-    public Expense(String name, Boolean isRepeating, int[] date, String expenseImage, double amount, String category, String timeStamp){
+    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
-        this.expenseDate = date;
+
+        if (isRepeating){
+            isRepeatingExpenseSql = 1;
+        }else {
+            isRepeatingExpenseSql = 0;
+        }
+
+        this.dateSql = date;
+
         if(expenseImage != null) {
             this.expenseImage = expenseImage;
         }else{
@@ -53,7 +64,11 @@ public class Expense{
         this.expenseDate = expenseDate;
     }
 
-    public boolean isRepeatingExpense() {
+    public int isRepeatingExpense() {
+        return isRepeatingExpenseSql;
+    }
+
+    public boolean isRepeatingExpenseBool() {
         return isRepeatingExpense;
     }
 
@@ -91,6 +106,14 @@ public class Expense{
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getDateSql() {
+        return dateSql;
+    }
+
+    public void setDateSql(String dateSql) {
+        this.dateSql = dateSql;
     }
 
 }

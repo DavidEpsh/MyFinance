@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +25,10 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
+import java.sql.Date;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class ViewExpenseActivity extends AppCompatActivity {
 
@@ -35,12 +39,8 @@ public class ViewExpenseActivity extends AppCompatActivity {
     private CheckBox mIsRepeatedExpense;
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
-    private int[] mExpenseDate = new int[3];
-    int mYear;
-    int mMonth;
-    int mDay;
-
     int itemPosition;
+    String dateSql;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +57,11 @@ public class ViewExpenseActivity extends AppCompatActivity {
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_view_expense);
 
         if(getIntent() != null){
-            itemPosition = getIntent().getIntExtra("item", 0);
+            itemPosition = getIntent().getIntExtra(MainActivity.ITEM_IN_LIST, 0);
             Expense currExpense  = ExpenseDB.getInstance().getExpense(itemPosition);
-
-            mExpenseDate = currExpense.getExpenseDate();
+            dateSql = currExpense.getDateSql();
             mNameOfExpense.setText(currExpense.getExpenseName());
-            mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpense());
+            mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
 
             if(currExpense.getExpenseImage() != null){
@@ -85,13 +84,17 @@ public class ViewExpenseActivity extends AppCompatActivity {
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
 
+        GregorianCalendar cal = new GregorianCalendar();
+        java.util.Date date = new Date(cal.getTimeInMillis());
+        try {
+            date = MainActivity.sdf.parse(dateSql);
+            Log.i("MyLog", "Converting from u.Date to s.Date Success");
+        } catch (ParseException e) {
+            Log.i("MyLog","Converting from u.Date to s.Date Error");
+        }
+        cal.setTime(date);
 
-        final Calendar c = Calendar.getInstance();
-        mYear = mExpenseDate[2];
-        mMonth = mExpenseDate[1];
-        mDay = mExpenseDate[0];
-
-        mButtonExpenseDate.setText(mDay + "/" + (mMonth + 1) + "/" + mYear);
+        mButtonExpenseDate.setText(cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR));
 
     }
 
