@@ -110,12 +110,12 @@ public class ExpenseSql {
         //    public Cursor query(String table, String[] columns, String selection,
 //        String[] selectionArgs, String groupBy, String having,
 //                String orderBy) {
-        String query = "SELECT * FROM " + TABLE + " WHERE " + NAME + " = " + "sql1";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + CATEGORY + " = " +"'" + selectedCategory + "'";
         Cursor cursor = db.rawQuery(query, null);
 //        String[] col = new String[1];
 //        col[0] = CATEGORY;
 
-        //Cursor cursor = db.query(TABLE, null, "sql1", null, null, null, null);
+        //Cursor cursor = db.query(TABLE, null, "'Travel'", null, null, null, null);
 
 
         if (cursor.moveToFirst()) {

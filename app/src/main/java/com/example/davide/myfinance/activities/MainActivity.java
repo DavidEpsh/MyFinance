@@ -144,8 +144,11 @@ public class MainActivity extends AppCompatActivity
     public void addTestSql(){
 
 
-        Expense expense = new Expense("sql1", true, "2015-04-04", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        Model.instance().addExpense(expense);
+        //Expense expense = new Expense("sql1", true, "2015-04-04", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
+        //Expense expense2 = new Expense("sql2", true, "2015-05-05", null, 555.5, "Shopping", GregorianCalendar.getInstance().getTimeInMillis());
+        Expense expense3 = new Expense("sql3", true, "2015-06-06", null, 666.6, "Transportation", GregorianCalendar.getInstance().getTimeInMillis());
+        //Model.instance().addExpense(expense2);
+        Model.instance().addExpense(expense3);
 
     }
 }
