@@ -26,8 +26,13 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public Expense getExpense(String id) {
+    public Expense getExpense(Long id) {
         return  ExpenseSql.getExpense(dbHelper, id);
+    }
+
+    @Override
+    public int updateExpense(Expense expense) {
+        return  ExpenseSql.updateExpense(dbHelper, expense);
     }
 
     @Override
@@ -36,8 +41,18 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public List<Expense> getExpensesByCategory(String category) {
-        return ExpenseSql.getExpensesByCategory(dbHelper, category);
+    public List<String> getCategories() {
+        return ExpenseSql.getCategories(dbHelper);
+    }
+
+    @Override
+    public List<Expense> getExpensesByCategory(String category,String fromDate, String toDate) {
+        return ExpenseSql.getExpensesByCategory(dbHelper, category, fromDate, toDate);
+    }
+
+    @Override
+    public Double getSumByCategory(String category,String fromDate, String toDate) {
+        return ExpenseSql.getSumByCategory(dbHelper, category, fromDate, toDate);
     }
 
     class MyOpenHelper extends SQLiteOpenHelper {

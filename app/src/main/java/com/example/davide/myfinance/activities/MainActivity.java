@@ -20,21 +20,23 @@ import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
-import com.example.davide.myfinance.models.ModelSql;
-
-
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static String ITEM_IN_LIST = "position";
+    public static String ITEM_ID = "ID";
     public static int RESULT_FINISHED_EDITING = 1111;
-    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
+    public static List<String> allCategories = new ArrayList<>();
+
+    FragmentHome fragmentHome;
 
 
     @Override
@@ -46,18 +48,13 @@ public class MainActivity extends AppCompatActivity
 
         Model.instance().init(getApplicationContext());
         //addTestSql();
-        List<Expense> data = Model.instance().getExpenses();
-
-        List<Expense> data2 = Model.instance().getExpensesByCategory("Travel");
-
-        //Expense expense = Model.instance().getExpense("2015-04-04");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AddExpenseActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,RESULT_FINISHED_EDITING);
             }
         });
 
@@ -70,7 +67,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        openFragment(new FragmentHome());
+        fragmentHome = new FragmentHome();
+        getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+        openFragment(fragmentHome);
     }
 
     @Override
@@ -112,11 +111,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.drawer_home) {
-            openFragment(new FragmentHome());
+            FragmentHome fragment = new FragmentHome();
+            getSqlData(fragment, sdf.format(getStartOfWeek().getTime()), null);
+            openFragment(fragment);
             setTitle("My Finance");
 
         } else if (id == R.id.drawer_expense_list) {
-            openFragment(new FragmentExpenseList());
+            FragmentExpenseList fragment = new FragmentExpenseList();
+            fragment.setData(Model.instance().getExpenses());
+            openFragment(fragment);
             setTitle("My Expenses");
 
         } else if (id == R.id.overview) {
@@ -144,11 +147,56 @@ public class MainActivity extends AppCompatActivity
     public void addTestSql(){
 
 
-        //Expense expense = new Expense("sql1", true, "2015-04-04", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        //Expense expense2 = new Expense("sql2", true, "2015-05-05", null, 555.5, "Shopping", GregorianCalendar.getInstance().getTimeInMillis());
-        Expense expense3 = new Expense("sql3", true, "2015-06-06", null, 666.6, "Transportation", GregorianCalendar.getInstance().getTimeInMillis());
-        //Model.instance().addExpense(expense2);
-        Model.instance().addExpense(expense3);
-
+        Expense expense = new Expense("sql1", true, "2015-04-04 01:01:01", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
+        Expense expense2 = new Expense("sql2", true, "2015-05-05 02:02:02", null, 555.5, "Shopping", GregorianCalendar.getInstance().getTimeInMillis());
+        Expense expense3 = new Expense("sql3", true, "2015-06-06 03:03:03", null, 666.6, "Transportation", GregorianCalendar.getInstance().getTimeInMillis());
+        Expense expense4 = new Expense("sql4", true, "2015-12-27 12:00:12", null, 111.1, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
+        Expense expense5 = new Expense("sql5", true, "2015-12-27 15:00:43", null, 123.1, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
+        Model.instance().addExpense(expense5);
+//        Model.instance().addExpense(expense2);
+//        Model.instance().addExpense(expense3);
+//        Model.instance().addExpense(expense4);
+//        Model.instance().addExpense(expense5);
     }
+
+    public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
+        //Getting all the categories that the user has
+        this.allCategories = Model.instance().getCategories();
+        List<String> usedCategories = new ArrayList<>();
+        List<Double> expensesPerCategory = new ArrayList<>();
+
+
+        for(int i = 0; i < this.allCategories.size(); i++){
+            Double temp = Model.instance().getSumByCategory(this.allCategories.get(i), "2015-04-04 00:01:01", null);
+            if(temp != null){
+                usedCategories.add(this.allCategories.get(i));
+                expensesPerCategory.add(temp);
+            }
+
+        }
+
+        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
+    }
+
+    public Calendar getStartOfWeek(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        return calendar;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+            if(resultCode == RESULT_OK){
+                getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);
+            }
+            if (resultCode == EditExpenseActivity.RESULT_CANCELED) {
+                //User pressed back button
+            }
+        }
+
 }

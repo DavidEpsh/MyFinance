@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import java.sql.Date;
@@ -42,11 +43,13 @@ public class EditExpenseActivity extends AppCompatActivity {
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
 
-    private String imagePath;
+    String imagePath;
+    String category;
+    Long timeStamp;
     String dateSql;
     GregorianCalendar cal = new GregorianCalendar();
 
-    int itemPosition;
+    Long itemId;
     private FloatingActionsMenu fab;
 
     @Override
@@ -80,13 +83,16 @@ public class EditExpenseActivity extends AppCompatActivity {
         });
 
         if(getIntent() != null){
-            itemPosition = getIntent().getIntExtra("item", 0);
-            Expense currExpense  = ExpenseDB.getInstance().getExpense(itemPosition);
+            itemId = getIntent().getLongExtra(MainActivity.ITEM_ID, 0);
+            Expense currExpense  = Model.instance().getExpense(itemId);
 
+            timeStamp = currExpense.getTimeStamp();
             dateSql = currExpense.getDateSql();
+            category = currExpense.getCategory();
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
+
 
             if(currExpense.getExpenseImage() != null){
                 AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
@@ -123,7 +129,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         fabDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExpenseDB.getInstance().removeExpense(itemPosition);
+                //ExpenseDB.getInstance().removeExpense(itemId);
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", DELETED_EXPENSE);
@@ -184,8 +190,8 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     private void saveExpense() {
 
-        Expense mExpense;
-        //mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), mExpenseDate, imagePath, Double.valueOf(mExpenseAmount.getText().toString()));
+        Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp);
+        Model.instance().updateExpense(mExpense);
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", SAVED_EXPENSE);
@@ -199,29 +205,29 @@ public class EditExpenseActivity extends AppCompatActivity {
     private void setCalendar(){
 
         cal = new GregorianCalendar();
-        java.util.Date date = new Date(cal.getTimeInMillis());
+
         try {
-            date = MainActivity.sdf.parse(dateSql);
+            cal.setTimeInMillis(MainActivity.sdf.parse(dateSql).getTime());
             Log.i("MyLog", "Converting from u.Date to s.Date Success");
         } catch (ParseException e) {
             Log.i("MyLog","Converting from u.Date to s.Date Error");
         }
-        cal.setTime(date);
 
-        mButtonExpenseDate.setText(cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR));
+        mButtonExpenseDate.setText(MainActivity.sdfShort.format(cal.getTime()));
 
         final DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 
                 mButtonExpenseDate.setText(dayOfMonth + "/" + (monthOfYear+ 1) + "/" + year);
-                cal.set(year, monthOfYear,dayOfMonth);
+                cal.set(year, monthOfYear, dayOfMonth);
+                dateSql = MainActivity.sdf.format(cal.getTime());
 
             }
 
         },cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH));
 
-        dateSql = MainActivity.sdf.format(cal.getTime());
+
 
         mButtonExpenseDate.setOnClickListener(new View.OnClickListener() {
             @Override

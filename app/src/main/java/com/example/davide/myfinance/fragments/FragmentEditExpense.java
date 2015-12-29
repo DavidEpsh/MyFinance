@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.activities.ViewExpenseActivity;
@@ -21,14 +20,14 @@ import com.example.davide.myfinance.models.Expense;
 import java.util.List;
 
 
-public class FragmentExpenseList extends Fragment {
+public class FragmentEditExpense extends Fragment {
 
     private View mRootView;
     private ListView studentList;
     private AdapterExpenseList mAdapter;
     private List<Expense> mStudentListDB;
 
-    public FragmentExpenseList() {
+    public FragmentEditExpense() {
     }
 
     @Override
@@ -56,7 +55,6 @@ public class FragmentExpenseList extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-
         mAdapter.notifyDataSetChanged();
     }
 

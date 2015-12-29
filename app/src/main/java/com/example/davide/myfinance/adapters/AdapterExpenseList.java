@@ -12,8 +12,6 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.models.Expense;
@@ -51,7 +49,7 @@ public class AdapterExpenseList extends BaseAdapter{
 
     @Override
     public Object getItem(int position) {
-        return ExpenseDB.getInstance().getExpense(position);
+        return mExpenseList.get(position);
     }
 
     @Override

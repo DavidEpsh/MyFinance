@@ -13,27 +13,50 @@ import android.view.ViewGroup;
 
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.activities.MainActivity;
+import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 
 
-public class FragmentHome extends SimpleFragment implements OnChartValueSelectedListener {
+public class FragmentHome extends Fragment implements OnChartValueSelectedListener {
 
     public static boolean isFirstLaunch = true;
     public static boolean needsUpdatingChart = false;
+    private Typeface tf;
 
-    public static Fragment newInstance() {
-        return new FragmentHome();
-    }
+//    public static Fragment newInstance() {
+//        return new FragmentHome();
+//    }
 
     private PieChart mChart;
+    List<String> categories;
+    List<Double> expenses;
+    String fromDate, toDate;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+        tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        String outputDate = MainActivity.sdf.format(calendar.getTime());
 
         
         mChart = (PieChart) v.findViewById(R.id.pieChart_home_fragment);
@@ -75,7 +98,7 @@ public class FragmentHome extends SimpleFragment implements OnChartValueSelected
 
         int index = e.getXIndex();
         FragmentExpenseList frag = new FragmentExpenseList();
-        frag.setCustomList(ExpenseDB.getInstance().getCategory(index).getExpensesPerCategory());
+        frag.setData(Model.instance().getExpensesByCategory(categories.get(index), fromDate, toDate));
         openFragment(frag, true);
     }
 
@@ -101,7 +124,7 @@ public class FragmentHome extends SimpleFragment implements OnChartValueSelected
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
 
             if (getActivity().getSupportFragmentManager().getBackStackEntryCount() == 1) {
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
             }
             transaction.replace(R.id.container, fragment)
                     .addToBackStack(null)
@@ -112,6 +135,41 @@ public class FragmentHome extends SimpleFragment implements OnChartValueSelected
                     .replace(R.id.container,fragment)
                     .commit();
         }
+
+    }
+
+    protected PieData generatePieData() {
+
+        int count = this.categories.size();
+
+        ArrayList<Entry> entries1 = new ArrayList<Entry>();
+        ArrayList<String> xVals = new ArrayList<String>();
+
+        for(int i = 0; i < count; i++) {
+            //xVals.add("entry" + (i+1));
+            xVals.add(categories.get(i));
+            double d = expenses.get(i);
+            float f = (float) d;
+            entries1.add(new Entry(f, i));
+        }
+
+        PieDataSet ds1 = new PieDataSet(entries1, "");
+        ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        ds1.setSliceSpace(2f);
+        ds1.setValueTextColor(Color.BLACK);
+        ds1.setValueTextSize(13f);
+
+        PieData d = new PieData(xVals, ds1);
+        d.setValueTypeface(tf);
+
+        return d;
+    }
+
+    public void setFragmentData(List<String> categories, List<Double> expenses, String fromDate, String toDate){
+        this.categories = categories;
+        this.expenses = expenses;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
 
     }
 }

@@ -5,6 +5,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Spinner;
 
+import com.example.davide.myfinance.activities.MainActivity;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,8 +25,8 @@ public class ExpenseSql {
 
     public static void addExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
 
+        ContentValues values = new ContentValues();
         values.put(TIMESTAMP, expense.getTimeStamp());
         values.put(NAME, expense.getExpenseName());
         values.put(CATEGORY, expense.getCategory());
@@ -37,13 +42,16 @@ public class ExpenseSql {
 
     }
 
-    public static Expense getExpense(ModelSql.MyOpenHelper dbHelper, String selectedDate) {
+    public static Expense getExpense(ModelSql.MyOpenHelper dbHelper, Long id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String query = "SELECT * FROM " + TABLE + " WHERE " + DATE + " = " + selectedDate;
+        String query = "SELECT * FROM " + TABLE + " WHERE " + TIMESTAMP + " = " + id;
         Cursor cursor = db.rawQuery(query, null);
 
-        Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
         String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
         String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
         String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
@@ -58,9 +66,24 @@ public class ExpenseSql {
             isRepeating = false;
         }
         // TODO: 23/12/2015 - ADD BOOLEAN
-        Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
+        Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
 
         return expense;
+    }
+
+    public static int updateExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NAME, expense.getExpenseName());
+        values.put(CATEGORY, expense.getCategory());
+        values.put(REPEATING, expense.isRepeatingExpense());
+        values.put(DATE, expense.getDateSql());
+        values.put(IMAGE_PATH, expense.getExpenseImage());
+        values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
+
+        db.update(TABLE, values, TIMESTAMP + "= '" + expense.getTimeStamp() + "'", null);
+        return 0;
     }
 
     public static List<Expense> getExpenses(ModelSql.MyOpenHelper dbHelper) {
@@ -104,19 +127,30 @@ public class ExpenseSql {
         return data;
     }
 
-    public static List<Expense> getExpensesByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory) {
+    public static List<Expense> getExpensesByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory,String fromDate, String toDate) {
         List<Expense> data = new LinkedList<Expense>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         //    public Cursor query(String table, String[] columns, String selection,
 //        String[] selectionArgs, String groupBy, String having,
 //                String orderBy) {
-        String query = "SELECT * FROM " + TABLE + " WHERE " + CATEGORY + " = " +"'" + selectedCategory + "'";
-        Cursor cursor = db.rawQuery(query, null);
-//        String[] col = new String[1];
-//        col[0] = CATEGORY;
+        Cursor cursor; //= db.rawQuery(null,null);
 
-        //Cursor cursor = db.query(TABLE, null, "'Travel'", null, null, null, null);
+        if(fromDate == null && toDate == null) {
+            String query = "SELECT * FROM " + TABLE +
+                    " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'";
+            cursor = db.rawQuery(query, null);
 
+        }else {
+
+
+            String query = "SELECT * FROM " + TABLE +
+                    " WHERE " + CATEGORY +
+                    " = " + "'" + selectedCategory + "'" +
+                    " AND " + DATE + " > " + "'" + fromDate + "'" +
+                    " ORDER BY " + DATE +" DESC ";
+
+            cursor = db.rawQuery(query, null);
+        }
 
         if (cursor.moveToFirst()) {
             int id_index = cursor.getColumnIndex(TIMESTAMP);
@@ -142,13 +176,59 @@ public class ExpenseSql {
                 }else{
                     isRepeating = false;
                 }
-                // TODO: 23/12/2015 - ADD BOOLEAN
+
                 Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
                 data.add(expense);
             } while (cursor.moveToNext());
         }
 
         return data;
+    }
+
+    public static List<String> getCategories(ModelSql.MyOpenHelper dbHelper) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<String> allCategories = new ArrayList<>();
+
+        //    public Cursor query(String table, String[] columns, String selection,
+//        String[] selectionArgs, String groupBy, String having,
+//                String orderBy) {
+        String query = "SELECT DISTINCT " + CATEGORY + " FROM " + TABLE;
+        Cursor cursor = db.rawQuery(query, null);
+//        String[] col = new String[1];
+//        col[0] = CATEGORY;
+
+        //Cursor cursor = db.query(TABLE, null, "'Travel'", null, null, null, null);
+
+
+        if (cursor.moveToFirst()) {
+            int category_index = cursor.getColumnIndex(CATEGORY);
+
+            do {
+                String category = cursor.getString(category_index);
+
+                allCategories.add(category);
+            } while (cursor.moveToNext());
+        }
+        return allCategories;
+    }
+
+    public static Double getSumByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory, String fromDate, String toDate) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<String> allCategories = new ArrayList<>();
+
+        Cursor cursor;
+
+        String query = "SELECT SUM(" + EXPENSE_AMOUNT + ")" + " FROM " + TABLE +
+                " WHERE " + CATEGORY +
+                " = " + "'" + selectedCategory + "'" +
+                " AND " + DATE + " > " + "'" + fromDate + "'";
+
+        cursor = db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()) {
+            return cursor.getDouble(0);
+        }
+        return null;
     }
 
     public static void create(SQLiteDatabase db) {

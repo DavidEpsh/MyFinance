@@ -2,6 +2,7 @@ package com.example.davide.myfinance.models;
 
 import android.content.Context;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Model {
@@ -9,9 +10,12 @@ public class Model {
     interface ModelInterface{
         public void addExpense(Expense expense);
         public void deleteExpense(Expense expense);
-        public Expense getExpense(String id);
+        public Expense getExpense(Long id);
         public List<Expense> getExpenses();
-        public List<Expense> getExpensesByCategory(String category);
+        public List<Expense> getExpensesByCategory(String category, String fromDate, String toDate);
+        public Double getSumByCategory(String category, String fromDate, String toDate);
+        public List<String> getCategories();
+        public int updateExpense(Expense expense);
     }
 
     private static final Model instance = new Model();
@@ -37,7 +41,7 @@ public class Model {
         modelImpl.deleteExpense(expense);
     }
 
-    public Expense getExpense(String id){
+    public Expense getExpense(Long id){
         return modelImpl.getExpense(id);
     }
 
@@ -45,8 +49,20 @@ public class Model {
         return modelImpl.getExpenses();
     }
 
-    public List<Expense> getExpensesByCategory(String category){
-        return modelImpl.getExpensesByCategory(category);
+    public int updateExpense(Expense expense){
+        return modelImpl.updateExpense(expense);
+    }
+
+    public List<String> getCategories(){
+        return modelImpl.getCategories();
+    }
+
+    public List<Expense> getExpensesByCategory(String category, String fromDate, String toDate){
+        return modelImpl.getExpensesByCategory(category, fromDate, toDate);
+    }
+
+    public Double getSumByCategory(String category, String fromDate, String toDate){
+        return modelImpl.getSumByCategory(category, fromDate, toDate);
     }
 }
 
