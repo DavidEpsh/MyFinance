@@ -38,8 +38,9 @@ public class ExpenseSql {
         db.insert(TABLE, TIMESTAMP, values);
     }
 
-    public static void deleteExpense(ModelSql.MyOpenHelper dbHelper, Expense st) {
-
+    public static void deleteExpense(ModelSql.MyOpenHelper dbHelper, Long expense) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        db.delete(TABLE, TIMESTAMP + " = " + expense, null);
     }
 
     public static Expense getExpense(ModelSql.MyOpenHelper dbHelper, Long id) {
@@ -82,7 +83,7 @@ public class ExpenseSql {
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
 
-        db.update(TABLE, values, TIMESTAMP + "= '" + expense.getTimeStamp() + "'", null);
+        db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
         return 0;
     }
 
@@ -135,14 +136,25 @@ public class ExpenseSql {
 //                String orderBy) {
         Cursor cursor; //= db.rawQuery(null,null);
 
-        if(fromDate == null && toDate == null) {
+        if(selectedCategory == null && fromDate == null && toDate == null){
+            String query = "SELECT * FROM " + TABLE +
+                    " ORDER BY " + DATE + " DESC ";
+
+            cursor = db.rawQuery(query, null);
+
+        }else if(selectedCategory == null && toDate == null){
+            String query = "SELECT * FROM " + TABLE +
+                    " WHERE " + DATE + " > " + "'" + fromDate + "'" +
+                    " ORDER BY " + DATE +" DESC ";
+
+            cursor = db.rawQuery(query, null);
+
+        }else if(fromDate == null && toDate == null) {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'";
             cursor = db.rawQuery(query, null);
 
         }else {
-
-
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + CATEGORY +
                     " = " + "'" + selectedCategory + "'" +

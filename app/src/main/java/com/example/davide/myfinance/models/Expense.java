@@ -4,15 +4,16 @@ import com.example.davide.myfinance.R;
 
 public class Expense{
 
-    private String expenseName;
-    private boolean isRepeatingExpense;
-    private int isRepeatingExpenseSql;
-    private int[] expenseDate = new int[3];
-    private String expenseImage;
-    private int tempExpenseImage;
-    private double expenseAmount;
-    private String category;
-    private Long timeStamp;
+    String expenseName;
+    boolean isRepeatingExpense;
+    int isRepeatingExpenseSql;
+    int[] expenseDate = new int[3];
+    String expenseImage;
+    int tempExpenseImage;
+    double expenseAmount;
+    String category;
+    Long timeStamp;
+    int isSaved = 1;
 
     String dateSql;
 
@@ -74,6 +75,15 @@ public class Expense{
 
     public void setRepeatingEvent(boolean isCheckedIn) {
         this.isRepeatingExpense = isCheckedIn;
+    }
+
+
+    public int getIsSaved() {
+        return isSaved;
+    }
+
+    public void setIsSaved(int isSaved) {
+        this.isSaved = isSaved;
     }
 
     public String getExpenseImage() {

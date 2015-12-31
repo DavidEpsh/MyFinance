@@ -20,11 +20,15 @@ import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -32,11 +36,13 @@ public class MainActivity extends AppCompatActivity
 
     public static String ITEM_ID = "ID";
     public static int RESULT_FINISHED_EDITING = 1111;
+    public static int RESULT_ADD_EXPENSE = 1112;
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
     public static List<String> allCategories = new ArrayList<>();
 
     FragmentHome fragmentHome;
+    boolean test = true;
 
 
     @Override
@@ -47,6 +53,21 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         Model.instance().init(getApplicationContext());
+
+
+        if(test = true) {
+            HashMap<String, Object> params = new HashMap<String, Object>();
+            ParseCloud.callFunctionInBackground("getServerTime", params, new FunctionCallback<String>() {
+                public void done(String ratings, ParseException e) {
+                    if (e == null) {
+                        // ratings is 4.5
+                        Log.d("Test", "" + ratings);
+                    } else
+                        Log.d("NO RESPONSE", e + "");
+                }
+            });
+            test = false;
+        }
         //addTestSql();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -54,7 +75,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AddExpenseActivity.class);
-                startActivityForResult(intent,RESULT_FINISHED_EDITING);
+                startActivityForResult(intent, RESULT_ADD_EXPENSE);
             }
         });
 
@@ -118,7 +139,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.drawer_expense_list) {
             FragmentExpenseList fragment = new FragmentExpenseList();
-            fragment.setData(Model.instance().getExpenses());
+            fragment.setData(null, null, null);
             openFragment(fragment);
             setTitle("My Expenses");
 
@@ -191,8 +212,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+
             if(resultCode == RESULT_OK){
                 getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);
+
             }
             if (resultCode == EditExpenseActivity.RESULT_CANCELED) {
                 //User pressed back button

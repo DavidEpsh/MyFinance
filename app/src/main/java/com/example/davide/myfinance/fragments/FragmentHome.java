@@ -98,7 +98,7 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
 
         int index = e.getXIndex();
         FragmentExpenseList frag = new FragmentExpenseList();
-        frag.setData(Model.instance().getExpensesByCategory(categories.get(index), fromDate, toDate));
+        frag.setData(categories.get(index), fromDate, toDate);
         openFragment(frag, true);
     }
 
@@ -111,6 +111,7 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
     public void onResume(){
         super.onResume();
         if(needsUpdatingChart) {
+            mChart.notifyDataSetChanged();
             mChart.setData(generatePieData());
             mChart.animateY(1200, Easing.EasingOption.EaseInOutQuad);
             mChart.invalidate();

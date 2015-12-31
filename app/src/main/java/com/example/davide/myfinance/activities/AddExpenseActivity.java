@@ -30,9 +30,14 @@ import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
+import com.parse.ParseCloud;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 public class AddExpenseActivity extends AppCompatActivity {
 
@@ -70,6 +75,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         spinnerCategories = (Spinner)findViewById(R.id.spinner_category_add_expense);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
 
         setCalender();
         initializeSpinner();
@@ -148,7 +154,10 @@ public class AddExpenseActivity extends AppCompatActivity {
                 GregorianCalendar.getInstance().getTimeInMillis());
 
         FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
-        ExpenseDB.getInstance().addExpense(mExpense);
+        Model.instance().addExpense(mExpense);
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("result", MainActivity.RESULT_ADD_EXPENSE);
+        setResult(this.RESULT_OK, returnIntent);
         finish();
 
         Toast.makeText(this, mExpense.getExpenseName() + " saved", Toast.LENGTH_SHORT).show();
@@ -157,9 +166,12 @@ public class AddExpenseActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-                    Uri selectedImage = data.getData();
-                    imagePath =  getRealPathFromURI(selectedImage);
-                    setPic(mPictureButton, imagePath);
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mPictureButton.setImageBitmap(imageBitmap);
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            imagePath = "JPEG_" + timeStamp + ".jpeg";
+//            Model.getInstance().saveImage(imageBitmap, imageFileName);
 
             super.onActivityResult(requestCode, resultCode, data);
         }

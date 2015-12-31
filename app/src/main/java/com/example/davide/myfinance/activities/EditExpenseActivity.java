@@ -129,7 +129,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         fabDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //ExpenseDB.getInstance().removeExpense(itemId);
+                Model.instance().deleteExpense(timeStamp);
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", DELETED_EXPENSE);

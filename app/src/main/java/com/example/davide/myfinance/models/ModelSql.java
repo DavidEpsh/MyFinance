@@ -21,7 +21,7 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public void deleteExpense(Expense expense) {
+    public void deleteExpense(Long expense) {
         ExpenseSql.deleteExpense(dbHelper, expense);
     }
 

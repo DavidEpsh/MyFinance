@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
 import com.squareup.picasso.Picasso;
 
 import java.sql.Date;
@@ -49,7 +50,7 @@ public class AdapterExpenseList extends BaseAdapter{
 
     @Override
     public Object getItem(int position) {
-        return mExpenseList.get(position);
+        return Model.instance().getExpense(mExpenseList.get(position).getTimeStamp());
     }
 
     @Override

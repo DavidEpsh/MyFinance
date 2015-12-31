@@ -2,14 +2,13 @@ package com.example.davide.myfinance.models;
 
 import android.content.Context;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class Model {
 
     interface ModelInterface{
         public void addExpense(Expense expense);
-        public void deleteExpense(Expense expense);
+        public void deleteExpense(Long expense);
         public Expense getExpense(Long id);
         public List<Expense> getExpenses();
         public List<Expense> getExpensesByCategory(String category, String fromDate, String toDate);
@@ -20,13 +19,17 @@ public class Model {
 
     private static final Model instance = new Model();
     private ModelInterface modelImpl;
+    ModelParse modelParse = new ModelParse();
+    Context context;
 
     private Model(){
 
     }
 
     public void init(Context applicationContext) {
+        this.context = applicationContext;
         modelImpl = new ModelSql(applicationContext);
+        modelParse.init(applicationContext);
     }
 
     public static Model instance(){
@@ -35,9 +38,10 @@ public class Model {
 
     public void addExpense(Expense expense){
         modelImpl.addExpense(expense);
+        modelParse.add(expense);
     }
 
-    public void deleteExpense(Expense expense){
+    public void deleteExpense(Long expense){
         modelImpl.deleteExpense(expense);
     }
 
@@ -63,6 +67,14 @@ public class Model {
 
     public Double getSumByCategory(String category, String fromDate, String toDate){
         return modelImpl.getSumByCategory(category, fromDate, toDate);
+    }
+
+    public interface GetExpense{
+        public void onResult(Expense student);
+    }
+
+    public interface GetExpensesListener{
+        public void onResult(List<Expense> students);
     }
 }
 

@@ -16,7 +16,9 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.activities.ViewExpenseActivity;
 import com.example.davide.myfinance.adapters.AdapterExpenseList;
+import com.example.davide.myfinance.models.Category;
 import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.models.Model;
 
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class FragmentExpenseList extends Fragment {
     private ListView studentList;
     private AdapterExpenseList mAdapter;
     private List<Expense> mStudentListDB;
+    String fromDate, toDate, category;
 
     public FragmentExpenseList() {
     }
@@ -37,6 +40,7 @@ public class FragmentExpenseList extends Fragment {
         mRootView = inflater.inflate(R.layout.fragment_expense_list, container, false);
         studentList = (ListView) mRootView.findViewById(R.id.expensetListView);
 
+        mStudentListDB = Model.instance().getExpensesByCategory(null, fromDate, toDate);
         mAdapter = new AdapterExpenseList(mStudentListDB, getActivity());
         studentList.setAdapter(mAdapter);
 
@@ -57,11 +61,18 @@ public class FragmentExpenseList extends Fragment {
     public void onResume(){
         super.onResume();
 
-        mAdapter.notifyDataSetChanged();
+
+        mStudentListDB = Model.instance().getExpensesByCategory(category, fromDate, toDate);
+        mAdapter.notifyDataSetInvalidated();
+        mAdapter = new AdapterExpenseList(mStudentListDB, getActivity());
+        studentList.setAdapter(mAdapter);
+
     }
 
-    public void setData(List<Expense> expenses){
-        this.mStudentListDB = expenses;
+    public void setData(String category, String fromDate, String toDate){
+        this.category = category;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
     }
 
 }
