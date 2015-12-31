@@ -76,6 +76,11 @@ public class AddExpenseActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
+        Intent intent = getIntent();
+        if (intent != null){
+            String name = intent.getStringExtra("name");
+            mNameOfExpense.setText(name);
+        }
 
         setCalender();
         initializeSpinner();

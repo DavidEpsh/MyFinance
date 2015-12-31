@@ -21,7 +21,12 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity
@@ -29,6 +34,18 @@
             android:label="@string/title_activity_add_expense"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".activities.MainActivity">
+            <intent-filter android:label="addexpense">
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="text/plain" />
+                <!-- Accepts URIs that begin with "http://www.example.com/gizmos” -->
+                <data android:scheme="example" android:host="task"
+                    android:pathPrefix="/myfinance" />
+                <!-- note that the leading "/" is required for pathPrefix-->
+                <!-- Accepts URIs that begin with "example://gizmos”
+                <data android:scheme="example"
+                      android:host="gizmos" />
+                -->
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.ViewExpenseActivity"

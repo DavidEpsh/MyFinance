@@ -1,6 +1,7 @@
 package com.example.davide.myfinance.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -54,20 +55,32 @@ public class MainActivity extends AppCompatActivity
 
         Model.instance().init(getApplicationContext());
 
-
-        if(test = true) {
-            HashMap<String, Object> params = new HashMap<String, Object>();
-            ParseCloud.callFunctionInBackground("getServerTime", params, new FunctionCallback<String>() {
-                public void done(String ratings, ParseException e) {
-                    if (e == null) {
-                        // ratings is 4.5
-                        Log.d("Test", "" + ratings);
-                    } else
-                        Log.d("NO RESPONSE", e + "");
-                }
-            });
-            test = false;
+        Intent intent = getIntent();
+        if(intent.hasExtra(Intent.EXTRA_TEXT)) {
+//            String action = intent.getAction();
+//            Uri data = intent.getData();
+            Bundle bundle = intent.getExtras();
+            String name;
+            name = intent.getStringExtra(Intent.EXTRA_TEXT);
+            Intent intentNew = new Intent(MainActivity.this, AddExpenseActivity.class);
+            intentNew.putExtra("name", name);
+            startActivityForResult(intentNew, RESULT_ADD_EXPENSE);
         }
+
+
+//        if(test = true) {
+//            HashMap<String, Object> params = new HashMap<String, Object>();
+//            ParseCloud.callFunctionInBackground("getServerTime", params, new FunctionCallback<String>() {
+//                public void done(String ratings, ParseException e) {
+//                    if (e == null) {
+//                        // ratings is 4.5
+//                        Log.d("Test", "" + ratings);
+//                    } else
+//                        Log.d("NO RESPONSE", e + "");
+//                }
+//            });
+//            test = false;
+//        }
         //addTestSql();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
