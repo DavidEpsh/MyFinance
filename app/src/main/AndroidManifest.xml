@@ -8,6 +8,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
+        android:name=".custom.ParseCustomApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -59,6 +60,9 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".activities.ViewExpenseActivity">
         </activity>
+        <activity
+            android:name=".activities.SignUpSignInActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
-
 </manifest>

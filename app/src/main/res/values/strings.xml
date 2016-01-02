@@ -41,4 +41,10 @@
 
     <!-- Add Expense Activity-->
     <string name="pick_category">Select Category</string>
+
+    <!-- Parse Related-->
+    <string name="last_update_time">myfinance.lastupdatedate</string>
+
+    <!-- Shared Prefs-->
+    <string name="shared_prefs">myfinance.sharedprefs</string>
 </resources>

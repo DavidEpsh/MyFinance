@@ -29,6 +29,9 @@ public class Model {
     public void init(Context applicationContext) {
         this.context = applicationContext;
         modelImpl = new ModelSql(applicationContext);
+    }
+
+    public void initParse(Context applicationContext) {
         modelParse.init(applicationContext);
     }
 
@@ -38,7 +41,7 @@ public class Model {
 
     public void addExpense(Expense expense){
         modelImpl.addExpense(expense);
-        modelParse.add(expense);
+        modelParse.addAsync(expense);
     }
 
     public void deleteExpense(Long expense){

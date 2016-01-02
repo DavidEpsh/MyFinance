@@ -1,9 +1,12 @@
 package com.example.davide.myfinance.models;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import com.example.davide.myfinance.R;
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
@@ -11,6 +14,7 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -18,17 +22,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ModelParse {
-
+    Context context;
+    HashMap<String, Object> params;
 
     public void init(Context context) {
         Parse.initialize(context, "asIB0JfInjKjiQV7kElOvPIBAAFYIu60f9MZrlx6", "9xZgwSeofzVrze8NJGKUUW1EpiNYu1qZRl3We0Z4");
+        this.context = context;
     }
 
     public List<Expense> getAllExpenses() {
         List<Expense> Expenses = new LinkedList<Expense>();
         ParseQuery query = new ParseQuery("expense");
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        ParseCloud.callFunctionInBackground("getServerTime", params);
+
         try {
             List<ParseObject> data = query.find();
             for (ParseObject po : data) {
@@ -46,7 +51,44 @@ public class ModelParse {
             e.printStackTrace();
             return Expenses;
         }
+
+        changeLastUpdateTime();
         return Expenses;
+    }
+
+    public List<Expense> getAllExpensesSinceLastUpdate() {
+        ParseQuery query;
+        List<Expense> expenses;
+
+        if (getLastUpdateTime() == null) {
+            expenses = new LinkedList<Expense>();
+            query = new ParseQuery("expense");
+        }else{
+            expenses = new LinkedList<Expense>();
+            query = new ParseQuery("expense");
+        }
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        ParseCloud.callFunctionInBackground("getServerTime", params);
+        try {
+            List<ParseObject> data = query.find();
+            for (ParseObject po : data) {
+                Long id = po.getLong("expenseId");
+                String name = po.getString("name");
+                boolean isRepeating = po.getBoolean("repeating");
+                String date = po.getString("date");
+                String category = po.getString("category");
+                String imageName = po.getString("imageName");
+                Double amount = po.getDouble("amount");
+                Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id);
+                expenses.add(expense);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return expenses;
+        }
+
+        changeLastUpdateTime();
+        return expenses;
     }
 
     public void getExpenseById(String id, final Model.GetExpense listener) {
@@ -65,7 +107,7 @@ public class ModelParse {
                     String category = po.getString("category");
                     String imageName = po.getString("imageName");
                     Double amount = po.getDouble("amount");
-                    expense = new Expense(name, isRepeating, date, imageName, amount, category,id);
+                    expense = new Expense(name, isRepeating, date, imageName, amount, category, id);
                 }
                 listener.onResult(expense);
             }
@@ -73,20 +115,27 @@ public class ModelParse {
     }
 
 
-    public void add(Expense expense) {
+    public void addAsync(final Expense expense) {
         ParseObject newObject = new ParseObject("Expense");
         newObject.put("expenseId", expense.getTimeStamp());
         newObject.put("name", expense.getExpenseName());
         newObject.put("repeating", expense.isRepeatingExpenseBool());
-        newObject.put("imageName", expense.getExpenseImage());
-        newObject.put("date", expense.getExpenseDate());
+
+        if(expense.getExpenseImage() != null) {
+            newObject.put("imageName", expense.getExpenseImage());
+        }
+        newObject.put("date", expense.getDateSql());
         newObject.put("category", expense.getCategory());
         newObject.put("amount", expense.getExpenseAmount());
-        try {
-            newObject.save();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        newObject.put("isSaved", 1);
+
+        newObject.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("Parse", "Unable to save" + expense.getExpenseName());
+            }
+        });
+
     }
 
     public void getAllExpensesAsynch(final Model.GetExpensesListener listener) {
@@ -104,7 +153,7 @@ public class ModelParse {
                         String category = po.getString("category");
                         String imageName = po.getString("imageName");
                         Double amount = po.getDouble("amount");
-                        Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id);
+                        Expense expense = new Expense(name, isRepeating, date, imageName, amount, category, id);
                         Expenses.add(expense);
                     }
                 }
@@ -149,5 +198,33 @@ public class ModelParse {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void changeLastUpdateTime(){
+
+        final String getTime = "getServerTime";
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                params = new HashMap<String, Object>();
+                ParseCloud.callFunctionInBackground(getTime, params);
+            }
+        });
+
+        Object obj = params.get(getTime);
+        String lastUpdate = obj.toString();
+        SharedPreferences.Editor editor = context.getSharedPreferences(context.getString(R.string.shared_prefs),Context.MODE_PRIVATE).edit();
+        editor.putString(context.getString(R.string.last_update_time), lastUpdate);
+        editor.commit();
+
+    }
+
+    public String getLastUpdateTime(){
+
+        SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.shared_prefs), Context.MODE_PRIVATE);
+        String lastUpdate = prefs.getString(context.getString(R.string.last_update_time), null);
+
+        return  lastUpdate;
     }
 }

@@ -1,11 +1,10 @@
 package com.example.davide.myfinance.activities;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,15 +20,11 @@ import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -38,6 +33,7 @@ public class MainActivity extends AppCompatActivity
     public static String ITEM_ID = "ID";
     public static int RESULT_FINISHED_EDITING = 1111;
     public static int RESULT_ADD_EXPENSE = 1112;
+    public static int RESULT_LOG_IN = 1113;
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
     public static List<String> allCategories = new ArrayList<>();
@@ -53,13 +49,16 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Model.instance().init(getApplicationContext());
+        Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
+        startActivityForResult(intentLogIn,RESULT_LOG_IN);
+
+        Model.instance().init(this);
+
+        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.last_update_time), this.MODE_PRIVATE);
+        String lastUpdate = prefs.getString(getString(R.string.last_update_time), null);
 
         Intent intent = getIntent();
         if(intent.hasExtra(Intent.EXTRA_TEXT)) {
-//            String action = intent.getAction();
-//            Uri data = intent.getData();
-            Bundle bundle = intent.getExtras();
             String name;
             name = intent.getStringExtra(Intent.EXTRA_TEXT);
             Intent intentNew = new Intent(MainActivity.this, AddExpenseActivity.class);
@@ -225,14 +224,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if (requestCode == RESULT_LOG_IN) {
+            if (resultCode == RESULT_CANCELED) {
+                finish();
+            }
+        } else {
 
-            if(resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
                 getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);
 
             }
-            if (resultCode == EditExpenseActivity.RESULT_CANCELED) {
+            if (resultCode == RESULT_CANCELED) {
                 //User pressed back button
             }
         }
+    }
 
 }
