@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     public static String ITEM_ID = "ID";
     public static int RESULT_FINISHED_EDITING = 1111;
     public static int RESULT_ADD_EXPENSE = 1112;
-    public static int RESULT_LOG_IN = 1113;
+    public static int RESULT_LOG_IN_SIGN_UP = 1113;
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
     public static List<String> allCategories = new ArrayList<>();
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
-        startActivityForResult(intentLogIn,RESULT_LOG_IN);
+        startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
         Model.instance().init(this);
 
@@ -224,11 +224,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == RESULT_LOG_IN) {
+        if (requestCode == RESULT_LOG_IN_SIGN_UP) {
             if (resultCode == RESULT_CANCELED) {
                 finish();
+            } else if (resultCode == RESULT_OK) {
+
             }
-        } else {
+        }else {
 
             if (resultCode == RESULT_OK) {
                 getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);

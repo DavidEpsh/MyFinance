@@ -138,8 +138,15 @@ public class ModelParse {
 
     }
 
-    public void getAllExpensesAsynch(final Model.GetExpensesListener listener) {
-        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Expense");
+    public void getAllExpensesAsynch(final Model.GetExpensesListener listener, String date) {
+        ParseQuery<ParseObject> query;
+
+        if(date == null) {
+            query = new ParseQuery<ParseObject>("Expense");
+//            query.whereGreaterThan("updatedAt", )
+        }else{
+
+        }
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
@@ -161,6 +168,7 @@ public class ModelParse {
             }
         });
     }
+
 
     public void saveImage(Bitmap imageBitmap, String imageName) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
