@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.models.Model.GetExpensesListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
@@ -19,6 +20,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class ModelParse {
 
     private static final String USER_NAME = "username";
     public static final String IS_SAVED = "isSaved";
+    public static final String UPDATED_AT = "updatedAt";
 
     Context context;
     HashMap<String, Object> params;
@@ -67,15 +70,14 @@ public class ModelParse {
         ParseQuery query;
         List<Expense> expenses;
 
-        if (getLastUpdateTime() == null) {
+        if (getLastUpdateTime(true) == null) {
             expenses = new LinkedList<Expense>();
             query = new ParseQuery("expense");
         }else{
             expenses = new LinkedList<Expense>();
             query = new ParseQuery("expense");
+            query.whereGreaterThan(UPDATED_AT, getLastUpdateTime(false));
         }
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        ParseCloud.callFunctionInBackground("getServerTime", params);
         try {
             List<ParseObject> data = query.find();
             for (ParseObject po : data) {
@@ -98,7 +100,7 @@ public class ModelParse {
         return expenses;
     }
 
-    public void getExpenseById(String id, final Model.GetExpense listener) {
+    public void getExpenseById(Long id, final Model.GetExpense listener) {
         ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("expense");
         query.whereEqualTo("expenseId", id);
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -122,7 +124,7 @@ public class ModelParse {
     }
 
 
-    public void addAsync(final Expense expense) {
+    public void addOrUpdateAsync(final Expense expense, boolean doDeleteExpense) {
         ParseObject newObject = new ParseObject("Expense");
         newObject.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
         newObject.put("expenseId", expense.getTimeStamp());
@@ -135,7 +137,12 @@ public class ModelParse {
         newObject.put("date", expense.getDateSql());
         newObject.put("category", expense.getCategory());
         newObject.put("amount", expense.getExpenseAmount());
-        newObject.put(IS_SAVED, 1);
+
+        if(doDeleteExpense) {
+            newObject.put(IS_SAVED, 0);
+        }else{
+            newObject.put(IS_SAVED, 1);
+        }
 
         newObject.saveEventually(new SaveCallback() {
             @Override
@@ -148,17 +155,17 @@ public class ModelParse {
 
     }
 
-    public void getAllExpensesAsynch(final Model.GetExpensesListener listener) {
+    public void getAllExpensesAsynch(final GetExpensesListener listener) {
         ParseQuery<ParseObject> query;
 
-        if(getLastUpdateTime() == null) {
+        if(getLastUpdateTime(true) == null) {
             query = new ParseQuery<ParseObject>("Expense");
             query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
             query.whereEqualTo(IS_SAVED, 1);
 
         }else{
             query = new ParseQuery<ParseObject>("Expense");
-            query.whereGreaterThan("updatedAt", getLastUpdateTime());
+            query.whereGreaterThan(UPDATED_AT, getLastUpdateTime(false));
             query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
             query.whereEqualTo(IS_SAVED, 1);
         }
@@ -235,16 +242,25 @@ public class ModelParse {
             public void done(String object, ParseException e) {
                 String lastUpdate = object;
                 SharedPreferences.Editor editor = context.getSharedPreferences(context.getString(R.string.shared_prefs),Context.MODE_PRIVATE).edit();
-                editor.putString(context.getString(R.string.last_update_time), lastUpdate);
+                editor.putString(context.getString(R.string.last_update_time_parse), lastUpdate);
+                editor.putString(context.getString(R.string.last_update_time), GregorianCalendar.getInstance().getTime().toString());
                 editor.apply();
+
             }
         });
     }
 
-    public String getLastUpdateTime(){
+    public String getLastUpdateTime(boolean isSql){
 
-        SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.shared_prefs), Context.MODE_PRIVATE);
-        String lastUpdate = prefs.getString(context.getString(R.string.last_update_time), null);
+        String lastUpdate;
+        if(isSql) {
+            SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.shared_prefs), Context.MODE_PRIVATE);
+            lastUpdate = prefs.getString(context.getString(R.string.last_update_time), null);
+
+        }else{
+            SharedPreferences prefs = context.getSharedPreferences(context.getString(R.string.shared_prefs), Context.MODE_PRIVATE);
+            lastUpdate = prefs.getString(context.getString(R.string.last_update_time_parse), null);
+        }
 
         return  lastUpdate;
     }
@@ -253,9 +269,9 @@ public class ModelParse {
 
         java.util.Date dateInMemory, currentDate;
         Long difference;
-        //currentDate = Model.instance().get;
+        currentDate = GregorianCalendar.getInstance().getTime();
 
-        dateInMemory = new java.util.Date(Model.instance().getLastUpdateTime());
+        dateInMemory = new java.util.Date(Model.instance().getLastUpdateTime(true));
         difference = Math.abs(dateInMemory.getTime() - currentDate.getTime());
 
 

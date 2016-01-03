@@ -44,6 +44,7 @@
 
     <!-- Parse Related-->
     <string name="last_update_time">myfinance.lastupdatedate</string>
+    <string name="last_update_time_parse">myfinance.lastupdatedateparse</string>
 
     <!-- Shared Prefs-->
     <string name="shared_prefs">myfinance.sharedprefs</string>

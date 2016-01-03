@@ -191,7 +191,7 @@ public class EditExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
 
         Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp);
-        Model.instance().updateExpense(mExpense);
+        Model.instance().updateExpense(mExpense, false);
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", SAVED_EXPENSE);

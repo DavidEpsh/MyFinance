@@ -14,7 +14,7 @@ public class Model {
         public List<Expense> getExpensesByCategory(String category, String fromDate, String toDate);
         public Double getSumByCategory(String category, String fromDate, String toDate);
         public List<String> getCategories();
-        public int updateExpense(Expense expense);
+        public void updateExpense(Expense expense, boolean deleteExpense);
         public int batchUpdateExpenses(List<Expense> expenses);
         public void syncSqlWithParse(SyncSqlWithParseListener listener);
         public List<Expense> getAllExpensesAsynch();
@@ -44,11 +44,12 @@ public class Model {
 
     public void addExpense(Expense expense){
         modelImpl.addExpense(expense);
-        modelParse.addAsync(expense);
+        modelParse.addOrUpdateAsync(expense, false);
     }
 
     public void deleteExpense(Long expense){
         modelImpl.deleteExpense(expense);
+        modelParse.addOrUpdateAsync(getExpense(expense), true);
     }
 
     public Expense getExpense(Long id){
@@ -59,8 +60,9 @@ public class Model {
         return modelImpl.getExpenses();
     }
 
-    public int updateExpense(Expense expense){
-        return modelImpl.updateExpense(expense);
+    public void updateExpense(Expense expense, boolean doDeleteExpense){
+        modelImpl.updateExpense(expense, doDeleteExpense);
+        modelParse.addOrUpdateAsync(expense, doDeleteExpense);
     }
 
     public int batchUpdateExpenses(List<Expense> expenses){
@@ -91,8 +93,12 @@ public class Model {
         public void onResult();
     }
 
-    public String getLastUpdateTime(){
-        return modelParse.getLastUpdateTime();
+    public String getLastUpdateTime(boolean isSql){
+        return modelParse.getLastUpdateTime(isSql);
+    }
+
+    public boolean checkUpdateInterval(){
+        return modelParse.checkUpdateInterval();
     }
 
     public void syncSqlWithParse(SyncSqlWithParseListener listener){

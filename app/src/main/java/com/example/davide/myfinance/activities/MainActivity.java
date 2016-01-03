@@ -61,11 +61,30 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, AddExpenseActivity.class);
+                startActivityForResult(intent, RESULT_ADD_EXPENSE);
+            }
+        });
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
         if(ParseUser.getCurrentUser() == null) {
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        }else if(checkUpdateInterval() || Model.instance().getLastUpdateTime() == null){
+        }else if(Model.instance().checkUpdateInterval() || Model.instance().getLastUpdateTime(true) == null){
 
             final Dialog dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             dialog.setContentView(R.layout.dialog_loading);
@@ -96,26 +115,6 @@ public class MainActivity extends AppCompatActivity
             intentNew.putExtra("name", name);
             startActivityForResult(intentNew, RESULT_ADD_EXPENSE);
         }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddExpenseActivity.class);
-                startActivityForResult(intent, RESULT_ADD_EXPENSE);
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-
     }
 
     @Override

@@ -82,7 +82,7 @@ public class ExpenseSql {
         }
     }
 
-    public static int updateExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
+    public static void updateExpense(ModelSql.MyOpenHelper dbHelper, Expense expense, boolean doDeleteExpense) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         ContentValues values = new ContentValues();
@@ -93,8 +93,11 @@ public class ExpenseSql {
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
 
+        if(doDeleteExpense){
+            values.put(IS_SAVED, 0);
+        }
+
         db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
-        return 0;
     }
 
     public static int batchUpdateExpense(ModelSql.MyOpenHelper dbHelper, List<Expense> expenses) {
