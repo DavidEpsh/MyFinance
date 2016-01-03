@@ -10,5 +10,6 @@ public class ParseCustomApp extends Application {
     public void onCreate() {
         super.onCreate();
         Model.instance().initParse(getApplicationContext());
+        Model.instance().init(getApplicationContext());
     }
 }

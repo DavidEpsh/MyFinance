@@ -1,9 +1,0 @@
-<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/vf"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content" >
-
-	<include android:id="@+id/view_flipp" layout="@layout/progress_bar" />
-	<include android:id="@+id/progress_bar" layout="@layout/progress_bar" />
-
-</ViewFlipper>

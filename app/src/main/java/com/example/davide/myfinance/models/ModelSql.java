@@ -36,6 +36,21 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
+    public int batchUpdateExpenses(List<Expense> expenses) {
+        return  ExpenseSql.batchUpdateExpense(dbHelper, expenses);
+    }
+
+    @Override
+    public void syncSqlWithParse(Model.SyncSqlWithParseListener listener) {
+        ExpenseSql.syncSqlWithParse(dbHelper, listener);
+    }
+
+    @Override
+    public List<Expense> getAllExpensesAsynch() {
+        return null;
+    }
+
+    @Override
     public List<Expense> getExpenses() {
         return ExpenseSql.getExpenses(dbHelper);
     }

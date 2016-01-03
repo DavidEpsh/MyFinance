@@ -17,11 +17,7 @@ public class SignUpSignInActivity extends AppCompatActivity{
         setContentView(R.layout.activity_sign_in_sign_up);
 
 		openFragment(new FragmentSignInSignUp());
-
     }
-
-
-
 
 	private void openFragment(final Fragment fragment){
 

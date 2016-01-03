@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,13 +15,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentOverview;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
+import com.parse.Parse;
+import com.parse.ParseUser;
 
+import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,13 +56,26 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
-        startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        Model.instance().init(this);
+        if(ParseUser.getCurrentUser() == null) {
+            Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
+            startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        SharedPreferences prefs = this.getSharedPreferences(getString(R.string.last_update_time), this.MODE_PRIVATE);
-        String lastUpdate = prefs.getString(getString(R.string.last_update_time), null);
+        }else if(checkUpdateInterval()){
+            Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
+                @Override
+                public void onResult() {
+                    fragmentHome = new FragmentHome();
+                    getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+                    openFragment(fragmentHome);
+                }
+            });
+
+        }else{
+            fragmentHome = new FragmentHome();
+            getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+            openFragment(fragmentHome);
+        }
 
         Intent intent = getIntent();
         if(intent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -66,21 +86,6 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentNew, RESULT_ADD_EXPENSE);
         }
 
-
-//        if(test = true) {
-//            HashMap<String, Object> params = new HashMap<String, Object>();
-//            ParseCloud.callFunctionInBackground("getServerTime", params, new FunctionCallback<String>() {
-//                public void done(String ratings, ParseException e) {
-//                    if (e == null) {
-//                        // ratings is 4.5
-//                        Log.d("Test", "" + ratings);
-//                    } else
-//                        Log.d("NO RESPONSE", e + "");
-//                }
-//            });
-//            test = false;
-//        }
-        //addTestSql();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -100,9 +105,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        fragmentHome = new FragmentHome();
-        getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-        openFragment(fragmentHome);
+
     }
 
     @Override
@@ -159,7 +162,10 @@ public class MainActivity extends AppCompatActivity
             openFragment(new FragmentOverview());
             setTitle("Overview");
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_log_out) {
+            ParseUser.logOut();
+            Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
+            startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
         } else if (id == R.id.nav_send) {
 
@@ -175,21 +181,6 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.container,fragment)
                 .commit();
-    }
-
-    public void addTestSql(){
-
-
-        Expense expense = new Expense("sql1", true, "2015-04-04 01:01:01", null, 444.4, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        Expense expense2 = new Expense("sql2", true, "2015-05-05 02:02:02", null, 555.5, "Shopping", GregorianCalendar.getInstance().getTimeInMillis());
-        Expense expense3 = new Expense("sql3", true, "2015-06-06 03:03:03", null, 666.6, "Transportation", GregorianCalendar.getInstance().getTimeInMillis());
-        Expense expense4 = new Expense("sql4", true, "2015-12-27 12:00:12", null, 111.1, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        Expense expense5 = new Expense("sql5", true, "2015-12-27 15:00:43", null, 123.1, "Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        Model.instance().addExpense(expense5);
-//        Model.instance().addExpense(expense2);
-//        Model.instance().addExpense(expense3);
-//        Model.instance().addExpense(expense4);
-//        Model.instance().addExpense(expense5);
     }
 
     public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
@@ -221,14 +212,42 @@ public class MainActivity extends AppCompatActivity
         return calendar;
     }
 
+    public boolean checkUpdateInterval(){
+
+        java.util.Date dateInMemory, currentDate;
+        Long difference;
+        currentDate = GregorianCalendar.getInstance().getTime();
+
+        if(Model.instance().getLastUpdateTime() != null) {
+            try {
+                dateInMemory = sdf.parse(Model.instance().getLastUpdateTime());
+                difference = Math.abs(dateInMemory.getTime() - currentDate.getTime());
+                if(difference / (24 * 60 * 60 * 1000) > 0.5)
+                    return true;
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+
+                // TODO: 02/01/2016 remove next line
+                Toast.makeText(this, "Unable to parse date in cheackUpdateInterval()", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == RESULT_LOG_IN_SIGN_UP) {
             if (resultCode == RESULT_CANCELED) {
                 finish();
-            } else if (resultCode == RESULT_OK) {
 
+            } else if (resultCode == RESULT_OK) {
+                fragmentHome = new FragmentHome();
+                getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+                openFragment(fragmentHome);
             }
         }else {
 

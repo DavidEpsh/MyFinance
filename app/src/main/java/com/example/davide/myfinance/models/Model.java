@@ -15,6 +15,9 @@ public class Model {
         public Double getSumByCategory(String category, String fromDate, String toDate);
         public List<String> getCategories();
         public int updateExpense(Expense expense);
+        public int batchUpdateExpenses(List<Expense> expenses);
+        public void syncSqlWithParse(SyncSqlWithParseListener listener);
+        public List<Expense> getAllExpensesAsynch();
     }
 
     private static final Model instance = new Model();
@@ -60,6 +63,10 @@ public class Model {
         return modelImpl.updateExpense(expense);
     }
 
+    public int batchUpdateExpenses(List<Expense> expenses){
+        return modelImpl.batchUpdateExpenses(expenses);
+    }
+
     public List<String> getCategories(){
         return modelImpl.getCategories();
     }
@@ -73,12 +80,25 @@ public class Model {
     }
 
     public interface GetExpense{
-        public void onResult(Expense student);
+        public void onResult(Expense expense);
     }
 
     public interface GetExpensesListener{
-        public void onResult(List<Expense> students);
+        public void onResult(List<Expense> expenses);
     }
+
+    public interface SyncSqlWithParseListener{
+        public void onResult();
+    }
+
+    public String getLastUpdateTime(){
+        return modelParse.getLastUpdateTime();
+    }
+
+    public void syncSqlWithParse(SyncSqlWithParseListener listener){
+        modelImpl.syncSqlWithParse(listener);
+    }
+
 }
 
 

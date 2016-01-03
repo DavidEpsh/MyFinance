@@ -15,6 +15,7 @@ import android.widget.ViewFlipper;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
+import com.example.davide.myfinance.models.Model;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -58,9 +59,11 @@ public class FragmentSignIn extends Fragment {
         if(!android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()){
             Toast.makeText(getActivity(), "Invalid Email Address", Toast.LENGTH_SHORT).show();
             return false;
+
         }else if(pass.getText().length() < 6){
             Toast.makeText(getActivity(),"Password must be at least 6 characters long" , Toast.LENGTH_SHORT).show();
             return false;
+
         }
 
         return true;
@@ -73,8 +76,7 @@ public class FragmentSignIn extends Fragment {
             public void done(ParseUser user, ParseException e) {
 
                 if (e == null) {
-                    Toast.makeText(getActivity(), "Welcome", Toast.LENGTH_SHORT).show();
-                    finishAndSetResult();
+                    startUpdatingData();
                 }else{
                     //Toast.makeText(getActivity(),e.getMessage().substring(e.getMessage().indexOf(" ")) , Toast.LENGTH_SHORT).show();
                     Toast.makeText(getActivity(),"Wrong username or password", Toast.LENGTH_SHORT).show();
@@ -84,6 +86,15 @@ public class FragmentSignIn extends Fragment {
             }
         });
 
+    }
+
+    public void startUpdatingData(){
+        Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
+            @Override
+            public void onResult() {
+                finishAndSetResult();
+            }
+        });
     }
 
     public void finishAndSetResult(){

@@ -65,7 +65,7 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
         Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
         
         mChart.setCenterTextTypeface(tf);
-        mChart.setCenterText(generateCenterText());
+        mChart.setCenterText(generateCenterText(null));
         mChart.setCenterTextSize(10f);
         mChart.setCenterTextTypeface(tf);
          
@@ -86,8 +86,15 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
         return v;
     }
 
-    private SpannableString generateCenterText() {
-        SpannableString s = new SpannableString("December 2015");
+    private SpannableString generateCenterText(String text) {
+
+        SpannableString s;
+        if (text == null) {
+            s = new SpannableString("December 2015");
+        }else{
+            s = new SpannableString(text);
+        }
+
         s.setSpan(new RelativeSizeSpan(2f), 0, 8, 0);
         s.setSpan(new ForegroundColorSpan(Color.GRAY), 8, s.length(), 0);
         return s;
@@ -142,6 +149,13 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
     protected PieData generatePieData() {
 
         int count = this.categories.size();
+
+        if(count == 0 ){
+           mChart.setCenterText("Add your first expense");
+           mChart.setCenterTextSize(12f);
+        }else{
+            mChart.setCenterText(generateCenterText(null));
+        }
 
         ArrayList<Entry> entries1 = new ArrayList<Entry>();
         ArrayList<String> xVals = new ArrayList<String>();
