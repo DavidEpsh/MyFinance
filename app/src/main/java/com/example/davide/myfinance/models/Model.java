@@ -15,7 +15,7 @@ public class Model {
         public Double getSumByCategory(String category, String fromDate, String toDate);
         public List<String> getCategories();
         public void updateExpense(Expense expense, boolean deleteExpense);
-        public int batchUpdateExpenses(List<Expense> expenses);
+        public void batchUpdateExpenses(List<Expense> expenses, BatchUpdateListener listener);
         public void syncSqlWithParse(SyncSqlWithParseListener listener);
         public List<Expense> getAllExpensesAsynch();
     }
@@ -65,8 +65,8 @@ public class Model {
         modelParse.addOrUpdateAsync(expense, doDeleteExpense);
     }
 
-    public int batchUpdateExpenses(List<Expense> expenses){
-        return modelImpl.batchUpdateExpenses(expenses);
+    public void batchUpdateExpenses(List<Expense> expenses, BatchUpdateListener listener){
+        modelImpl.batchUpdateExpenses(expenses, listener);
     }
 
     public List<String> getCategories(){
@@ -90,6 +90,10 @@ public class Model {
     }
 
     public interface SyncSqlWithParseListener{
+        public void onResult();
+    }
+
+    public interface BatchUpdateListener{
         public void onResult();
     }
 

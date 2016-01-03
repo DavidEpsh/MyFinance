@@ -3,7 +3,9 @@ package com.example.davide.myfinance.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.davide.myfinance.activities.MainActivity;
 import com.parse.ParseUser;
@@ -100,7 +102,7 @@ public class ExpenseSql {
         db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
     }
 
-    public static int batchUpdateExpense(ModelSql.MyOpenHelper dbHelper, List<Expense> expenses) {
+    public static void batchUpdateExpense(ModelSql.MyOpenHelper dbHelper, List<Expense> expenses, Model.BatchUpdateListener listener) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         for(Expense expense : expenses) {
@@ -118,7 +120,7 @@ public class ExpenseSql {
                 db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
             }
         }
-        return 0;
+        listener.onResult();
     }
 
     public static List<Expense> getExpenses(ModelSql.MyOpenHelper dbHelper) {
@@ -283,15 +285,20 @@ public class ExpenseSql {
         return null;
     }
 
-    public static void syncSqlWithParse(final ModelSql.MyOpenHelper dbHelper, Model.SyncSqlWithParseListener listener){
+    public static void syncSqlWithParse(final ModelSql.MyOpenHelper dbHelper, final Model.SyncSqlWithParseListener listener){
         Model.instance().modelParse.getAllExpensesAsynch(new Model.GetExpensesListener() {
             @Override
             public void onResult(List<Expense> expenses) {
-                batchUpdateExpense(dbHelper, expenses);
+                batchUpdateExpense(dbHelper, expenses, new Model.BatchUpdateListener() {
+                    @Override
+                    public void onResult() {
+                        listener.onResult();
+                    }
+                });
             }
         });
 
-        listener.onResult();
+        //listener.onResult();
     }
 
     public static void create(SQLiteDatabase db) {

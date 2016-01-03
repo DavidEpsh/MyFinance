@@ -36,8 +36,8 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public int batchUpdateExpenses(List<Expense> expenses) {
-        return  ExpenseSql.batchUpdateExpense(dbHelper, expenses);
+    public void batchUpdateExpenses(List<Expense> expenses, Model.BatchUpdateListener listener) {
+        ExpenseSql.batchUpdateExpense(dbHelper, expenses, listener);
     }
 
     @Override
