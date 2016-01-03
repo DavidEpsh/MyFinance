@@ -1,9 +1,11 @@
 package com.example.davide.myfinance.activities;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.davide.myfinance.R;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     public static int RESULT_LOG_IN_SIGN_UP = 1113;
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
+    public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
     public static List<String> allCategories = new ArrayList<>();
 
     FragmentHome fragmentHome;
@@ -61,11 +65,18 @@ public class MainActivity extends AppCompatActivity
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        }else if(checkUpdateInterval()){
+        }else if(checkUpdateInterval() || Model.instance().getLastUpdateTime() == null){
+
+            final Dialog dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            dialog.setContentView(R.layout.dialog_loading);
+            dialog.show();
+
             Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
                 @Override
                 public void onResult() {
+                    dialog.hide();
                     fragmentHome = new FragmentHome();
+                    fragmentHome.needsUpdatingChart = true;
                     getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
                     openFragment(fragmentHome);
                 }
@@ -85,7 +96,6 @@ public class MainActivity extends AppCompatActivity
             intentNew.putExtra("name", name);
             startActivityForResult(intentNew, RESULT_ADD_EXPENSE);
         }
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +190,7 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container,fragment)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
@@ -191,7 +201,7 @@ public class MainActivity extends AppCompatActivity
 
 
         for(int i = 0; i < this.allCategories.size(); i++){
-            Double temp = Model.instance().getSumByCategory(this.allCategories.get(i), "2015-04-04 00:01:01", null);
+            Double temp = Model.instance().getSumByCategory(this.allCategories.get(i), fromDate, null);
             if(temp != null){
                 usedCategories.add(this.allCategories.get(i));
                 expensesPerCategory.add(temp);
@@ -212,31 +222,6 @@ public class MainActivity extends AppCompatActivity
         return calendar;
     }
 
-    public boolean checkUpdateInterval(){
-
-        java.util.Date dateInMemory, currentDate;
-        Long difference;
-        currentDate = GregorianCalendar.getInstance().getTime();
-
-        if(Model.instance().getLastUpdateTime() != null) {
-            try {
-                dateInMemory = sdf.parse(Model.instance().getLastUpdateTime());
-                difference = Math.abs(dateInMemory.getTime() - currentDate.getTime());
-                if(difference / (24 * 60 * 60 * 1000) > 0.5)
-                    return true;
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-
-                // TODO: 02/01/2016 remove next line
-                Toast.makeText(this, "Unable to parse date in cheackUpdateInterval()", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -246,11 +231,11 @@ public class MainActivity extends AppCompatActivity
 
             } else if (resultCode == RESULT_OK) {
                 fragmentHome = new FragmentHome();
+                fragmentHome.needsUpdatingChart = true;
                 getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
                 openFragment(fragmentHome);
             }
         }else {
-
             if (resultCode == RESULT_OK) {
                 getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);
 

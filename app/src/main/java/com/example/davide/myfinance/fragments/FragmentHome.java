@@ -2,6 +2,7 @@ package com.example.davide.myfinance.fragments;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.SpannableString;
@@ -50,6 +51,11 @@ public class FragmentHome extends Fragment implements OnChartValueSelectedListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        if(!fab.isShown()) {
+            fab.show();
+        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);

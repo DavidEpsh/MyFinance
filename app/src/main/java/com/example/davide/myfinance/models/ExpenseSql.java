@@ -38,6 +38,7 @@ public class ExpenseSql {
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
         values.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
+        values.put(IS_SAVED, 1);
 
         db.insert(TABLE, TIMESTAMP, values);
     }
@@ -55,27 +56,30 @@ public class ExpenseSql {
         String query = "SELECT * FROM " + TABLE + " WHERE " + TIMESTAMP + " = " + id;
         Cursor cursor = db.rawQuery(query, null);
 
-        if (cursor != null)
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
+            //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
+            String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
+            String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
+            String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
+            String date = cursor.getString(cursor.getColumnIndex(DATE));
+            int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
+            double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
 
-        //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
-        String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
-        String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
-        String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
-        String date = cursor.getString(cursor.getColumnIndex(DATE));
-        int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
-        double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
+            boolean isRepeating;
+            if (repeating == 1) {
+                isRepeating = true;
+            } else {
+                isRepeating = false;
+            }
+            // TODO: 23/12/2015 - ADD BOOLEAN
+            Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
 
-        boolean isRepeating;
-        if (repeating == 1){
-            isRepeating = true;
+            cursor.close();
+            return expense;
         }else{
-            isRepeating = false;
+            return null;
         }
-        // TODO: 23/12/2015 - ADD BOOLEAN
-        Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
-
-        return expense;
     }
 
     public static int updateExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
@@ -122,37 +126,39 @@ public class ExpenseSql {
 //                String orderBy)
         String query = "SELECT * FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                " AND " + IS_SAVED + " = " + 1;
+                " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
 
-        if (cursor.moveToFirst()) {
-            int id_index = cursor.getColumnIndex(TIMESTAMP);
-            int name_index = cursor.getColumnIndex(NAME);
-            int category_index = cursor.getColumnIndex(CATEGORY);
-            int repeating_index = cursor.getColumnIndex(REPEATING);
-            int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
-            int date_index = cursor.getColumnIndex(DATE);
-            int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
+        if (!(cursor.getCount() <= 0)) {
+            if (cursor.moveToFirst()) {
+                int id_index = cursor.getColumnIndex(TIMESTAMP);
+                int name_index = cursor.getColumnIndex(NAME);
+                int category_index = cursor.getColumnIndex(CATEGORY);
+                int repeating_index = cursor.getColumnIndex(REPEATING);
+                int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
+                int date_index = cursor.getColumnIndex(DATE);
+                int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
 
-            do {
-                Long timeStamp = cursor.getLong(id_index);
-                String expenseName = cursor.getString(name_index);
-                String category = cursor.getString(category_index);
-                String imagePath = cursor.getString(image_path_index);
-                String date = cursor.getString(date_index);
-                int repeating = cursor.getInt(repeating_index);
-                double amount = cursor.getDouble(amount_index);
+                do {
+                    Long timeStamp = cursor.getLong(id_index);
+                    String expenseName = cursor.getString(name_index);
+                    String category = cursor.getString(category_index);
+                    String imagePath = cursor.getString(image_path_index);
+                    String date = cursor.getString(date_index);
+                    int repeating = cursor.getInt(repeating_index);
+                    double amount = cursor.getDouble(amount_index);
 
-                boolean isRepeating;
-                if (repeating == 1){
-                    isRepeating = true;
-                }else{
-                    isRepeating = false;
-                }
-                // TODO: 23/12/2015 - ADD BOOLEAN
-                Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
-                data.add(expense);
-            } while (cursor.moveToNext());
+                    boolean isRepeating;
+                    if (repeating == 1) {
+                        isRepeating = true;
+                    } else {
+                        isRepeating = false;
+                    }
+                    // TODO: 23/12/2015 - ADD BOOLEAN
+                    Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
+                    data.add(expense);
+                } while (cursor.moveToNext());
+            }
         }
 
         return data;
@@ -169,7 +175,7 @@ public class ExpenseSql {
         if(selectedCategory == null && fromDate == null && toDate == null){
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                    " AND " + IS_SAVED + " = " + 1 +
+                    " AND " + IS_SAVED + " = " + " 1 " +
                     " ORDER BY " + DATE + " DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -178,7 +184,7 @@ public class ExpenseSql {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                    " AND " + IS_SAVED + " = " + 1 +
+                    " AND " + IS_SAVED + " = " + " 1 " +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -187,7 +193,7 @@ public class ExpenseSql {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                    " AND " + IS_SAVED + " = " + 1;
+                    " AND " + IS_SAVED + " = " + " 1 ";
             cursor = db.rawQuery(query, null);
 
         }else {
@@ -195,7 +201,7 @@ public class ExpenseSql {
                     " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                     " AND " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                    " AND " + IS_SAVED + " = " + 1 +
+                    " AND " + IS_SAVED + " = " + " 1 " +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -238,25 +244,16 @@ public class ExpenseSql {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> allCategories = new ArrayList<>();
 
-        //    public Cursor query(String table, String[] columns, String selection,
-//        String[] selectionArgs, String groupBy, String having,
-//                String orderBy) {
         String query = "SELECT DISTINCT " + CATEGORY + " FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                " AND " + IS_SAVED + " = " + 1;
+                " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
-//        String[] col = new String[1];
-//        col[0] = CATEGORY;
-
-        //Cursor cursor = db.query(TABLE, null, "'Travel'", null, null, null, null);
-
 
         if (cursor.moveToFirst()) {
             int category_index = cursor.getColumnIndex(CATEGORY);
 
             do {
                 String category = cursor.getString(category_index);
-
                 allCategories.add(category);
             } while (cursor.moveToNext());
         }
@@ -273,7 +270,7 @@ public class ExpenseSql {
                 " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                 " AND " + DATE + " > " + "'" + fromDate + "'" +
                 " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                " AND " + IS_SAVED + " = " + 1;
+                " AND " + IS_SAVED + " = " + " 1 ";
 
         cursor = db.rawQuery(query, null);
 

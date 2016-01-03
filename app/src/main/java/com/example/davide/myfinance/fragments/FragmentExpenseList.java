@@ -3,6 +3,7 @@ package com.example.davide.myfinance.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,6 +41,11 @@ public class FragmentExpenseList extends Fragment {
         mRootView = inflater.inflate(R.layout.fragment_expense_list, container, false);
         studentList = (ListView) mRootView.findViewById(R.id.expensetListView);
 
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        if(!fab.isShown()) {
+            fab.show();
+        }
+
         mStudentListDB = Model.instance().getExpensesByCategory(null, fromDate, toDate);
         mAdapter = new AdapterExpenseList(mStudentListDB, getActivity());
         studentList.setAdapter(mAdapter);
@@ -60,7 +66,6 @@ public class FragmentExpenseList extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-
 
         mStudentListDB = Model.instance().getExpensesByCategory(category, fromDate, toDate);
         mAdapter.notifyDataSetInvalidated();

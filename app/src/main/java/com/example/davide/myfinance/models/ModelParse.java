@@ -140,7 +140,7 @@ public class ModelParse {
         newObject.saveEventually(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if(e != null) {
+                if (e != null) {
                     Log.d("Parse", "Unable to save" + expense.getExpenseName());
                 }
             }
@@ -229,20 +229,14 @@ public class ModelParse {
 
         final String getTime = "getServerTime";
 
-        new Thread(new Runnable() {
+        params = new HashMap<String, Object>();
+        ParseCloud.callFunctionInBackground(getTime, params, new FunctionCallback<String>() {
             @Override
-            public void run() {
-                params = new HashMap<String, Object>();
-                ParseCloud.callFunctionInBackground(getTime, params, new FunctionCallback<String>() {
-                    @Override
-                    public void done(String object, ParseException e) {
-                        Object obj = params.get(getTime);
-                        String lastUpdate = obj.toString();
-                        SharedPreferences.Editor editor = context.getSharedPreferences(context.getString(R.string.shared_prefs),Context.MODE_PRIVATE).edit();
-                        editor.putString(context.getString(R.string.last_update_time), lastUpdate);
-                        editor.commit();
-                    }
-                });
+            public void done(String object, ParseException e) {
+                String lastUpdate = object;
+                SharedPreferences.Editor editor = context.getSharedPreferences(context.getString(R.string.shared_prefs),Context.MODE_PRIVATE).edit();
+                editor.putString(context.getString(R.string.last_update_time), lastUpdate);
+                editor.apply();
             }
         });
     }
@@ -253,5 +247,18 @@ public class ModelParse {
         String lastUpdate = prefs.getString(context.getString(R.string.last_update_time), null);
 
         return  lastUpdate;
+    }
+
+    public boolean checkUpdateInterval(){
+
+        java.util.Date dateInMemory, currentDate;
+        Long difference;
+        //currentDate = Model.instance().get;
+
+        dateInMemory = new java.util.Date(Model.instance().getLastUpdateTime());
+        difference = Math.abs(dateInMemory.getTime() - currentDate.getTime());
+
+
+        return(difference / (24 * 60 * 60 * 1000) > 0.25);
     }
 }
