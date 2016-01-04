@@ -10,7 +10,9 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Model.GetExpensesListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
+import com.parse.GetCallback;
 import com.parse.Parse;
+import com.parse.ParseACL;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -42,6 +44,7 @@ public class ModelParse {
     public List<Expense> getAllExpenses() {
         List<Expense> Expenses = new LinkedList<Expense>();
         ParseQuery query = new ParseQuery("expense");
+
         query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
 
         try {
@@ -123,13 +126,40 @@ public class ModelParse {
         });
     }
 
+    public void updateOrDelete(Expense expense, boolean doDeleteExpense){
 
-    public void addOrUpdateAsync(final Expense expense, boolean doDeleteExpense) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
+
+        query.
+// Retrieve the object by id
+        query.getInBackground("xWMyZ4YEGZ", new GetCallback<ParseObject>() {
+            public void done(ParseObject gameScore, ParseException e) {
+                if (e == null) {
+                    // Now let's update it with some new data. In this case, only cheatMode and score
+                    // will get sent to the Parse Cloud. playerName hasn't changed.
+                    gameScore.put("score", 1338);
+                    gameScore.put("cheatMode", true);
+                    gameScore.saveInBackground();
+                }
+            }
+        });
+
+
+
+        if(doDeleteExpense) {
+            newObject.put(IS_SAVED, 0);
+        }else{
+            newObject.put(IS_SAVED, 1);
+        }
+    }
+
+    public void addOrUpdateAsync(final Expense expense) {
         ParseObject newObject = new ParseObject("Expense");
         newObject.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
         newObject.put("expenseId", expense.getTimeStamp());
         newObject.put("name", expense.getExpenseName());
         newObject.put("repeating", expense.isRepeatingExpenseBool());
+        newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
 
         if(expense.getExpenseImage() != null) {
             newObject.put("imageName", expense.getExpenseImage());
@@ -138,11 +168,7 @@ public class ModelParse {
         newObject.put("category", expense.getCategory());
         newObject.put("amount", expense.getExpenseAmount());
 
-        if(doDeleteExpense) {
-            newObject.put(IS_SAVED, 0);
-        }else{
-            newObject.put(IS_SAVED, 1);
-        }
+
 
         newObject.saveEventually(new SaveCallback() {
             @Override
