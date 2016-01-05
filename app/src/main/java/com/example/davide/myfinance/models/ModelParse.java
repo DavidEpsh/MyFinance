@@ -32,6 +32,7 @@ public class ModelParse {
     private static final String USER_NAME = "username";
     public static final String IS_SAVED = "isSaved";
     public static final String UPDATED_AT = "updatedAt";
+    public static final String TIMESTAMP = "timeStamp";
 
     Context context;
     HashMap<String, Object> params;
@@ -126,31 +127,46 @@ public class ModelParse {
         });
     }
 
-    public void updateOrDelete(Expense expense, boolean doDeleteExpense){
+    public void updateOrDelete(final Expense expense, final boolean doDeleteExpense){
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
+        query.whereEqualTo(TIMESTAMP, expense.getTimeStamp());
 
-        query.
-// Retrieve the object by id
-        query.getInBackground("xWMyZ4YEGZ", new GetCallback<ParseObject>() {
-            public void done(ParseObject gameScore, ParseException e) {
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
-                    // Now let's update it with some new data. In this case, only cheatMode and score
-                    // will get sent to the Parse Cloud. playerName hasn't changed.
-                    gameScore.put("score", 1338);
-                    gameScore.put("cheatMode", true);
-                    gameScore.saveInBackground();
+                    ParseObject newObject = objects.get(0);
+                    newObject.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
+                    newObject.put("expenseId", expense.getTimeStamp());
+                    newObject.put("name", expense.getExpenseName());
+                    newObject.put("repeating", expense.isRepeatingExpenseBool());
+                    newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
+
+                    if (expense.getExpenseImage() != null) {
+                        newObject.put("imageName", expense.getExpenseImage());
+                    }
+                    newObject.put("date", expense.getDateSql());
+                    newObject.put("category", expense.getCategory());
+                    newObject.put("amount", expense.getExpenseAmount());
+
+                    if(doDeleteExpense) {
+                        newObject.put(IS_SAVED, 0);
+                    }else{
+                        newObject.put(IS_SAVED, 1);
+                    }
+
+                    newObject.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                Log.d("Parse", "Unable to save" + expense.getExpenseName());
+                            }
+                        }
+                    });
                 }
             }
         });
-
-
-
-        if(doDeleteExpense) {
-            newObject.put(IS_SAVED, 0);
-        }else{
-            newObject.put(IS_SAVED, 1);
-        }
     }
 
     public void addOrUpdateAsync(final Expense expense) {
