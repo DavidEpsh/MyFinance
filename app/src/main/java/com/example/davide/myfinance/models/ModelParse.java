@@ -177,8 +177,6 @@ public class ModelParse {
         newObject.put("repeating", expense.isRepeatingExpenseBool());
         newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
 
-        ParseUser.getCurrentUser().setACL(ParseRole.);
-
         if(expense.getExpenseImage() != null) {
             newObject.put("imageName", expense.getExpenseImage());
         }
@@ -187,41 +185,22 @@ public class ModelParse {
         newObject.put("amount", expense.getExpenseAmount());
         newObject.put(IS_SAVED, 1);
 
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("email", "a@a.com");
-        ParseCloud.callFunctionInBackground("findUserByEmail", params, new FunctionCallback<String>() {
-
-            @Override
-            public void done(String object, com.parse.ParseException e) {
-                String lastUpdate = object;
-                Log.d("Parse", "get parse user id" + object.toString());
-
-                ParseACL newACL = new ParseACL(ParseUser.getCurrentUser());
-                ParseRole newRole = new ParseRole("myFriends", newACL);
-                newACL.setRoleReadAccess("myFriends", true);
-                newObject.setACL(newACL);
-
-                newObject.saveEventually(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.d("Parse", "Unable to save" + expense.getExpenseName());
-                        }
-                    }
-                });
-
+        newObject.saveEventually(new SaveCallback() {
+        @Override
+        public void done(ParseException e) {
+            if (e != null) {
+                Log.d("Parse", "Unable to save" + expense.getExpenseName());
             }
+        }
         });
     }
 
     public void getAllExpensesAsynch(final GetExpensesListener listener) {
         ParseQuery<ParseObject> query;
-        List<ParseObject> list = new LinkedList<>();
 
         if(getLastUpdateTime(true) == null) {
             query = new ParseQuery<ParseObject>("Expense");
-//            query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
-            query.whereEqualTo(TIMESTAMP, 1451942592933l);
+            query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
             query.whereEqualTo(IS_SAVED, 1);
         }else{
             query = new ParseQuery<ParseObject>("Expense");

@@ -1,14 +1,10 @@
 package com.example.davide.myfinance.activities;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,29 +14,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
-import com.example.davide.myfinance.fragments.FragmentOverview;
-import com.example.davide.myfinance.models.Expense;
+import com.example.davide.myfinance.fragments.FragmentSharedAccount;
 import com.example.davide.myfinance.models.Model;
-import com.parse.FunctionCallback;
-import com.parse.Parse;
-import com.parse.ParseCloud;
 import com.parse.ParseUser;
 
-import java.sql.Date;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -97,10 +82,10 @@ public class MainActivity extends AppCompatActivity
             Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
                 @Override
                 public void onResult() {
-                    dialog.hide();
                     fragmentHome = new FragmentHome();
                     fragmentHome.needsUpdatingChart = true;
                     getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+                    dialog.hide();
                     openFragment(fragmentHome);
                 }
             });
@@ -172,15 +157,19 @@ public class MainActivity extends AppCompatActivity
             setTitle("My Expenses");
 
         } else if (id == R.id.overview) {
-            openFragment(new FragmentOverview());
-            setTitle("Overview");
+            openFragment(new FragmentSharedAccount());
 
         } else if (id == R.id.nav_log_out) {
             ParseUser.logOut();
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_shared_accounts) {
+//            final Dialog dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+//            dialog.setContentView(R.layout.dialog_loading);
+//            dialog.show();
+
+            // TODO: 05/01/2016  
 
         }
 
