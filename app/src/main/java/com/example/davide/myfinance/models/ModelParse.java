@@ -18,6 +18,7 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRole;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -32,7 +33,7 @@ public class ModelParse {
     private static final String USER_NAME = "username";
     public static final String IS_SAVED = "isSaved";
     public static final String UPDATED_AT = "updatedAt";
-    public static final String TIMESTAMP = "timeStamp";
+    public static final String TIMESTAMP = "expenseId";
 
     Context context;
     HashMap<String, Object> params;
@@ -45,13 +46,12 @@ public class ModelParse {
     public List<Expense> getAllExpenses() {
         List<Expense> Expenses = new LinkedList<Expense>();
         ParseQuery query = new ParseQuery("expense");
-
         query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
 
         try {
             List<ParseObject> data = query.find();
             for (ParseObject po : data) {
-                Long id = po.getLong("expenseId");
+                Long id = po.getLong(TIMESTAMP);
                 String name = po.getString("name");
                 boolean isRepeating = po.getBoolean("repeating");
                 String date = po.getString("date");
@@ -85,7 +85,7 @@ public class ModelParse {
         try {
             List<ParseObject> data = query.find();
             for (ParseObject po : data) {
-                Long id = po.getLong("expenseId");
+                Long id = po.getLong(TIMESTAMP);
                 String name = po.getString("name");
                 boolean isRepeating = po.getBoolean("repeating");
                 String date = po.getString("date");
@@ -113,7 +113,7 @@ public class ModelParse {
                 Expense expense = null;
                 if (e == null && parseObjects.size() > 0) {
                     ParseObject po = parseObjects.get(0);
-                    Long id = po.getLong("timeStamp");
+                    Long id = po.getLong(TIMESTAMP);
                     String name = po.getString("name");
                     boolean isRepeating = po.getBoolean("repeating");
                     String date = po.getString("date");
@@ -129,7 +129,7 @@ public class ModelParse {
 
     public void updateOrDelete(final Expense expense, final boolean doDeleteExpense){
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Expense");
         query.whereEqualTo(TIMESTAMP, expense.getTimeStamp());
 
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -138,7 +138,7 @@ public class ModelParse {
                 if (e == null) {
                     ParseObject newObject = objects.get(0);
                     newObject.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
-                    newObject.put("expenseId", expense.getTimeStamp());
+                    newObject.put(TIMESTAMP, expense.getTimeStamp());
                     newObject.put("name", expense.getExpenseName());
                     newObject.put("repeating", expense.isRepeatingExpenseBool());
                     newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
@@ -150,9 +150,9 @@ public class ModelParse {
                     newObject.put("category", expense.getCategory());
                     newObject.put("amount", expense.getExpenseAmount());
 
-                    if(doDeleteExpense) {
+                    if (doDeleteExpense) {
                         newObject.put(IS_SAVED, 0);
-                    }else{
+                    } else {
                         newObject.put(IS_SAVED, 1);
                     }
 
@@ -170,12 +170,14 @@ public class ModelParse {
     }
 
     public void addOrUpdateAsync(final Expense expense) {
-        ParseObject newObject = new ParseObject("Expense");
+        final ParseObject newObject = new ParseObject("Expense");
         newObject.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
         newObject.put("expenseId", expense.getTimeStamp());
         newObject.put("name", expense.getExpenseName());
         newObject.put("repeating", expense.isRepeatingExpenseBool());
         newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
+
+        ParseUser.getCurrentUser().setACL(ParseRole.);
 
         if(expense.getExpenseImage() != null) {
             newObject.put("imageName", expense.getExpenseImage());
@@ -183,33 +185,51 @@ public class ModelParse {
         newObject.put("date", expense.getDateSql());
         newObject.put("category", expense.getCategory());
         newObject.put("amount", expense.getExpenseAmount());
+        newObject.put(IS_SAVED, 1);
 
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("email", "a@a.com");
+        ParseCloud.callFunctionInBackground("findUserByEmail", params, new FunctionCallback<String>() {
 
-
-        newObject.saveEventually(new SaveCallback() {
             @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    Log.d("Parse", "Unable to save" + expense.getExpenseName());
-                }
+            public void done(String object, com.parse.ParseException e) {
+                String lastUpdate = object;
+                Log.d("Parse", "get parse user id" + object.toString());
+
+                ParseACL newACL = new ParseACL(ParseUser.getCurrentUser());
+                ParseRole newRole = new ParseRole("myFriends", newACL);
+                newACL.setRoleReadAccess("myFriends", true);
+                newObject.setACL(newACL);
+
+                newObject.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.d("Parse", "Unable to save" + expense.getExpenseName());
+                        }
+                    }
+                });
+
             }
         });
-
     }
 
     public void getAllExpensesAsynch(final GetExpensesListener listener) {
         ParseQuery<ParseObject> query;
+        List<ParseObject> list = new LinkedList<>();
 
         if(getLastUpdateTime(true) == null) {
             query = new ParseQuery<ParseObject>("Expense");
-            query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
+//            query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
+            query.whereEqualTo(TIMESTAMP, 1451942592933l);
             query.whereEqualTo(IS_SAVED, 1);
-
         }else{
             query = new ParseQuery<ParseObject>("Expense");
             query.whereGreaterThan(UPDATED_AT, getLastUpdateTime(false));
             query.whereContains(USER_NAME, ParseUser.getCurrentUser().getUsername());
             query.whereEqualTo(IS_SAVED, 1);
+
+
         }
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override

@@ -31,8 +31,8 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public void updateExpense(Expense expense, boolean doDeleteExpense) {
-        ExpenseSql.updateExpense(dbHelper, expense, doDeleteExpense);
+    public void updateExpense(Expense expense) {
+        ExpenseSql.updateExpense(dbHelper, expense);
     }
 
     @Override
