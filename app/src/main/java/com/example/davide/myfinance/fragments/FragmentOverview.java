@@ -36,7 +36,7 @@ public class FragmentOverview extends Fragment {
         View v = inflater.inflate(R.layout.fragment_overview, container, false);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
 
-        BarChart chart = (BarChart) v.findViewById(R.id.chart_overview_test);
+        BarChart chart = (BarChart) v.findViewById(R.id.chart_overview);
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         if(!fab.isShown()) {

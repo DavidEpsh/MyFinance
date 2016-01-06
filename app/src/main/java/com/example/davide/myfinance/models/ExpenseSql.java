@@ -60,7 +60,6 @@ public class ExpenseSql {
 
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
-            //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
             String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
             String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
             String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
@@ -74,7 +73,6 @@ public class ExpenseSql {
             } else {
                 isRepeating = false;
             }
-            // TODO: 23/12/2015 - ADD BOOLEAN
             Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
 
             cursor.close();
@@ -245,7 +243,8 @@ public class ExpenseSql {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> allCategories = new ArrayList<>();
 
-        String query = "SELECT DISTINCT " + CATEGORY + " FROM " + TABLE +
+        String query = "SELECT DISTINCT " + CATEGORY +
+                " FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                 " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
@@ -263,10 +262,8 @@ public class ExpenseSql {
 
     public static Double getSumByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory, String fromDate, String toDate) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> allCategories = new ArrayList<>();
 
         Cursor cursor;
-
         String query = "SELECT SUM(" + EXPENSE_AMOUNT + ")" + " FROM " + TABLE +
                 " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                 " AND " + DATE + " > " + "'" + fromDate + "'" +
@@ -298,13 +295,19 @@ public class ExpenseSql {
     }
 
     public static void create(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
-                NAME + " TEXT," + CATEGORY + " TEXT, " +
-                IMAGE_PATH + " TEXT," + DATE + " DATETIME," + REPEATING + " INTEGER, " + USER_NAME + " TEXT, " +
-                IS_SAVED + " INTEGER, " + EXPENSE_AMOUNT + " DOUBLE " + ")");
+        db.execSQL("CREATE TABLE " + TABLE + " (" +
+                TIMESTAMP + " LONG PRIMARY KEY," +
+                NAME + " TEXT," +
+                CATEGORY + " TEXT, " +
+                IMAGE_PATH + " TEXT," +
+                DATE + " DATETIME," +
+                REPEATING + " INTEGER, " +
+                USER_NAME + " TEXT, " +
+                IS_SAVED + " INTEGER, " +
+                EXPENSE_AMOUNT + " DOUBLE " + ")");
     }
 
     public static void drop(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE EXPENSES");
+        db.execSQL("drop table " + TABLE + ";");
     }
 }

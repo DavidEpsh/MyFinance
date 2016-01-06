@@ -34,7 +34,7 @@ public class FragmentSharedAccount extends Fragment {
         View v = inflater.inflate(R.layout.fragment_shared_account, container, false);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
 
-        PieChart chart = (PieChart) v.findViewById(R.id.chart_overview_test);
+        PieChart chart = (PieChart) v.findViewById(R.id.chart_overview);
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         if(!fab.isShown()) {

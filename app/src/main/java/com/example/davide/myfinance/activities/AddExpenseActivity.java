@@ -176,7 +176,6 @@ public class AddExpenseActivity extends AppCompatActivity {
             mPictureButton.setImageBitmap(imageBitmap);
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             imagePath = "JPEG_" + timeStamp + ".jpeg";
-//            Model.getInstance().saveImage(imageBitmap, imageFileName);
 
             super.onActivityResult(requestCode, resultCode, data);
         }
