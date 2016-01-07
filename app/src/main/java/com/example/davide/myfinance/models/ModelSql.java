@@ -66,6 +66,16 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
+    public void addUserSheets(long id, long sheetId, String userName) {
+        ModelUsersAndAccountsSql.addUserSheets(dbHelper, id, sheetId, userName);
+    }
+
+    @Override
+    public void addSheets(long id, String userName) {
+        ModelUsersAndAccountsSql.addSheets(dbHelper, id, userName);
+    }
+
+    @Override
     public Double getSumByCategory(String category,String fromDate, String toDate) {
         return ExpenseSql.getSumByCategory(dbHelper, category, fromDate, toDate);
     }
@@ -81,11 +91,13 @@ public class ModelSql implements Model.ModelInterface {
         @Override
         public void onCreate(SQLiteDatabase db) {
             ExpenseSql.create(db);
+            ModelUsersAndAccountsSql.create(db);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             ExpenseSql.drop(db);
+            ModelUsersAndAccountsSql.drop(db);
             onCreate(db);
         }
     }

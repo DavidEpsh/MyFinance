@@ -17,12 +17,15 @@ public class Model {
         public void updateExpense(Expense expense);
         public void batchUpdateExpenses(List<Expense> expenses, BatchUpdateListener listener);
         public void syncSqlWithParse(SyncSqlWithParseListener listener);
+        public void addUserSheets(long id, long sheetId, String userName);
+        public void addSheets(long id, String userName);
         public List<Expense> getAllExpensesAsynch();
     }
 
     private static final Model instance = new Model();
     private ModelInterface modelImpl;
     ModelParse modelParse = new ModelParse();
+    ModelUsersAndAccountsSql modelUsersAndAccountsSql= new ModelUsersAndAccountsSql();
     Context context;
 
     private Model(){
@@ -109,6 +112,13 @@ public class Model {
         modelImpl.syncSqlWithParse(listener);
     }
 
+    public void addUserSheets(long id, long sheetId, String userName){
+        modelImpl.addUserSheets(id, sheetId, userName);
+    }
+
+    public void addSheets(long id, String userName){
+        modelImpl.addSheets(id, userName);
+    }
 }
 
 

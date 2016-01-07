@@ -3,31 +3,74 @@ package com.example.davide.myfinance.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.example.davide.myfinance.activities.MainActivity;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ExpenseSql {
-    private static final String TABLE = "EXPENSES";
-    private static final String NAME = "NAME";
-    private static final String CATEGORY = "CATEGORY";
-    private static final String IMAGE_PATH = "IMAGE_PATH";
-    private static final String REPEATING = "REPEATING";
-    private static final String DATE = "DATE";
+public class ModelUsersAndAccountsSql {
+    private static final String TABLE_USER_SHEETS = "USER_SHEETS";
+    private static final String TABLE_SHEETS = "SHEETS";
+    private static final String SHEET_NAME = "SHEET_NAME";
     private static final String TIMESTAMP = "TIMESTAMP";
     private static final String EXPENSE_AMOUNT = "EXPENSE_AMOUNT";
     private static final String USER_NAME = "USER_NAME";
-    private static final String IS_SAVED =  "IS_SAVED";
+    public static final String SHEET_ID = "SHEET_ID";
+    private static final String EXPENSES = "EXPENSES";
+    public static final String USER_SHEET_ID = "USER_SHEET_ID";
 
+    public static void create(SQLiteDatabase db) {
+//        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+//                USER_NAME + " TEXT," + SHEET_ID + " LONG FOREIGN KEY " + ")");
+
+        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+                USER_NAME + " TEXT," + " FOREIGN KEY (" + SHEET_ID + ")" +
+                " REFERENCES " + TABLE_SHEETS + "(" +TIMESTAMP +")" + ")");
+
+        db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+                SHEET_NAME + " TEXT" + ")");
+    }
+
+    public static void getUsersAndSum(SQLiteDatabase db, long sheetId){
+
+        String query = "SELECT " +  (TABLE_USER_SHEETS + "." + USER_NAME) + "," +
+                " SUM(" + (EXPENSES + "." +EXPENSE_AMOUNT) +") " +
+                " FROM " + EXPENSES +
+                " LEFT INNER JOIN " + TABLE_USER_SHEETS +
+                " ON " + (EXPENSES + "." + USER_SHEET_ID) + "=" + (TABLE_USER_SHEETS + "." + TIMESTAMP) +
+                " WHERE " + (TABLE_USER_SHEETS + "." + SHEET_ID) + " = " + sheetId +
+                " GROUP BY " + (TABLE_USER_SHEETS + "." + USER_NAME);
+
+    }
+
+    public static void addUserSheets(ModelSql.MyOpenHelper dbHelper, long id, long sheetId, String userName){
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TIMESTAMP, id);
+        values.put(USER_NAME, userName);
+        values.put(SHEET_ID, sheetId);
+        db.insert(TABLE_USER_SHEETS, TIMESTAMP, values);
+    }
+
+    public static void addSheets(ModelSql.MyOpenHelper dbHelper, long id, String userName){
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TIMESTAMP, id);
+        values.put(USER_NAME, userName);
+        db.insert(TABLE_SHEETS, TIMESTAMP, values);
+    }
+
+
+
+
+
+
+
+/*
     public static void addExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -60,6 +103,7 @@ public class ExpenseSql {
 
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
+            //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
             String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
             String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
             String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
@@ -73,6 +117,7 @@ public class ExpenseSql {
             } else {
                 isRepeating = false;
             }
+            // TODO: 23/12/2015 - ADD BOOLEAN
             Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
 
             cursor.close();
@@ -243,8 +288,7 @@ public class ExpenseSql {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> allCategories = new ArrayList<>();
 
-        String query = "SELECT DISTINCT " + CATEGORY +
-                " FROM " + TABLE +
+        String query = "SELECT DISTINCT " + CATEGORY + " FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                 " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
@@ -262,8 +306,10 @@ public class ExpenseSql {
 
     public static Double getSumByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory, String fromDate, String toDate) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<String> allCategories = new ArrayList<>();
 
         Cursor cursor;
+
         String query = "SELECT SUM(" + EXPENSE_AMOUNT + ")" + " FROM " + TABLE +
                 " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                 " AND " + DATE + " > " + "'" + fromDate + "'" +
@@ -292,20 +338,10 @@ public class ExpenseSql {
         });
     }
 
-    public static void create(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE + " (" +
-                TIMESTAMP + " LONG PRIMARY KEY," +
-                NAME + " TEXT," +
-                CATEGORY + " TEXT, " +
-                IMAGE_PATH + " TEXT," +
-                DATE + " DATETIME," +
-                REPEATING + " INTEGER, " +
-                USER_NAME + " TEXT, " +
-                IS_SAVED + " INTEGER, " +
-                EXPENSE_AMOUNT + " DOUBLE " + ")");
-    }
+    */
 
     public static void drop(SQLiteDatabase db) {
-        db.execSQL("drop table " + TABLE + ";");
+        db.execSQL("drop table " + TABLE_USER_SHEETS + ";");
+        db.execSQL("drop table " + TABLE_SHEETS + ";");
     }
 }
