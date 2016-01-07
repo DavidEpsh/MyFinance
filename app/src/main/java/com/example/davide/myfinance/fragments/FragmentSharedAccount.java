@@ -3,11 +3,16 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.adapters.TabsPagerAdapter;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
@@ -28,13 +33,35 @@ public class FragmentSharedAccount extends Fragment {
     List<String> categories;
     List<Double> expenses;
     String fromDate, toDate;
+
+    private static final String ARG_PAGE_NUMBER = "page_number";
+
+    public FragmentSharedAccount() {
+    }
+
+    public static FragmentSharedAccount newInstance(int page) {
+        FragmentSharedAccount fragment = new FragmentSharedAccount();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PAGE_NUMBER, page);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_shared_account, container, false);
+        int page = getArguments().getInt(ARG_PAGE_NUMBER, -1);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
 
-        PieChart chart = (PieChart) v.findViewById(R.id.chart_overview_test);
+        TabLayout tabs = (TabLayout) getActivity().findViewById(R.id.tabs);
+        ViewPager pager = (ViewPager) getActivity().findViewById(R.id.pager);
+        TabsPagerAdapter adapter = new TabsPagerAdapter(getActivity().getSupportFragmentManager());
+
+        pager.setAdapter(adapter);
+        tabs.setupWithViewPager(pager);
+
+        PieChart chart = (PieChart) v.findViewById(R.id.pieChart_shared_accounts_fragment);
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         if(!fab.isShown()) {
@@ -73,8 +100,11 @@ public class FragmentSharedAccount extends Fragment {
         return d;
     }
 
-    public void setData(List<String> categories, List<Double> expenses){
+    public void setFragmentData(List<String> categories, List<Double> expenses, String fromDate, String toDate){
         this.categories = categories;
         this.expenses = expenses;
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+
     }
 }

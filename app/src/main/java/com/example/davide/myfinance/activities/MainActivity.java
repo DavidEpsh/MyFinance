@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.adapters.TabsPagerAdapter;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentSharedAccount;
@@ -204,6 +207,25 @@ public class MainActivity extends AppCompatActivity
         fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
     }
 
+    public void getSqlData(FragmentSharedAccount fragment, String fromDate, String toDate){
+        //Getting all the categories that the user has
+        this.allCategories = Model.instance().getCategories();
+        List<String> usedCategories = new ArrayList<>();
+        List<Double> expensesPerCategory = new ArrayList<>();
+
+
+        for(int i = 0; i < this.allCategories.size(); i++){
+            Double temp = Model.instance().getSumByCategory(this.allCategories.get(i), fromDate, null);
+            if(temp != null){
+                usedCategories.add(this.allCategories.get(i));
+                expensesPerCategory.add(temp);
+            }
+
+        }
+
+        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
+    }
+
     public Calendar getStartOfWeek(){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
@@ -236,6 +258,16 @@ public class MainActivity extends AppCompatActivity
                 //User pressed back button
             }
         }
+    }
+
+    public void setTabLayoutTest(){
+
+        FragmentSharedAccount fragment = new FragmentSharedAccount();
+        fragment.needsUpdatingChart = true;
+
+        getSqlData(fragment, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+        openFragment(fragment);
+
     }
 
 }
