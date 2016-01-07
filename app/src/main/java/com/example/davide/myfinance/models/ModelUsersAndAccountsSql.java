@@ -22,15 +22,15 @@ public class ModelUsersAndAccountsSql {
     public static final String USER_SHEET_ID = "USER_SHEET_ID";
 
     public static void create(SQLiteDatabase db) {
-//        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
-//                USER_NAME + " TEXT," + SHEET_ID + " LONG FOREIGN KEY " + ")");
-
-        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
-                USER_NAME + " TEXT," + " FOREIGN KEY (" + SHEET_ID + ")" +
-                " REFERENCES " + TABLE_SHEETS + "(" +TIMESTAMP +")" + ")");
 
         db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
                 SHEET_NAME + " TEXT" + ")");
+
+        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+                USER_NAME + " TEXT," + SHEET_ID + " LONG," + " FOREIGN KEY(" + SHEET_ID + ")" +
+                " REFERENCES " + TABLE_SHEETS + "(" +TIMESTAMP +")" + ")");
+
+
     }
 
     public static void getUsersAndSum(SQLiteDatabase db, long sheetId){
@@ -53,6 +53,31 @@ public class ModelUsersAndAccountsSql {
         values.put(USER_NAME, userName);
         values.put(SHEET_ID, sheetId);
         db.insert(TABLE_USER_SHEETS, TIMESTAMP, values);
+
+//        if (cursor.getCount() > 0) {
+//            cursor.moveToFirst();
+//            //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
+//            String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
+//            String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
+//            String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
+//            String date = cursor.getString(cursor.getColumnIndex(DATE));
+//            int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
+//            double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
+//
+//            boolean isRepeating;
+//            if (repeating == 1) {
+//                isRepeating = true;
+//            } else {
+//                isRepeating = false;
+//            }
+//            // TODO: 23/12/2015 - ADD BOOLEAN
+//            Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
+//
+//            cursor.close();
+//            return expense;
+//        }else{
+//            return null;
+//        }
     }
 
     public static void addSheets(ModelSql.MyOpenHelper dbHelper, long id, String userName){

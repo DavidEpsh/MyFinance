@@ -9,10 +9,9 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.adapters.TabsPagerAdapter;
+import com.example.davide.myfinance.adapters.AdapterViewPager;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
@@ -51,12 +50,12 @@ public class FragmentSharedAccount extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_shared_account, container, false);
-        int page = getArguments().getInt(ARG_PAGE_NUMBER, -1);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
 
+
         TabLayout tabs = (TabLayout) getActivity().findViewById(R.id.tabs);
-        ViewPager pager = (ViewPager) getActivity().findViewById(R.id.pager);
-        TabsPagerAdapter adapter = new TabsPagerAdapter(getActivity().getSupportFragmentManager());
+        ViewPager pager = (ViewPager) getActivity().findViewById(R.id.viewPager);
+        AdapterViewPager adapter = new AdapterViewPager(getActivity().getSupportFragmentManager());
 
         pager.setAdapter(adapter);
         tabs.setupWithViewPager(pager);

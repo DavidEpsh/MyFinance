@@ -18,7 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.adapters.TabsPagerAdapter;
+import com.example.davide.myfinance.adapters.AdapterViewPager;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentSharedAccount;
@@ -244,10 +244,12 @@ public class MainActivity extends AppCompatActivity
                 finish();
 
             } else if (resultCode == RESULT_OK) {
-                fragmentHome = new FragmentHome();
-                fragmentHome.needsUpdatingChart = true;
-                getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-                openFragment(fragmentHome);
+//                fragmentHome = new FragmentHome();
+//                fragmentHome.needsUpdatingChart = true;
+//                getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+//                openFragment(fragmentHome);
+
+                setTabLayoutTest();
             }
         }else {
             if (resultCode == RESULT_OK) {
@@ -262,11 +264,21 @@ public class MainActivity extends AppCompatActivity
 
     public void setTabLayoutTest(){
 
-        FragmentSharedAccount fragment = new FragmentSharedAccount();
-        fragment.needsUpdatingChart = true;
+        FragmentSharedAccount fragment1 = new FragmentSharedAccount();
 
-        getSqlData(fragment, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-        openFragment(fragment);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+
+        AdapterViewPager adapter = new AdapterViewPager(getSupportFragmentManager());
+        adapter.addFragment(fragment1, "ONE");
+        adapter.addFragment(fragment1, "TWO");
+        adapter.addFragment(fragment1, "THREE");
+        viewPager.setAdapter(adapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        getSqlData(fragment1, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+        openFragment(fragment1);
 
     }
 
