@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
     public static FragmentSharedAccount acc2 = new FragmentSharedAccount();
     public static FragmentSharedAccount acc3 = new FragmentSharedAccount();
 
-    boolean test = true;
+    Dialog dialog;
 
 
     @Override
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
 
         }else if(Model.instance().checkUpdateInterval() || Model.instance().getLastUpdateTime(true) == null){
 
-            final Dialog dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             dialog.setContentView(R.layout.dialog_loading);
             dialog.show();
 
@@ -268,10 +268,23 @@ public class MainActivity extends AppCompatActivity
                 finish();
 
             } else if (resultCode == RESULT_OK) {
-//                fragmentHome = new FragmentHome();
-//                fragmentHome.needsUpdatingChart = true;
-//                getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-//                openFragment(fragmentHome);
+
+//                Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
+//                    @Override
+//                    public void onResult() {
+//
+//                        setFragmentData();
+//                    }
+//                });
+//
+//                Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
+//                    @Override
+//                    public void onResult() {
+//                        dialog.hide();
+//                    }
+//                });
+
+
                 setFragmentData();
                 setTabLayoutTest();
             }

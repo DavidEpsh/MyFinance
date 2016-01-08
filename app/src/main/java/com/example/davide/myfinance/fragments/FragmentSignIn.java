@@ -92,7 +92,12 @@ public class FragmentSignIn extends Fragment {
         Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
             @Override
             public void onResult() {
-                finishAndSetResult();
+                Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
+                    @Override
+                    public void onResult() {
+                        finishAndSetResult();
+                    }
+                });
             }
         });
     }

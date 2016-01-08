@@ -345,7 +345,7 @@ public class ModelParse {
 
     public void getAllUsersSheetsAndSync(final Model.GetAllUsersSheetsListener listener) {
         ParseQuery query = new ParseQuery(USERS_SHEETS_TABLE);
-        query.whereEqualTo(USER_NAME, ParseUser.getCurrentUser());
+        query.whereEqualTo(USER_NAME, ParseUser.getCurrentUser().getUsername());
 
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override

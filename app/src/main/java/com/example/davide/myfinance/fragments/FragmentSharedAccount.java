@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.example.davide.myfinance.R;
+import com.example.davide.myfinance.activities.AddExpenseActivity;
 import com.example.davide.myfinance.activities.EditExpenseActivity;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.adapters.AdapterViewPager;
@@ -91,8 +92,14 @@ public class FragmentSharedAccount extends Fragment {
         fabNewExpense.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), EditExpenseActivity.class);
-                intent.putExtra(MainActivity.USER_SHEET_ID, sheetId);
+
+                Intent intent = new Intent(getActivity(), AddExpenseActivity.class);
+
+                if (mPager.getCurrentItem() == 1) {
+                    intent.putExtra(MainActivity.USER_SHEET_ID, MainActivity.acc2.sheetId);
+                }else{
+                    intent.putExtra(MainActivity.USER_SHEET_ID, MainActivity.acc3.sheetId);
+                }
                 startActivityForResult(intent, MainActivity.RESULT_ADD_EXPENSE);
             }
         });
