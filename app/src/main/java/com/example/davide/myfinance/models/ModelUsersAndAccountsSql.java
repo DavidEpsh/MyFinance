@@ -22,12 +22,12 @@ public class ModelUsersAndAccountsSql {
 
     public static void create(SQLiteDatabase db) {
 
-        db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+        db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + SHEET_ID + " LONG PRIMARY KEY," +
                 SHEET_NAME + " TEXT" + ")");
 
-        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
+        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + USER_SHEET_ID + " LONG PRIMARY KEY," +
                 USER_NAME + " TEXT," + SHEET_ID + " LONG," + " FOREIGN KEY(" + SHEET_ID + ")" +
-                " REFERENCES " + TABLE_SHEETS + "(" +TIMESTAMP +")" + ")");
+                " REFERENCES " + TABLE_SHEETS + "(" +SHEET_ID +")" + ")");
     }
 
     public static HashMap getUsersAndSum(ModelSql.MyOpenHelper dbHelper, long sheetId) {
@@ -38,7 +38,7 @@ public class ModelUsersAndAccountsSql {
                 " SUM(" + (EXPENSES + "." + EXPENSE_AMOUNT) + ") as SUM_EXPENSE" +
                 " FROM " + EXPENSES +
                 " LEFT JOIN " + TABLE_USER_SHEETS +
-                " ON " + (EXPENSES + "." + USER_SHEET_ID) + "=" + (TABLE_USER_SHEETS + "." + TIMESTAMP) +
+                " ON " + (EXPENSES + "." + USER_SHEET_ID) + "=" + (TABLE_USER_SHEETS + "." + USER_SHEET_ID) +
                 " WHERE " + (TABLE_USER_SHEETS + "." + SHEET_ID) + " = " + "'" + sheetId + "'" +
                 " GROUP BY " + (TABLE_USER_SHEETS + "." + USER_NAME);
 
@@ -66,7 +66,7 @@ public class ModelUsersAndAccountsSql {
         }
 
         ContentValues values = new ContentValues();
-        values.put(TIMESTAMP, id);
+        values.put(USER_SHEET_ID, id);
         values.put(USER_NAME, userName);
         values.put(SHEET_ID, sheetId);
         db.insert(TABLE_USER_SHEETS, null, values);
@@ -81,9 +81,9 @@ public class ModelUsersAndAccountsSql {
         }
 
         ContentValues values = new ContentValues();
-        values.put(TIMESTAMP, id);
+        values.put(SHEET_ID, id);
         values.put(SHEET_NAME, sheetName);
-        db.insert(TABLE_SHEETS, TIMESTAMP, values);
+        db.insert(TABLE_SHEETS, null, values);
     }
 
     public static boolean isExistingUsersSheet(ModelSql.MyOpenHelper dbHelper, long id){

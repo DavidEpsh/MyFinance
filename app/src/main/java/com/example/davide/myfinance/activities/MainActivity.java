@@ -43,9 +43,9 @@ public class MainActivity extends AppCompatActivity
     public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
     public static List<String> allCategories = new ArrayList<>();
 
-    FragmentSharedAccount acc1 = new FragmentSharedAccount();
-    FragmentSharedAccount acc2 = new FragmentSharedAccount();
-    FragmentSharedAccount acc3 = new FragmentSharedAccount();
+    public static FragmentSharedAccount acc1 = new FragmentSharedAccount();
+    public static FragmentSharedAccount acc2 = new FragmentSharedAccount();
+    public static FragmentSharedAccount acc3 = new FragmentSharedAccount();
 
     boolean test = true;
 

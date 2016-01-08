@@ -29,9 +29,11 @@ public class AdapterViewPager extends FragmentPagerAdapter {
         return mFragmentList.size();
     }
 
-    public void addFragment(Fragment fragment, String title) {
+    public void addFragment(FragmentSharedAccount fragment, String title) {
+        fragment.setFragmentName(title);
         mFragmentList.add(fragment);
         mFragmentTitleList.add(title);
+
     }
 
     @Override

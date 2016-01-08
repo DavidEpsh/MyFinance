@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.EditExpenseActivity;
 import com.example.davide.myfinance.activities.MainActivity;
+import com.example.davide.myfinance.adapters.AdapterViewPager;
 import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.github.mikephil.charting.charts.PieChart;
@@ -46,6 +47,7 @@ public class FragmentSharedAccount extends Fragment {
     HashMap<String, Double> map;
     int pageNumber;
     public ViewPager mPager;
+    String fragName;
 
     FloatingActionButton fab;
     FloatingActionsMenu fabMenu;
@@ -96,7 +98,10 @@ public class FragmentSharedAccount extends Fragment {
         });
 
         int i = mPager.getCurrentItem();
-        if(i > 0 && sheetId == 0) {
+        if(i == 1 && MainActivity.acc2.sheetId == 0) {
+            fabMenu.setVisibility(View.INVISIBLE);
+            buildAlertDialog(true);// true: activate new account
+        }else if(i == 2 && MainActivity.acc3.sheetId == 0) {
             fabMenu.setVisibility(View.INVISIBLE);
             buildAlertDialog(true);// true: activate new account
         }
@@ -169,9 +174,6 @@ public class FragmentSharedAccount extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 
-
-
-
         if(fab != null || fab != null) {
             if (fabMenuVisible) {
                 fab.setVisibility(View.INVISIBLE);
@@ -207,7 +209,16 @@ public class FragmentSharedAccount extends Fragment {
                     .setView(txtUserName)
                     .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            addNewUser(txtUserName.getText().toString());
+
+                            long id = GregorianCalendar.getInstance().getTimeInMillis();
+                            if (mPager.getCurrentItem() == 1) {
+                                //creating new account - (userSheetsId, sheetsId, userName)
+                                Model.instance().addUserSheets(id, MainActivity.acc2.sheetId, txtUserName.getText().toString());
+                            }else{
+                                //creating new account - (userSheetsId, sheetsId, userName)
+                                Model.instance().addUserSheets(id, MainActivity.acc3.sheetId, txtUserName.getText().toString());
+                            }
+                            fabMenu.setVisibility(View.VISIBLE);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -223,11 +234,18 @@ public class FragmentSharedAccount extends Fragment {
 
                             GregorianCalendar cal = new GregorianCalendar();
                             long id = cal.getTimeInMillis();
-                            sheetId = id;
-                            Model.instance().addSheets(id, getActivity().getTitle().toString());
-
-                            //creating new account - (userSheetsId, sheetsId, userName)
-                            Model.instance().addUserSheets(id, sheetId, ParseUser.getCurrentUser().getUsername());
+                            if (mPager.getCurrentItem() == 1) {
+                                MainActivity.acc2.sheetId = id;
+                                Model.instance().addSheets(id, MainActivity.acc2.fragName);
+                                //creating new account - (userSheetsId, sheetsId, userName)
+                                Model.instance().addUserSheets(id, id, ParseUser.getCurrentUser().getUsername());
+                            }else{
+                                MainActivity.acc3.sheetId = id;
+                                Model.instance().addSheets(id, MainActivity.acc3.fragName);
+                                //creating new account - (userSheetsId, sheetsId, userName)
+                                Model.instance().addUserSheets(id, id, ParseUser.getCurrentUser().getUsername());
+                            }
+                            fabMenu.setVisibility(View.VISIBLE);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -239,16 +257,15 @@ public class FragmentSharedAccount extends Fragment {
         }
     }
 
-    public void addNewUser(String userName){
-
-            Model.instance().addUserSheets(GregorianCalendar.getInstance().getTimeInMillis(), sheetId, userName);
-    }
-
     public void setPageNumber(int pageNumber){
         this.pageNumber = pageNumber;
     }
 
     public void setViewPager(ViewPager viewPager){
         this.mPager = viewPager;
+    }
+
+    public void setFragmentName(String name){
+        this.fragName = name;
     }
 }
