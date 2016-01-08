@@ -14,6 +14,7 @@ public class Expense{
     String category;
     Long timeStamp;
     int isSaved = 1;
+    long userSheetId;
 
     String dateSql;
 
@@ -26,7 +27,7 @@ public class Expense{
         this.timeStamp = timeStamp;
     }
 
-    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp){
+    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp, long userSheetId){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
 
@@ -43,9 +44,11 @@ public class Expense{
         }else{
             tempExpenseImage = R.mipmap.ic_launcher;
         }
+
         this.expenseAmount = amount;
         this.category = category;
         this.timeStamp = timeStamp;
+        this.userSheetId = userSheetId;
     }
 
 
@@ -124,6 +127,14 @@ public class Expense{
 
     public void setDateSql(String dateSql) {
         this.dateSql = dateSql;
+    }
+
+    public long getuserSheetId(){
+        return this.userSheetId;
+    }
+
+    public void setuserSheetId(long userSheetId){
+        this.userSheetId = userSheetId;
     }
 
 }

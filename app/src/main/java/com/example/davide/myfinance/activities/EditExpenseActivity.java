@@ -21,13 +21,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
-
-import java.sql.Date;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -46,6 +43,7 @@ public class EditExpenseActivity extends AppCompatActivity {
     String imagePath;
     String category;
     Long timeStamp;
+    long userSheetId;
     String dateSql;
     GregorianCalendar cal = new GregorianCalendar();
 
@@ -83,7 +81,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         });
 
         if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.ITEM_ID, 0);
+            itemId = getIntent().getLongExtra(MainActivity.USER_SHEET_ID, 0);
             Expense currExpense  = Model.instance().getExpense(itemId);
 
             timeStamp = currExpense.getTimeStamp();
@@ -92,7 +90,7 @@ public class EditExpenseActivity extends AppCompatActivity {
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
-
+            userSheetId = currExpense.getuserSheetId();
 
             if(currExpense.getExpenseImage() != null){
                 AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
@@ -190,7 +188,7 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     private void saveExpense() {
 
-        Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp);
+        Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp, userSheetId);
         Model.instance().updateExpense(mExpense, false);
 
         Intent returnIntent = new Intent();

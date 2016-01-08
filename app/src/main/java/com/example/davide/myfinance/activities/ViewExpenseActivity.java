@@ -18,9 +18,7 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
 
-import java.sql.Date;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class ViewExpenseActivity extends AppCompatActivity {
@@ -50,7 +48,7 @@ public class ViewExpenseActivity extends AppCompatActivity {
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_view_expense);
 
         if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.ITEM_ID, 0l);
+            itemId = getIntent().getLongExtra(MainActivity.USER_SHEET_ID, 0l);
             Expense currExpense = Model.instance().getExpense(itemId);
             dateSql = currExpense.getDateSql();
             mNameOfExpense.setText(currExpense.getExpenseName());
@@ -68,7 +66,7 @@ public class ViewExpenseActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(ViewExpenseActivity.this, EditExpenseActivity.class);
-                intent.putExtra(MainActivity.ITEM_ID, itemId);
+                intent.putExtra(MainActivity.USER_SHEET_ID, itemId);
                 startActivityForResult(intent,1);
                 }
         });

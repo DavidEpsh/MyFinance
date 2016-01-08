@@ -27,6 +27,7 @@ public class ExpenseSql {
     private static final String EXPENSE_AMOUNT = "EXPENSE_AMOUNT";
     private static final String USER_NAME = "USER_NAME";
     private static final String IS_SAVED =  "IS_SAVED";
+    private static final String USER_SHEET_ID = "USER_SHEET_ID";
 
     public static void addExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -40,6 +41,7 @@ public class ExpenseSql {
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
         values.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
+        values.put(USER_SHEET_ID, 12341234);
         values.put(IS_SAVED, 1);
 
         db.insert(TABLE, TIMESTAMP, values);
@@ -66,6 +68,7 @@ public class ExpenseSql {
             String date = cursor.getString(cursor.getColumnIndex(DATE));
             int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
             double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
+            long userSheetId = cursor.getLong(cursor.getColumnIndex(USER_SHEET_ID));
 
             boolean isRepeating;
             if (repeating == 1) {
@@ -73,7 +76,7 @@ public class ExpenseSql {
             } else {
                 isRepeating = false;
             }
-            Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
+            Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id, userSheetId);
 
             cursor.close();
             return expense;
@@ -92,6 +95,7 @@ public class ExpenseSql {
         values.put(DATE, expense.getDateSql());
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
+        values.put(USER_SHEET_ID, expense.getuserSheetId());
 
         db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
     }
@@ -110,6 +114,7 @@ public class ExpenseSql {
                 values.put(DATE, expense.getDateSql());
                 values.put(IMAGE_PATH, expense.getExpenseImage());
                 values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
+                values.put(USER_SHEET_ID, expense.getuserSheetId());
 
                 db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
             }
@@ -137,6 +142,7 @@ public class ExpenseSql {
                 int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
                 int date_index = cursor.getColumnIndex(DATE);
                 int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
+                int userSheetId_index = cursor.getColumnIndex(USER_SHEET_ID);
 
                 do {
                     Long timeStamp = cursor.getLong(id_index);
@@ -146,6 +152,7 @@ public class ExpenseSql {
                     String date = cursor.getString(date_index);
                     int repeating = cursor.getInt(repeating_index);
                     double amount = cursor.getDouble(amount_index);
+                    long userSheetId = cursor.getLong(userSheetId_index);
 
                     boolean isRepeating;
                     if (repeating == 1) {
@@ -154,7 +161,7 @@ public class ExpenseSql {
                         isRepeating = false;
                     }
                     // TODO: 23/12/2015 - ADD BOOLEAN
-                    Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
+                    Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp, userSheetId);
                     data.add(expense);
                 } while (cursor.moveToNext());
             }
@@ -175,6 +182,7 @@ public class ExpenseSql {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
+                    " AND " + USER_SHEET_ID + " != " + " 0 " +
                     " ORDER BY " + DATE + " DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -184,6 +192,7 @@ public class ExpenseSql {
                     " WHERE " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
+                    " AND " + USER_SHEET_ID + " != " + " 0 " +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -192,7 +201,9 @@ public class ExpenseSql {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
+                    " AND " + USER_SHEET_ID + " != " + " 0 " +
                     " AND " + IS_SAVED + " = " + " 1 ";
+
             cursor = db.rawQuery(query, null);
 
         }else {
@@ -201,6 +212,7 @@ public class ExpenseSql {
                     " AND " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
+                    " AND " + USER_SHEET_ID + " != " + " 0 " +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -214,6 +226,7 @@ public class ExpenseSql {
             int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
             int date_index = cursor.getColumnIndex(DATE);
             int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
+            int userSheetId_index = cursor.getColumnIndex(USER_SHEET_ID);
 
             do {
                 Long timeStamp = cursor.getLong(id_index);
@@ -223,6 +236,7 @@ public class ExpenseSql {
                 String date = cursor.getString(date_index);
                 int repeating = cursor.getInt(repeating_index);
                 double amount = cursor.getDouble(amount_index);
+                long userSheetId = cursor.getLong(cursor.getColumnIndex(USER_SHEET_ID));
 
                 boolean isRepeating;
                 if (repeating == 1){
@@ -231,7 +245,7 @@ public class ExpenseSql {
                     isRepeating = false;
                 }
 
-                Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp);
+                Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp, userSheetId_index);
                 data.add(expense);
             } while (cursor.moveToNext());
         }
@@ -246,6 +260,7 @@ public class ExpenseSql {
         String query = "SELECT DISTINCT " + CATEGORY +
                 " FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
+                " AND " + USER_SHEET_ID + " != " + " 0 " +
                 " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -268,6 +283,7 @@ public class ExpenseSql {
                 " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                 " AND " + DATE + " > " + "'" + fromDate + "'" +
                 " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
+                " AND " + USER_SHEET_ID + " != " + " 0 " +
                 " AND " + IS_SAVED + " = " + " 1 ";
 
         cursor = db.rawQuery(query, null);
@@ -302,7 +318,8 @@ public class ExpenseSql {
                 REPEATING + " INTEGER, " +
                 USER_NAME + " TEXT, " +
                 IS_SAVED + " INTEGER, " +
-                EXPENSE_AMOUNT + " DOUBLE " + ")");
+                EXPENSE_AMOUNT + " DOUBLE, " +
+                USER_SHEET_ID + " LONG " + ")");
     }
 
     public static void drop(SQLiteDatabase db) {

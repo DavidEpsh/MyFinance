@@ -11,7 +11,6 @@ import com.example.davide.myfinance.models.Model.GetExpensesListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
-import com.parse.ParseACL;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -25,9 +24,11 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class ModelParse {
 
+    //EXPENSE
     public static final String EXPENSE_OBJ = "Expense";
     public static final String USER_NAME = "username";
     public static final String IS_SAVED = "isSaved";
@@ -36,6 +37,14 @@ public class ModelParse {
     public static final String IMAGE_NAME = "imageName";
     public static final String IMAGES = "images";
     public static final String IMAGE_FILE = "imageFile";
+
+
+    //USERS SHEETS
+    public static final String USERS_SHEETS_TABLE = "UsersSheetsTable";
+    public static final String USERS_SHEETS_ID = "usersSheetsId";
+    public static final String SHEET_ID = "sheetId";
+    public static final String SHEET = "Sheet";
+    public static final String SHEET_NAME = "sheetName";
 
     Context context;
     HashMap<String, Object> params;
@@ -60,7 +69,8 @@ public class ModelParse {
                 String category = po.getString("category");
                 String imageName = po.getString(IMAGE_NAME);
                 Double amount = po.getDouble("amount");
-                Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id);
+                long userSheetId = po.getLong(USERS_SHEETS_ID);
+                Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id, userSheetId);
                 Expenses.add(expense);
             }
         } catch (ParseException e) {
@@ -94,7 +104,9 @@ public class ModelParse {
                 String category = po.getString("category");
                 String imageName = po.getString(IMAGE_NAME);
                 Double amount = po.getDouble("amount");
-                Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id);
+                long userSheetId = po.getLong(USERS_SHEETS_ID);
+
+                Expense expense = new Expense(name, isRepeating, date, imageName, amount, category,id,userSheetId);
                 expenses.add(expense);
             }
         } catch (ParseException e) {
@@ -107,8 +119,9 @@ public class ModelParse {
     }
 
     public void getExpenseById(Long id, final Model.GetExpense listener) {
-        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("expense");
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(EXPENSE_OBJ);
         query.whereEqualTo(TIMESTAMP, id);
+
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> parseObjects, ParseException e) {
@@ -122,7 +135,9 @@ public class ModelParse {
                     String category = po.getString("category");
                     String imageName = po.getString(IMAGE_NAME);
                     Double amount = po.getDouble("amount");
-                    expense = new Expense(name, isRepeating, date, imageName, amount, category, id);
+                    long userSheetId = po.getLong(USERS_SHEETS_ID);
+
+                    expense = new Expense(name, isRepeating, date, imageName, amount, category, id, userSheetId);
                 }
                 listener.onResult(expense);
             }
@@ -143,7 +158,6 @@ public class ModelParse {
                     newObject.put(TIMESTAMP, expense.getTimeStamp());
                     newObject.put("name", expense.getExpenseName());
                     newObject.put("repeating", expense.isRepeatingExpenseBool());
-                    newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
 
                     if (expense.getExpenseImage() != null) {
                         newObject.put(IMAGE_NAME, expense.getExpenseImage());
@@ -151,6 +165,7 @@ public class ModelParse {
                     newObject.put("date", expense.getDateSql());
                     newObject.put("category", expense.getCategory());
                     newObject.put("amount", expense.getExpenseAmount());
+                    newObject.put(USERS_SHEETS_ID, expense.getuserSheetId());
 
                     if (doDeleteExpense) {
                         newObject.put(IS_SAVED, 0);
@@ -177,7 +192,6 @@ public class ModelParse {
         newObject.put(TIMESTAMP, expense.getTimeStamp());
         newObject.put("name", expense.getExpenseName());
         newObject.put("repeating", expense.isRepeatingExpenseBool());
-        newObject.setACL(new ParseACL(ParseUser.getCurrentUser()));
 
         if(expense.getExpenseImage() != null) {
             newObject.put(IMAGE_NAME, expense.getExpenseImage());
@@ -186,6 +200,7 @@ public class ModelParse {
         newObject.put("category", expense.getCategory());
         newObject.put("amount", expense.getExpenseAmount());
         newObject.put(IS_SAVED, 1);
+        newObject.put(USERS_SHEETS_ID, expense.getuserSheetId());
 
         newObject.saveEventually(new SaveCallback() {
             @Override
@@ -225,7 +240,9 @@ public class ModelParse {
                         String category = po.getString("category");
                         String imageName = po.getString(IMAGE_NAME);
                         Double amount = po.getDouble("amount");
-                        Expense expense = new Expense(name, isRepeating, date, imageName, amount, category, id);
+                        long userSheetId = po.getLong(USERS_SHEETS_ID);
+
+                        Expense expense = new Expense(name, isRepeating, date, imageName, amount, category, id, userSheetId);
                         Expenses.add(expense);
                     }
                 }
@@ -292,6 +309,120 @@ public class ModelParse {
             }
         });
     }
+
+    public void addUsersSheet(long id, long sheetId, String userName){
+
+        final ParseObject newObject = new ParseObject(USERS_SHEETS_TABLE);
+        newObject.put(USERS_SHEETS_ID, id);
+        newObject.put(SHEET_ID, sheetId);
+        newObject.put(USER_NAME, userName);
+
+        newObject.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.d("Parse", "Unable to start a new account");
+                }
+            }
+        });
+    }
+
+    public void addSheet(long id, String sheetName){
+
+        final ParseObject newObject = new ParseObject(SHEET);
+        newObject.put(SHEET_ID, id);
+        newObject.put(SHEET_NAME, sheetName);
+
+        newObject.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.d("Parse", "Unable to start a new account" );
+                }
+            }
+        });
+    }
+
+    public void getAllUsersSheetsAndSync(final Model.GetAllUsersSheetsListener listener) {
+        ParseQuery query = new ParseQuery(USERS_SHEETS_TABLE);
+        query.whereEqualTo(USER_NAME, ParseUser.getCurrentUser());
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if (e == null) {
+                    for (ParseObject po : parseObjects) {
+                        long usersSheetsId = po.getLong(USERS_SHEETS_ID);
+                        long userSheetId = po.getLong(SHEET_ID);
+
+                        Model.instance().addUserSheets(usersSheetsId, userSheetId, ParseUser.getCurrentUser().getUsername());
+                        getAllSheetsAndSync(usersSheetsId, new Model.GetAllSheetsListener() {
+                            @Override
+                            public void onResult() {
+
+                            }
+                        });
+
+                        getRelevantExpenses(usersSheetsId, new Model.GetRelevantExpensesListener() {
+                            @Override
+                            public void onResult() {
+
+                            }
+                        });
+
+                    }
+                }
+                listener.onResult();
+            }
+        });
+    }
+
+    public void getAllSheetsAndSync(long usersSheetsId, final Model.GetAllSheetsListener listener) {
+        ParseQuery query = new ParseQuery(SHEET);
+        query.whereEqualTo(SHEET_ID, usersSheetsId);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                if (e == null) {
+                    for (ParseObject po : parseObjects) {
+                        long usersSheetsId = po.getLong(SHEET_ID);
+                        String sheetName = po.getString(SHEET_NAME);
+
+                        Model.instance().addSheets(usersSheetsId, sheetName);
+                    }
+                }
+                listener.onResult();
+            }
+        });
+    }
+
+    public void getRelevantExpenses(long usersSheetId, final Model.GetRelevantExpensesListener listener) {
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(EXPENSE_OBJ);
+        query.whereEqualTo(USERS_SHEETS_ID, usersSheetId);
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> parseObjects, ParseException e) {
+                Expense expense = null;
+                if (e == null && parseObjects.size() > 0) {
+                    ParseObject po = parseObjects.get(0);
+                    Long id = po.getLong(TIMESTAMP);
+                    String name = po.getString("name");
+                    boolean isRepeating = po.getBoolean("repeating");
+                    String date = po.getString("date");
+                    String category = po.getString("category");
+                    String imageName = po.getString(IMAGE_NAME);
+                    Double amount = po.getDouble("amount");
+                    long userSheetId = po.getLong(USERS_SHEETS_ID);
+
+                    Model.instance().addExpense(new Expense(name, isRepeating, date, imageName, amount, category, id, userSheetId));
+                }
+                listener.onResult();
+            }
+        });
+    }
+
+
 
     public String getLastUpdateTime(boolean isSql){
 

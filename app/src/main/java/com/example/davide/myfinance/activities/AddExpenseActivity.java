@@ -31,13 +31,11 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
-import com.parse.ParseCloud;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 
 public class AddExpenseActivity extends AppCompatActivity {
 
@@ -53,6 +51,7 @@ public class AddExpenseActivity extends AppCompatActivity {
     private String imagePath;
     private Spinner spinnerCategories;
 
+    long userSheetId;
     GregorianCalendar cal;
     String dateSql;
 
@@ -81,6 +80,8 @@ public class AddExpenseActivity extends AppCompatActivity {
             String name = intent.getStringExtra("name");
             mNameOfExpense.setText(name);
         }
+
+        userSheetId = intent.getLongExtra(MainActivity.USER_SHEET_ID, 0);
 
         setCalender();
         initializeSpinner();
@@ -156,7 +157,8 @@ public class AddExpenseActivity extends AppCompatActivity {
                 imagePath,
                 Double.valueOf(mExpenseAmount.getText().toString()),
                 spinnerCategories.getSelectedItem().toString(),
-                GregorianCalendar.getInstance().getTimeInMillis());
+                GregorianCalendar.getInstance().getTimeInMillis(),
+                userSheetId);
 
         FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         Model.instance().addExpense(mExpense);

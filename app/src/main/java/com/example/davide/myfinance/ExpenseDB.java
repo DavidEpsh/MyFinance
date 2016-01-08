@@ -26,7 +26,7 @@ public class ExpenseDB {
         initializeCategories();
 
         expensesDB = new ArrayList<>();
-        addTestData();
+        //addTestData();
     }
 
     public int getSize(){
@@ -82,19 +82,19 @@ public class ExpenseDB {
 
 
 
-    private void addTestData() {
-        GregorianCalendar temp = new GregorianCalendar(2015,0,1);
-        Expense guest1 = new Expense("aaa", true, MainActivity.sdf.format(temp.getTime()), null, 111.1,"Shopping", GregorianCalendar.getInstance().getTimeInMillis());
-        addExpense(guest1);
-
-        GregorianCalendar temp2 = new GregorianCalendar(2015,1,2);
-        Expense guest2 = new Expense("bbb", true, MainActivity.sdf.format(temp2.getTime()), null, 222.2,"Travel", GregorianCalendar.getInstance().getTimeInMillis());
-        addExpense(guest2);
-
-        GregorianCalendar temp3 = new GregorianCalendar(2015,2,3);
-        Expense guest3 = new Expense("ccc", true, MainActivity.sdf.format(temp3.getTime()), null, 333.3,"Transportation", GregorianCalendar.getInstance().getTimeInMillis());
-        addExpense(guest3);
-    }
+//    private void addTestData() {
+//        GregorianCalendar temp = new GregorianCalendar(2015,0,1);
+//        Expense guest1 = new Expense("aaa", true, MainActivity.sdf.format(temp.getTime()), null, 111.1,"Shopping", GregorianCalendar.getInstance().getTimeInMillis());
+//        addExpense(guest1);
+//
+//        GregorianCalendar temp2 = new GregorianCalendar(2015,1,2);
+//        Expense guest2 = new Expense("bbb", true, MainActivity.sdf.format(temp2.getTime()), null, 222.2,"Travel", GregorianCalendar.getInstance().getTimeInMillis());
+//        addExpense(guest2);
+//
+//        GregorianCalendar temp3 = new GregorianCalendar(2015,2,3);
+//        Expense guest3 = new Expense("ccc", true, MainActivity.sdf.format(temp3.getTime()), null, 333.3,"Transportation", GregorianCalendar.getInstance().getTimeInMillis());
+//        addExpense(guest3);
+//    }
 
     private void initializeCategories(){
         categoryDB.add(new Category("Travel", R.drawable.ic_flight_takeoff_black));

@@ -2,6 +2,7 @@ package com.example.davide.myfinance.models;
 
 import android.content.Context;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Model {
@@ -20,6 +21,7 @@ public class Model {
         public void addUserSheets(long id, long sheetId, String userName);
         public void addSheets(long id, String userName);
         public List<Expense> getAllExpensesAsynch();
+        public HashMap<String, Double> getUsersAndSums(long sheetId);
     }
 
     private static final Model instance = new Model();
@@ -92,11 +94,23 @@ public class Model {
         public void onResult(List<Expense> expenses);
     }
 
+    public interface GetRelevantExpensesListener{
+        public void onResult();
+    }
+
     public interface SyncSqlWithParseListener{
         public void onResult();
     }
 
     public interface BatchUpdateListener{
+        public void onResult();
+    }
+
+    public interface GetAllUsersSheetsListener{
+        public void onResult();
+    }
+
+    public interface GetAllSheetsListener{
         public void onResult();
     }
 
@@ -114,10 +128,24 @@ public class Model {
 
     public void addUserSheets(long id, long sheetId, String userName){
         modelImpl.addUserSheets(id, sheetId, userName);
+        modelParse.addUsersSheet(id, sheetId, userName);
     }
 
-    public void addSheets(long id, String userName){
-        modelImpl.addSheets(id, userName);
+    public void addSheets(long id, String sheetName){
+        modelImpl.addSheets(id, sheetName);
+        modelParse.addSheet(id, sheetName);
+    }
+
+    public HashMap<String, Double> getUsersAndSums(long sheetId){
+        return modelImpl.getUsersAndSums(sheetId);
+    }
+
+    public void getAllUsersSheetsAndSync(GetAllUsersSheetsListener listener){
+        modelParse.getAllUsersSheetsAndSync(listener);
+    }
+
+    public void getAllSheetsAndSync(long usersSheetsId, GetAllSheetsListener listener){
+        modelParse.getAllSheetsAndSync(usersSheetsId, listener);
     }
 }
 

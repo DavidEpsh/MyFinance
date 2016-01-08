@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -33,7 +34,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static String ITEM_ID = "ID";
+    public static String USER_SHEET_ID = "USER_SHEET_ID";
     public static int RESULT_FINISHED_EDITING = 1111;
     public static int RESULT_ADD_EXPENSE = 1112;
     public static int RESULT_LOG_IN_SIGN_UP = 1113;
@@ -42,7 +43,10 @@ public class MainActivity extends AppCompatActivity
     public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
     public static List<String> allCategories = new ArrayList<>();
 
-    FragmentHome fragmentHome;
+    FragmentSharedAccount acc1 = new FragmentSharedAccount();
+    FragmentSharedAccount acc2 = new FragmentSharedAccount();
+    FragmentSharedAccount acc3 = new FragmentSharedAccount();
+
     boolean test = true;
 
 
@@ -53,6 +57,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        acc2.setPageNumber(2);
+        acc3.setPageNumber(3);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         if(ParseUser.getCurrentUser() == null) {
+
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
@@ -85,18 +92,21 @@ public class MainActivity extends AppCompatActivity
             Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
                 @Override
                 public void onResult() {
-                    fragmentHome = new FragmentHome();
-                    fragmentHome.needsUpdatingChart = true;
-                    getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
+
+                    setFragmentData();
+                }
+            });
+
+            Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
+                @Override
+                public void onResult() {
                     dialog.hide();
-                    openFragment(fragmentHome);
                 }
             });
 
         }else{
-            fragmentHome = new FragmentHome();
-            getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-            openFragment(fragmentHome);
+            setFragmentData();
+            setTabLayoutTest();
         }
 
         Intent intent = getIntent();
@@ -148,10 +158,12 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.drawer_home) {
-            FragmentHome fragment = new FragmentHome();
-            getSqlData(fragment, sdf.format(getStartOfWeek().getTime()), null);
-            openFragment(fragment);
-            setTitle("My Finance");
+//            FragmentHome fragment = new FragmentHome();
+//            getSqlData(fragment, sdf.format(getStartOfWeek().getTime()), null);
+//            openFragment(fragment);
+//            setTitle("My Finance");
+
+            setTabLayoutTest();
 
         } else if (id == R.id.drawer_expense_list) {
             FragmentExpenseList fragment = new FragmentExpenseList();
@@ -181,11 +193,23 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+//    private void openFragment(final Fragment fragment){
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.container,fragment)
+//                .commitAllowingStateLoss();
+//    }
+
     private void openFragment(final Fragment fragment){
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container,fragment)
-                .commitAllowingStateLoss();
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.replace(R.id.container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
@@ -207,7 +231,7 @@ public class MainActivity extends AppCompatActivity
         fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
     }
 
-    public void getSqlData(FragmentSharedAccount fragment, String fromDate, String toDate){
+    public void getSqlData(FragmentSharedAccount fragment, String fromDate, String toDate, boolean fabMenu){
         //Getting all the categories that the user has
         this.allCategories = Model.instance().getCategories();
         List<String> usedCategories = new ArrayList<>();
@@ -223,7 +247,7 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
+        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate, fabMenu);
     }
 
     public Calendar getStartOfWeek(){
@@ -248,12 +272,12 @@ public class MainActivity extends AppCompatActivity
 //                fragmentHome.needsUpdatingChart = true;
 //                getSqlData(fragmentHome, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
 //                openFragment(fragmentHome);
-
+                setFragmentData();
                 setTabLayoutTest();
             }
         }else {
             if (resultCode == RESULT_OK) {
-                getSqlData(fragmentHome, sdf.format(getStartOfWeek().getTime()), null);
+                getSqlData(acc1, sdf.format(getStartOfWeek().getTime()), null, false);
 
             }
             if (resultCode == RESULT_CANCELED) {
@@ -264,22 +288,42 @@ public class MainActivity extends AppCompatActivity
 
     public void setTabLayoutTest(){
 
-        FragmentSharedAccount fragment1 = new FragmentSharedAccount();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
+        }
+
+//        acc1 = new FragmentSharedAccount();
+        //getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
+
+//        acc2 = new FragmentSharedAccount();
+        //acc2.setDataForAccount(Model.instance().getUsersAndSums(123123123), true);
+
+//        acc3 = new FragmentSharedAccount();
+        //getSqlData(acc3, MainActivity.sdf.format(getStartOfWeek().getTime()), null, true);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 
         AdapterViewPager adapter = new AdapterViewPager(getSupportFragmentManager());
-        adapter.addFragment(fragment1, "ONE");
-        adapter.addFragment(fragment1, "TWO");
-        adapter.addFragment(fragment1, "THREE");
+        adapter.addFragment(acc1, "My Account");
+        acc1.setViewPager(viewPager);
+        adapter.addFragment(acc2, "Home");
+        acc2.setViewPager(viewPager);
+        adapter.addFragment(acc3, "Trip");
+        acc3.setViewPager(viewPager);
         viewPager.setAdapter(adapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        getSqlData(fragment1, MainActivity.sdf.format(getStartOfWeek().getTime()), null);
-        openFragment(fragment1);
+        tabLayout.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.VISIBLE);
+    }
 
+    public void setFragmentData() {
+
+        getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
+        acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
+        acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
     }
 
 }

@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.davide.myfinance.activities.MainActivity;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ModelSql implements Model.ModelInterface {
@@ -73,6 +74,11 @@ public class ModelSql implements Model.ModelInterface {
     @Override
     public void addSheets(long id, String userName) {
         ModelUsersAndAccountsSql.addSheets(dbHelper, id, userName);
+    }
+
+    @Override
+    public HashMap<String, Double> getUsersAndSums(long sheetId) {
+        return ModelUsersAndAccountsSql.getUsersAndSum(dbHelper, sheetId);
     }
 
     @Override

@@ -4,9 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.parse.ParseUser;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,68 +28,89 @@ public class ModelUsersAndAccountsSql {
         db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + TIMESTAMP + " LONG PRIMARY KEY," +
                 USER_NAME + " TEXT," + SHEET_ID + " LONG," + " FOREIGN KEY(" + SHEET_ID + ")" +
                 " REFERENCES " + TABLE_SHEETS + "(" +TIMESTAMP +")" + ")");
-
-
     }
 
-    public static void getUsersAndSum(SQLiteDatabase db, long sheetId){
+    public static HashMap getUsersAndSum(ModelSql.MyOpenHelper dbHelper, long sheetId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        HashMap<String, Double> map = new HashMap<>();
 
-        String query = "SELECT " +  (TABLE_USER_SHEETS + "." + USER_NAME) + "," +
-                " SUM(" + (EXPENSES + "." +EXPENSE_AMOUNT) +") " +
+        String query = "SELECT " + (TABLE_USER_SHEETS + "." + USER_NAME) + "," +
+                " SUM(" + (EXPENSES + "." + EXPENSE_AMOUNT) + ") as SUM_EXPENSE" +
                 " FROM " + EXPENSES +
-                " LEFT INNER JOIN " + TABLE_USER_SHEETS +
+                " LEFT JOIN " + TABLE_USER_SHEETS +
                 " ON " + (EXPENSES + "." + USER_SHEET_ID) + "=" + (TABLE_USER_SHEETS + "." + TIMESTAMP) +
-                " WHERE " + (TABLE_USER_SHEETS + "." + SHEET_ID) + " = " + sheetId +
+                " WHERE " + (TABLE_USER_SHEETS + "." + SHEET_ID) + " = " + "'" + sheetId + "'" +
                 " GROUP BY " + (TABLE_USER_SHEETS + "." + USER_NAME);
 
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            int name_index = cursor.getColumnIndex(USER_NAME);
+            int amount_index = cursor.getColumnIndex("SUM_EXPENSE");
+
+            do {
+                String name = cursor.getString(name_index);
+                Double amount = cursor.getDouble(amount_index);
+
+                map.put(name, amount);
+            } while (cursor.moveToNext());
+        }
+        return map;
     }
 
     public static void addUserSheets(ModelSql.MyOpenHelper dbHelper, long id, long sheetId, String userName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        if (isExistingUsersSheet(dbHelper, id)){
+            return;
+        }
+
         ContentValues values = new ContentValues();
         values.put(TIMESTAMP, id);
         values.put(USER_NAME, userName);
         values.put(SHEET_ID, sheetId);
-        db.insert(TABLE_USER_SHEETS, TIMESTAMP, values);
+        db.insert(TABLE_USER_SHEETS, null, values);
 
-//        if (cursor.getCount() > 0) {
-//            cursor.moveToFirst();
-//            //Long timeStamp = cursor.getLong(cursor.getColumnIndex(TIMESTAMP));
-//            String expenseName = cursor.getString(cursor.getColumnIndex(NAME));
-//            String category = cursor.getString(cursor.getColumnIndex(CATEGORY));
-//            String imagePath = cursor.getString(cursor.getColumnIndex(IMAGE_PATH));
-//            String date = cursor.getString(cursor.getColumnIndex(DATE));
-//            int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
-//            double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
-//
-//            boolean isRepeating;
-//            if (repeating == 1) {
-//                isRepeating = true;
-//            } else {
-//                isRepeating = false;
-//            }
-//            // TODO: 23/12/2015 - ADD BOOLEAN
-//            Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, id);
-//
-//            cursor.close();
-//            return expense;
-//        }else{
-//            return null;
-//        }
     }
 
-    public static void addSheets(ModelSql.MyOpenHelper dbHelper, long id, String userName){
+    public static void addSheets(ModelSql.MyOpenHelper dbHelper, long id, String sheetName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        if (isExistingSheet(dbHelper, id)){
+            return;
+        }
 
         ContentValues values = new ContentValues();
         values.put(TIMESTAMP, id);
-        values.put(USER_NAME, userName);
+        values.put(SHEET_NAME, sheetName);
         db.insert(TABLE_SHEETS, TIMESTAMP, values);
     }
 
+    public static boolean isExistingUsersSheet(ModelSql.MyOpenHelper dbHelper, long id){
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_USER_SHEETS +
+                " WHERE " + USER_SHEET_ID + " = " + id;
+        Cursor cursor = db.rawQuery(query, null);
 
+        if (cursor.getCount() > 0) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 
+    public static boolean isExistingSheet(ModelSql.MyOpenHelper dbHelper, long id){
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_USER_SHEETS +
+                " WHERE " + SHEET_ID + " = " + id;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.getCount() > 0) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 
 
 

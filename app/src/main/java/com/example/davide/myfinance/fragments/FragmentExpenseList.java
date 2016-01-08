@@ -4,7 +4,9 @@ package com.example.davide.myfinance.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +14,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
 import com.example.davide.myfinance.activities.ViewExpenseActivity;
 import com.example.davide.myfinance.adapters.AdapterExpenseList;
-import com.example.davide.myfinance.models.Category;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
 
@@ -41,6 +41,11 @@ public class FragmentExpenseList extends Fragment {
         mRootView = inflater.inflate(R.layout.fragment_expense_list, container, false);
         studentList = (ListView) mRootView.findViewById(R.id.expensetListView);
 
+        ViewPager viewPager = (ViewPager) getActivity().findViewById(R.id.viewPager);
+        viewPager.setVisibility(View.INVISIBLE);
+        TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.tabs);
+        tabLayout.setVisibility(View.INVISIBLE);
+
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         if(!fab.isShown()) {
             fab.show();
@@ -55,7 +60,7 @@ public class FragmentExpenseList extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("TAG", "row " + position + " selected");
                 Intent intent = new Intent(mRootView.getContext(), ViewExpenseActivity.class);
-                intent.putExtra(MainActivity.ITEM_ID, mStudentListDB.get(position).getTimeStamp());
+                intent.putExtra(MainActivity.USER_SHEET_ID, mStudentListDB.get(position).getTimeStamp());
                 startActivityForResult(intent, MainActivity.RESULT_FINISHED_EDITING);
             }
         });
