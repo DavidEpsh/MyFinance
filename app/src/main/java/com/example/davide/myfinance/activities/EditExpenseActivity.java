@@ -26,7 +26,9 @@ import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class EditExpenseActivity extends AppCompatActivity {
@@ -43,9 +45,10 @@ public class EditExpenseActivity extends AppCompatActivity {
     String imagePath;
     String category;
     Long timeStamp;
-    long userSheetId;
+    String userSheetId;
     String dateSql;
     GregorianCalendar cal = new GregorianCalendar();
+    String imageFileName;
 
     Long itemId;
     private FloatingActionsMenu fab;
@@ -81,7 +84,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         });
 
         if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.USER_SHEET_ID, 0);
+            itemId = getIntent().getLongExtra(MainActivity.SHEET_ID, 0);
             Expense currExpense  = Model.instance().getExpense(itemId);
 
             timeStamp = currExpense.getTimeStamp();
@@ -90,27 +93,23 @@ public class EditExpenseActivity extends AppCompatActivity {
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
-            userSheetId = currExpense.getuserSheetId();
+            userSheetId = currExpense.getSheetId();
 
-            if(currExpense.getExpenseImage() != null){
-                AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
-            }
+            Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
+                @Override
+                public void onResult(Bitmap imageBmp) {
+                    mPictureButton.setImageBitmap(imageBmp);
+                }
+            });
         }
 
         mPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                Intent chooser = new Intent(Intent.ACTION_CHOOSER);
-                chooser.putExtra(Intent.EXTRA_INTENT, galleryIntent);
-                chooser.putExtra(Intent.EXTRA_TITLE, R.string.pick_image_intent_text);
-                Intent[] intentArray =  {cameraIntent};
-                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivityForResult(chooser,5);
-
-                startActivityForResult(chooser, 5);
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, MainActivity.REQUEST_IMAGE_CAPTURE);
+                }
             }
         });
 
@@ -174,13 +173,13 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
-            imagePath =  getRealPathFromURI(selectedImage);
-
-            setPic(mPictureButton, imagePath);
-
-            super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mPictureButton.setImageBitmap(imageBitmap);
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            imageFileName = "JPEG_" + timeStamp + ".jpeg";
+            Model.instance().saveImage(imageBitmap, imageFileName);
         }
     }
 
@@ -189,7 +188,7 @@ public class EditExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
 
         Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp, userSheetId);
-        Model.instance().updateExpense(mExpense, false);
+        Model.instance().updateOrAddExpense(mExpense, false);
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", SAVED_EXPENSE);
@@ -235,41 +234,5 @@ public class EditExpenseActivity extends AppCompatActivity {
             }
         });
     }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = { MediaStore.Images.Media.DATA };
-        CursorLoader loader = new CursorLoader(this, contentUri, proj, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(column_index);
-        cursor.close();
-        return result;
-    }
-
-    public static void setPic(ImageButton imageButton, String photoPath) {
-        // Get the dimensions of the View
-        int targetW = imageButton.getMaxWidth();
-        int targetH = imageButton.getMaxHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
-        imageButton.setImageBitmap(bitmap);
-    }
-
 
 }

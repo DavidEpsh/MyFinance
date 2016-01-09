@@ -34,10 +34,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static String USER_SHEET_ID = "USER_SHEET_ID";
+    public static String SHEET_ID = "SHEET_ID";
     public static int RESULT_FINISHED_EDITING = 1111;
     public static int RESULT_ADD_EXPENSE = 1112;
     public static int RESULT_LOG_IN_SIGN_UP = 1113;
+    static final int REQUEST_IMAGE_CAPTURE = 1114;
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
     public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
@@ -83,30 +84,13 @@ public class MainActivity extends AppCompatActivity
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        }else if(Model.instance().checkUpdateInterval() || Model.instance().getLastUpdateTime(true) == null){
-
-            dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-            dialog.setContentView(R.layout.dialog_loading);
-            dialog.show();
-
-            Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
-                @Override
-                public void onResult() {
-
-                    setFragmentData();
-                }
-            });
-
-            Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
-                @Override
-                public void onResult() {
-                    dialog.hide();
-                }
-            });
-
+        }else if(Model.instance().getLastUpdateTime(true) == null){
+            startUpdate();
+        }else if(Model.instance().checkUpdateInterval()){
+            startUpdate();
         }else{
             setFragmentData();
-            setTabLayoutTest();
+            setTabLayout();
         }
 
         Intent intent = getIntent();
@@ -127,6 +111,21 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    public void startUpdate(){
+        dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.setContentView(R.layout.dialog_loading);
+        dialog.show();
+
+        Model.instance().getAllExpensesOrUpdateAsync(true, new Model.GetAllExpensesOrUpdateAsync() {
+            @Override
+            public void onResult() {
+                dialog.hide();
+                setFragmentData();
+                setTabLayout();
+            }
+        });
     }
 
     @Override
@@ -163,7 +162,7 @@ public class MainActivity extends AppCompatActivity
 //            openFragment(fragment);
 //            setTitle("My Finance");
 
-            setTabLayoutTest();
+            setTabLayout();
 
         } else if (id == R.id.drawer_expense_list) {
             FragmentExpenseList fragment = new FragmentExpenseList();
@@ -172,7 +171,7 @@ public class MainActivity extends AppCompatActivity
             setTitle("My Expenses");
 
         } else if (id == R.id.overview) {
-            openFragment(new FragmentSharedAccount());
+
 
         } else if (id == R.id.nav_log_out) {
             ParseUser.logOut();
@@ -268,25 +267,9 @@ public class MainActivity extends AppCompatActivity
                 finish();
 
             } else if (resultCode == RESULT_OK) {
-
-//                Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
-//                    @Override
-//                    public void onResult() {
-//
-//                        setFragmentData();
-//                    }
-//                });
-//
-//                Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
-//                    @Override
-//                    public void onResult() {
-//                        dialog.hide();
-//                    }
-//                });
-
-
                 setFragmentData();
-                setTabLayoutTest();
+                setTabLayout();
+
             }
         }else {
             if (resultCode == RESULT_OK) {
@@ -299,20 +282,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void setTabLayoutTest(){
+    public void setTabLayout(){
 
         if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStack();
         }
-
-//        acc1 = new FragmentSharedAccount();
-        //getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
-
-//        acc2 = new FragmentSharedAccount();
-        //acc2.setDataForAccount(Model.instance().getUsersAndSums(123123123), true);
-
-//        acc3 = new FragmentSharedAccount();
-        //getSqlData(acc3, MainActivity.sdf.format(getStartOfWeek().getTime()), null, true);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 
@@ -335,8 +309,8 @@ public class MainActivity extends AppCompatActivity
     public void setFragmentData() {
 
         getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
-        acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
-        acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
+        //acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
+        //acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
     }
 
 }

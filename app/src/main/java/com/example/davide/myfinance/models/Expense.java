@@ -14,8 +14,7 @@ public class Expense{
     String category;
     Long timeStamp;
     int isSaved = 1;
-    long userSheetId;
-
+    String sheetId;
     String dateSql;
 
 
@@ -27,7 +26,7 @@ public class Expense{
         this.timeStamp = timeStamp;
     }
 
-    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp, long userSheetId){
+    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp, String sheetId){
         this.expenseName = name;
         this.isRepeatingExpense = isRepeating;
 
@@ -48,7 +47,7 @@ public class Expense{
         this.expenseAmount = amount;
         this.category = category;
         this.timeStamp = timeStamp;
-        this.userSheetId = userSheetId;
+        this.sheetId = sheetId;
     }
 
 
@@ -129,12 +128,12 @@ public class Expense{
         this.dateSql = dateSql;
     }
 
-    public long getuserSheetId(){
-        return this.userSheetId;
+    public String getSheetId(){
+        return this.sheetId;
     }
 
-    public void setuserSheetId(long userSheetId){
-        this.userSheetId = userSheetId;
+    public void setSheetId(String sheetId){
+        this.sheetId = sheetId;
     }
 
 }

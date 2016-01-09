@@ -31,6 +31,7 @@ import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
+import com.parse.ParseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -48,10 +49,10 @@ public class AddExpenseActivity extends AppCompatActivity {
     private ImageButton mPictureButton;
     private ImageView mExpenseImage;
     private EditText mExpenseAmount;
-    private String imagePath;
+    private String imageFileName;
     private Spinner spinnerCategories;
 
-    long userSheetId;
+    String sheetId;
     GregorianCalendar cal;
     String dateSql;
 
@@ -81,7 +82,12 @@ public class AddExpenseActivity extends AppCompatActivity {
             mNameOfExpense.setText(name);
         }
 
-        userSheetId = intent.getLongExtra(MainActivity.USER_SHEET_ID, 0);
+        sheetId = intent.getStringExtra(MainActivity.SHEET_ID);
+
+        if(sheetId == null){
+            sheetId = ParseUser.getCurrentUser().getUsername();
+        }
+
 
         setCalender();
         initializeSpinner();
@@ -99,15 +105,10 @@ public class AddExpenseActivity extends AppCompatActivity {
         mPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                Intent chooser = new Intent(Intent.ACTION_CHOOSER);
-                chooser.putExtra(Intent.EXTRA_INTENT, galleryIntent);
-                chooser.putExtra(Intent.EXTRA_TITLE, R.string.pick_image_intent_text);
-                Intent[] intentArray =  {cameraIntent};
-                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivityForResult(chooser, PICK_IMAGE_ID);
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, MainActivity.REQUEST_IMAGE_CAPTURE);
+                }
             }
         });
 
@@ -154,13 +155,12 @@ public class AddExpenseActivity extends AppCompatActivity {
         mExpense = new Expense(mNameOfExpense.getText().toString(),
                 mIsRepeatedExpense.isChecked(),
                 dateSql,
-                imagePath,
+                imageFileName,
                 Double.valueOf(mExpenseAmount.getText().toString()),
                 spinnerCategories.getSelectedItem().toString(),
                 GregorianCalendar.getInstance().getTimeInMillis(),
-                userSheetId);
+                sheetId);
 
-        FragmentHome.needsUpdatingChart = true; //Means That the user saved a new expense and the chart should be updated
         Model.instance().addExpense(mExpense);
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", MainActivity.RESULT_ADD_EXPENSE);
@@ -172,50 +172,14 @@ public class AddExpenseActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
+        if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             mPictureButton.setImageBitmap(imageBitmap);
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            imagePath = "JPEG_" + timeStamp + ".jpeg";
-
-            super.onActivityResult(requestCode, resultCode, data);
+            imageFileName = "JPEG_" + timeStamp + ".jpeg";
+            Model.instance().saveImage(imageBitmap, imageFileName);
         }
-    }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = { MediaStore.Images.Media.DATA };
-        CursorLoader loader = new CursorLoader(this, contentUri, proj, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(column_index);
-        cursor.close();
-        return result;
-    }
-
-    public static void setPic(ImageButton imageButton, String photoPath) {
-        // Get the dimensions of the View
-        int targetW = imageButton.getMaxWidth();
-        int targetH = imageButton.getMaxHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
-        imageButton.setImageBitmap(bitmap);
     }
 
     private void setCalender(){

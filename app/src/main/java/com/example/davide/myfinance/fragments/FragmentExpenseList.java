@@ -60,7 +60,7 @@ public class FragmentExpenseList extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("TAG", "row " + position + " selected");
                 Intent intent = new Intent(mRootView.getContext(), ViewExpenseActivity.class);
-                intent.putExtra(MainActivity.USER_SHEET_ID, mStudentListDB.get(position).getTimeStamp());
+                intent.putExtra(MainActivity.SHEET_ID, mStudentListDB.get(position).getTimeStamp());
                 startActivityForResult(intent, MainActivity.RESULT_FINISHED_EDITING);
             }
         });

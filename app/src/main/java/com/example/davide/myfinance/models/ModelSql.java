@@ -32,18 +32,13 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public void updateExpense(Expense expense) {
-        ExpenseSql.updateExpense(dbHelper, expense);
+    public void updateOrAddExpense(Expense expense) {
+        ExpenseSql.updateOrAddExpense(dbHelper, expense);
     }
 
     @Override
     public void batchUpdateExpenses(List<Expense> expenses, Model.BatchUpdateListener listener) {
         ExpenseSql.batchUpdateExpense(dbHelper, expenses, listener);
-    }
-
-    @Override
-    public void syncSqlWithParse(Model.SyncSqlWithParseListener listener) {
-        ExpenseSql.syncSqlWithParse(dbHelper, listener);
     }
 
     @Override
@@ -67,23 +62,33 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public void addUserSheets(long id, long sheetId, String userName) {
-        ModelUsersAndAccountsSql.addUserSheets(dbHelper, id, sheetId, userName);
+    public void addUserSheets(String sheetId, String userName) {
+        ModelUsersAndAccountsSql.addUserSheets(dbHelper, sheetId, userName);
     }
 
     @Override
-    public void addSheets(long id, String userName) {
+    public void addSheets(String id, String userName) {
         ModelUsersAndAccountsSql.addSheets(dbHelper, id, userName);
     }
 
     @Override
-    public HashMap<String, Double> getUsersAndSums(long sheetId) {
+    public HashMap<String, Double> getUsersAndSums(String sheetId) {
         return ModelUsersAndAccountsSql.getUsersAndSum(dbHelper, sheetId);
     }
 
     @Override
     public Double getSumByCategory(String category,String fromDate, String toDate) {
         return ExpenseSql.getSumByCategory(dbHelper, category, fromDate, toDate);
+    }
+
+    @Override
+    public void changeLastUpdateTime(Model.ChangeTimeListener listener) {
+        changeLastUpdateTime(listener);
+    }
+
+    @Override
+    public String getExistingUsersSheet(String id){
+        return ModelUsersAndAccountsSql.getExistingUsersSheet(id, dbHelper);
     }
 
     class MyOpenHelper extends SQLiteOpenHelper {

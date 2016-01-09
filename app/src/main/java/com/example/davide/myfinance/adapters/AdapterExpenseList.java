@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.MainActivity;
@@ -23,9 +24,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import static com.example.davide.myfinance.activities.AddExpenseActivity.setPic;
-
 
 public class AdapterExpenseList extends BaseAdapter{
 
@@ -96,36 +94,19 @@ public class AdapterExpenseList extends BaseAdapter{
             Picasso.with(_context).load(expense.getTempExpenseImage()).into(expenseImage);
 
         }else{
-            setPic(expenseImage, expense.getExpenseImage());
-            //Picasso.with(_context).load(new File(selectedExpense.getExpenseImage())).into(holder.expenseImage);
+            final ProgressBar progress = (ProgressBar) convertView.findViewById(R.id.rowImageProgressBar);
+            progress.setVisibility(View.VISIBLE);
+            Model.instance().loadImage(expense.getExpenseImage(),new Model.LoadImageListener() {
+                @Override
+                public void onResult(Bitmap imageBmp) {
+                    if (imageBmp != null) {
+                        expenseImage.setImageBitmap(imageBmp);
+                    }
+                    progress.setVisibility(View.GONE);
+                }
+            });
         }
-
         return convertView;
-    }
-
-    private void setPic(ImageView imageView, String photoPath) {
-        // Get the dimensions of the View
-
-        int targetW = imageView.getMaxWidth();
-        int targetH = imageView.getMaxHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
-        imageView.setImageBitmap(bitmap);
     }
 }
 

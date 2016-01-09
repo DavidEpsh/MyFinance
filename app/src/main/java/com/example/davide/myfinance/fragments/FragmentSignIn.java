@@ -78,10 +78,8 @@ public class FragmentSignIn extends Fragment {
                 if (e == null) {
                     startUpdatingData();
                 }else{
-                    //Toast.makeText(getActivity(),e.getMessage().substring(e.getMessage().indexOf(" ")) , Toast.LENGTH_SHORT).show();
                     Toast.makeText(getActivity(),"Wrong username or password", Toast.LENGTH_SHORT).show();
                     vf.setDisplayedChild(0);
-//                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }
         });
@@ -89,10 +87,10 @@ public class FragmentSignIn extends Fragment {
     }
 
     public void startUpdatingData(){
-        Model.instance().syncSqlWithParse(new Model.SyncSqlWithParseListener() {
+        Model.instance().getAllExpensesOrUpdateAsync(true, new Model.GetAllExpensesOrUpdateAsync() {
             @Override
             public void onResult() {
-                Model.instance().getAllUsersSheetsAndSync(new Model.GetAllUsersSheetsListener() {
+                Model.instance().changeLastUdateTime(new Model.ChangeTimeListener() {
                     @Override
                     public void onResult() {
                         finishAndSetResult();

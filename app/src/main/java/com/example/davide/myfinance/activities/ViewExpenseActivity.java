@@ -1,6 +1,7 @@
 package com.example.davide.myfinance.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -48,16 +49,19 @@ public class ViewExpenseActivity extends AppCompatActivity {
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_view_expense);
 
         if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.USER_SHEET_ID, 0l);
+            itemId = getIntent().getLongExtra(MainActivity.SHEET_ID, 0l);
             Expense currExpense = Model.instance().getExpense(itemId);
             dateSql = currExpense.getDateSql();
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
 
-            if(currExpense.getExpenseImage() != null){
-                AddExpenseActivity.setPic(mPictureButton, currExpense.getExpenseImage());
-            }
+            Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
+                @Override
+                public void onResult(Bitmap imageBmp) {
+                    mPictureButton.setImageBitmap(imageBmp);
+                }
+            });
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -66,7 +70,7 @@ public class ViewExpenseActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(ViewExpenseActivity.this, EditExpenseActivity.class);
-                intent.putExtra(MainActivity.USER_SHEET_ID, itemId);
+                intent.putExtra(MainActivity.SHEET_ID, itemId);
                 startActivityForResult(intent,1);
                 }
         });

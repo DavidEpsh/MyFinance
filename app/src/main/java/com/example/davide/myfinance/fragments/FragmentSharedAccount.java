@@ -15,9 +15,7 @@ import android.widget.EditText;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.activities.AddExpenseActivity;
-import com.example.davide.myfinance.activities.EditExpenseActivity;
 import com.example.davide.myfinance.activities.MainActivity;
-import com.example.davide.myfinance.adapters.AdapterViewPager;
 import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.github.mikephil.charting.charts.PieChart;
@@ -44,7 +42,8 @@ public class FragmentSharedAccount extends Fragment {
     List<Double> expenses = new ArrayList<>();
     String fromDate, toDate;
     boolean fabMenuVisible = false;
-    long sheetId;
+    boolean animate;
+    Long sheetId;
     HashMap<String, Double> map;
     int pageNumber;
     public ViewPager mPager;
@@ -53,26 +52,18 @@ public class FragmentSharedAccount extends Fragment {
     FloatingActionButton fab;
     FloatingActionsMenu fabMenu;
 
-//    public static FragmentSharedAccount newInstance(int page) {
-//        FragmentSharedAccount fragment = new FragmentSharedAccount();
-//        Bundle args = new Bundle();
-//        args.putInt(ARG_PAGE_NUMBER, page);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
-
-    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_shared_account, container, false);
         tf = Typeface.createFromAsset(getActivity().getAssets(), "OpenSans-Light.ttf");
+
 
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fabMenu = (FloatingActionsMenu)getActivity().findViewById(R.id.fab_menu);
 
         mChart = (PieChart) v.findViewById(R.id.pieChart_shared_accounts_fragment);
         mChart.setData(generatePieData());
-        mChart.animateY(2000);
+        mChart.animateY(1200);
 
         if(categories == null || expenses == null){
             mChart.setCenterText("Add Expense or Accounts");
@@ -94,22 +85,33 @@ public class FragmentSharedAccount extends Fragment {
             public void onClick(View v) {
 
                 Intent intent = new Intent(getActivity(), AddExpenseActivity.class);
-
                 if (mPager.getCurrentItem() == 1) {
-                    intent.putExtra(MainActivity.USER_SHEET_ID, MainActivity.acc2.sheetId);
-                }else{
-                    intent.putExtra(MainActivity.USER_SHEET_ID, MainActivity.acc3.sheetId);
+                    intent.putExtra(MainActivity.SHEET_ID, MainActivity.acc2.sheetId.toString());
+                }else if(mPager.getCurrentItem() == 2){
+                    intent.putExtra(MainActivity.SHEET_ID, MainActivity.acc3.sheetId.toString());
                 }
                 startActivityForResult(intent, MainActivity.RESULT_ADD_EXPENSE);
             }
         });
 
         int i = mPager.getCurrentItem();
-        if(i == 1 && MainActivity.acc2.sheetId == 0) {
+        if(i == 0) {
             fabMenu.setVisibility(View.INVISIBLE);
+            fab.show();
+        }else if(i == 1 && MainActivity.acc2.sheetId == null) {
+            fabMenu.setVisibility(View.INVISIBLE);
+            fab.hide();
             buildAlertDialog(true);// true: activate new account
-        }else if(i == 2 && MainActivity.acc3.sheetId == 0) {
+        }else if(i == 1 && MainActivity.acc2.sheetId != null) {
+            fabMenu.setVisibility(View.VISIBLE);
+            fab.hide();
+        }else if(i == 2 && MainActivity.acc3.sheetId != null) {
+            fabMenu.setVisibility(View.VISIBLE);
+            fab.hide();
+            buildAlertDialog(true);// true: activate new account
+        }else if(i == 2 && MainActivity.acc3.sheetId == null) {
             fabMenu.setVisibility(View.INVISIBLE);
+            fab.hide();
             buildAlertDialog(true);// true: activate new account
         }
 
@@ -175,29 +177,8 @@ public class FragmentSharedAccount extends Fragment {
         }
     }
 
-
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if(fab != null || fab != null) {
-            if (fabMenuVisible) {
-                fab.setVisibility(View.INVISIBLE);
-                fabMenu.setVisibility(View.VISIBLE);
-
-            } else {
-                fab.setVisibility(View.VISIBLE);
-                fabMenu.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
-
-    public void setSheetId(long sheetId){
-        this.sheetId = sheetId;
-    }
-    public long getSheetId(){
-        return this.sheetId;
+    public String getSheetId(){
+        return this.sheetId.toString();
     }
 
     @Override
@@ -220,10 +201,10 @@ public class FragmentSharedAccount extends Fragment {
                             long id = GregorianCalendar.getInstance().getTimeInMillis();
                             if (mPager.getCurrentItem() == 1) {
                                 //creating new account - (userSheetsId, sheetsId, userName)
-                                Model.instance().addUserSheets(id, MainActivity.acc2.sheetId, txtUserName.getText().toString());
+                                Model.instance().addUserSheets(MainActivity.acc2.sheetId.toString(), txtUserName.getText().toString());
                             }else{
                                 //creating new account - (userSheetsId, sheetsId, userName)
-                                Model.instance().addUserSheets(id, MainActivity.acc3.sheetId, txtUserName.getText().toString());
+                                Model.instance().addUserSheets(MainActivity.acc3.sheetId.toString(), txtUserName.getText().toString());
                             }
                             fabMenu.setVisibility(View.VISIBLE);
                         }
@@ -240,17 +221,15 @@ public class FragmentSharedAccount extends Fragment {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
                             GregorianCalendar cal = new GregorianCalendar();
-                            long id = cal.getTimeInMillis();
+                            Long id = cal.getTimeInMillis();
                             if (mPager.getCurrentItem() == 1) {
                                 MainActivity.acc2.sheetId = id;
-                                Model.instance().addSheets(id, MainActivity.acc2.fragName);
-                                //creating new account - (userSheetsId, sheetsId, userName)
-                                Model.instance().addUserSheets(id, id, ParseUser.getCurrentUser().getUsername());
+                                Model.instance().addSheets(id.toString(), MainActivity.acc2.fragName);
+                                Model.instance().addUserSheets(id.toString(), ParseUser.getCurrentUser().getUsername());
                             }else{
                                 MainActivity.acc3.sheetId = id;
-                                Model.instance().addSheets(id, MainActivity.acc3.fragName);
-                                //creating new account - (userSheetsId, sheetsId, userName)
-                                Model.instance().addUserSheets(id, id, ParseUser.getCurrentUser().getUsername());
+                                Model.instance().addSheets(id.toString(), MainActivity.acc3.fragName);
+                                Model.instance().addUserSheets(id.toString(), ParseUser.getCurrentUser().getUsername());
                             }
                             fabMenu.setVisibility(View.VISIBLE);
                         }

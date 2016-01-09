@@ -7,6 +7,12 @@
     android:orientation="horizontal"
     >
 
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rowImageFrame">
+
     <ImageView
         android:layout_width="70dp"
         android:layout_height="70dp"
@@ -14,6 +20,13 @@
         android:layout_centerVertical="true"
         android:id="@+id/image_view_expense_image"
         android:layout_weight="1" />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rowImageProgressBar"
+        android:visibility="gone"/>
+    </FrameLayout>
+
 
     <LinearLayout
         android:id="@+id/linear_layout_name_and_buttons"

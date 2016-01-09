@@ -4,33 +4,29 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ModelUsersAndAccountsSql {
     private static final String TABLE_USER_SHEETS = "USER_SHEETS";
     private static final String TABLE_SHEETS = "SHEETS";
     private static final String SHEET_NAME = "SHEET_NAME";
-    private static final String TIMESTAMP = "TIMESTAMP";
     private static final String EXPENSE_AMOUNT = "EXPENSE_AMOUNT";
     private static final String USER_NAME = "USER_NAME";
     public static final String SHEET_ID = "SHEET_ID";
     private static final String EXPENSES = "EXPENSES";
-    public static final String USER_SHEET_ID = "USER_SHEET_ID";
+    public static final String USER_SHEET_ID = "SHEET_ID";
 
     public static void create(SQLiteDatabase db) {
 
-        db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + SHEET_ID + " LONG PRIMARY KEY," +
+        db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + SHEET_ID + " TEXT PRIMARY KEY," +
                 SHEET_NAME + " TEXT" + ")");
 
-        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + USER_SHEET_ID + " LONG PRIMARY KEY," +
-                USER_NAME + " TEXT," + SHEET_ID + " LONG," + " FOREIGN KEY(" + SHEET_ID + ")" +
-                " REFERENCES " + TABLE_SHEETS + "(" +SHEET_ID +")" + ")");
+        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + USER_NAME + " TEXT," + SHEET_ID + " TEXT," + " FOREIGN KEY(" + SHEET_ID + ")" +
+                " REFERENCES " + TABLE_SHEETS + "(" +SHEET_ID +")" +
+                " PRIMARY KEY (" + USER_NAME + "," + SHEET_ID + ")" + ")");
     }
 
-    public static HashMap getUsersAndSum(ModelSql.MyOpenHelper dbHelper, long sheetId) {
+    public static HashMap getUsersAndSum(ModelSql.MyOpenHelper dbHelper, String sheetId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         HashMap<String, Double> map = new HashMap<>();
 
@@ -58,22 +54,21 @@ public class ModelUsersAndAccountsSql {
         return map;
     }
 
-    public static void addUserSheets(ModelSql.MyOpenHelper dbHelper, long id, long sheetId, String userName){
+    public static void addUserSheets(ModelSql.MyOpenHelper dbHelper,String sheetId, String userName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        if (isExistingUsersSheet(dbHelper, id)){
+        if (getExistingUsersSheet(sheetId, dbHelper) != null){
             return;
         }
 
         ContentValues values = new ContentValues();
-        values.put(USER_SHEET_ID, id);
         values.put(USER_NAME, userName);
         values.put(SHEET_ID, sheetId);
         db.insert(TABLE_USER_SHEETS, null, values);
 
     }
 
-    public static void addSheets(ModelSql.MyOpenHelper dbHelper, long id, String sheetName){
+    public static void addSheets(ModelSql.MyOpenHelper dbHelper, String id, String sheetName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         if (isExistingSheet(dbHelper, id)){
@@ -86,22 +81,28 @@ public class ModelUsersAndAccountsSql {
         db.insert(TABLE_SHEETS, null, values);
     }
 
-    public static boolean isExistingUsersSheet(ModelSql.MyOpenHelper dbHelper, long id){
+    public static String getExistingUsersSheet(String id, ModelSql.MyOpenHelper dbHelper){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_USER_SHEETS +
-                " WHERE " + USER_SHEET_ID + " = " + id;
+                " WHERE " + SHEET_ID + " = " + id;
         Cursor cursor = db.rawQuery(query, null);
 
+        String usersSheetId;
         if (cursor.getCount() > 0) {
-            return true;
-        }else{
-            return false;
+            if (cursor.moveToFirst()) {
+                int users_sheets_index = cursor.getColumnIndex(USER_SHEET_ID);
+                usersSheetId = cursor.getString(users_sheets_index);
+                return usersSheetId;
+            }
         }
+
+        return null;
+
     }
 
-    public static boolean isExistingSheet(ModelSql.MyOpenHelper dbHelper, long id){
+    public static boolean isExistingSheet(ModelSql.MyOpenHelper dbHelper, String id){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT * FROM " + TABLE_USER_SHEETS +
+        String query = "SELECT * FROM " + TABLE_SHEETS +
                 " WHERE " + SHEET_ID + " = " + id;
         Cursor cursor = db.rawQuery(query, null);
 

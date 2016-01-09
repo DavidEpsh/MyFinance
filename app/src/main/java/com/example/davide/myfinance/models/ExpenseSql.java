@@ -3,16 +3,10 @@ package com.example.davide.myfinance.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.example.davide.myfinance.activities.MainActivity;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,7 +21,7 @@ public class ExpenseSql {
     private static final String EXPENSE_AMOUNT = "EXPENSE_AMOUNT";
     private static final String USER_NAME = "USER_NAME";
     private static final String IS_SAVED =  "IS_SAVED";
-    private static final String USER_SHEET_ID = "USER_SHEET_ID";
+    private static final String SHEET_ID = "SHEET_ID";
 
     public static void addExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -41,10 +35,10 @@ public class ExpenseSql {
         values.put(IMAGE_PATH, expense.getExpenseImage());
         values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
         values.put(USER_NAME, ParseUser.getCurrentUser().getUsername());
-        values.put(USER_SHEET_ID, 12341234);
+        values.put(SHEET_ID, expense.getSheetId());
         values.put(IS_SAVED, 1);
 
-        db.insert(TABLE, TIMESTAMP, values);
+        db.insert(TABLE, null, values);
     }
 
     public static void deleteExpense(ModelSql.MyOpenHelper dbHelper, Long timeStamp) {
@@ -68,7 +62,7 @@ public class ExpenseSql {
             String date = cursor.getString(cursor.getColumnIndex(DATE));
             int repeating = cursor.getInt(cursor.getColumnIndex(REPEATING));
             double amount = cursor.getDouble(cursor.getColumnIndex(EXPENSE_AMOUNT));
-            long userSheetId = cursor.getLong(cursor.getColumnIndex(USER_SHEET_ID));
+            String userSheetId = cursor.getString(cursor.getColumnIndex(SHEET_ID));
 
             boolean isRepeating;
             if (repeating == 1) {
@@ -85,19 +79,26 @@ public class ExpenseSql {
         }
     }
 
-    public static void updateExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
+    public static void updateOrAddExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(NAME, expense.getExpenseName());
-        values.put(CATEGORY, expense.getCategory());
-        values.put(REPEATING, expense.isRepeatingExpense());
-        values.put(DATE, expense.getDateSql());
-        values.put(IMAGE_PATH, expense.getExpenseImage());
-        values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
-        values.put(USER_SHEET_ID, expense.getuserSheetId());
+        String query = "SELECT * FROM " + TABLE + " WHERE " + TIMESTAMP + " = " + expense.getTimeStamp();
+        Cursor cursor = db.rawQuery(query, null);
 
-        db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
+        if (cursor.getCount() > 0) {
+            ContentValues values = new ContentValues();
+            values.put(NAME, expense.getExpenseName());
+            values.put(CATEGORY, expense.getCategory());
+            values.put(REPEATING, expense.isRepeatingExpense());
+            values.put(DATE, expense.getDateSql());
+            values.put(IMAGE_PATH, expense.getExpenseImage());
+            values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
+            values.put(SHEET_ID, expense.getSheetId());
+
+            db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
+        }else{
+            addExpense(dbHelper, expense);
+        }
     }
 
     public static void batchUpdateExpense(ModelSql.MyOpenHelper dbHelper, List<Expense> expenses, Model.BatchUpdateListener listener) {
@@ -114,7 +115,7 @@ public class ExpenseSql {
                 values.put(DATE, expense.getDateSql());
                 values.put(IMAGE_PATH, expense.getExpenseImage());
                 values.put(EXPENSE_AMOUNT, expense.getExpenseAmount());
-                values.put(USER_SHEET_ID, expense.getuserSheetId());
+                values.put(SHEET_ID, expense.getSheetId());
 
                 db.update(TABLE, values, TIMESTAMP + " = '" + expense.getTimeStamp() + "'", null);
             }
@@ -142,7 +143,7 @@ public class ExpenseSql {
                 int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
                 int date_index = cursor.getColumnIndex(DATE);
                 int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
-                int userSheetId_index = cursor.getColumnIndex(USER_SHEET_ID);
+                int userSheetId_index = cursor.getColumnIndex(SHEET_ID);
 
                 do {
                     Long timeStamp = cursor.getLong(id_index);
@@ -152,7 +153,7 @@ public class ExpenseSql {
                     String date = cursor.getString(date_index);
                     int repeating = cursor.getInt(repeating_index);
                     double amount = cursor.getDouble(amount_index);
-                    long userSheetId = cursor.getLong(userSheetId_index);
+                    String userSheetId = cursor.getString(userSheetId_index);
 
                     boolean isRepeating;
                     if (repeating == 1) {
@@ -173,16 +174,13 @@ public class ExpenseSql {
     public static List<Expense> getExpensesByCategory(ModelSql.MyOpenHelper dbHelper, String selectedCategory,String fromDate, String toDate) {
         List<Expense> data = new LinkedList<Expense>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        //    public Cursor query(String table, String[] columns, String selection,
-//        String[] selectionArgs, String groupBy, String having,
-//                String orderBy) {
-        Cursor cursor; //= db.rawQuery(null,null);
+        Cursor cursor;
 
         if(selectedCategory == null && fromDate == null && toDate == null){
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
-                    " AND " + USER_SHEET_ID + " != " + " 0 " +
+                    " AND " + SHEET_ID + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " ORDER BY " + DATE + " DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -192,7 +190,7 @@ public class ExpenseSql {
                     " WHERE " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
-                    " AND " + USER_SHEET_ID + " != " + " 0 " +
+                    " AND " + SHEET_ID + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -201,7 +199,7 @@ public class ExpenseSql {
             String query = "SELECT * FROM " + TABLE +
                     " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                    " AND " + USER_SHEET_ID + " != " + " 0 " +
+                    " AND " + SHEET_ID + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 ";
 
             cursor = db.rawQuery(query, null);
@@ -212,7 +210,7 @@ public class ExpenseSql {
                     " AND " + DATE + " > " + "'" + fromDate + "'" +
                     " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " AND " + IS_SAVED + " = " + " 1 " +
-                    " AND " + USER_SHEET_ID + " != " + " 0 " +
+                    " AND " + SHEET_ID + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                     " ORDER BY " + DATE +" DESC ";
 
             cursor = db.rawQuery(query, null);
@@ -226,7 +224,7 @@ public class ExpenseSql {
             int image_path_index = cursor.getColumnIndex(IMAGE_PATH);
             int date_index = cursor.getColumnIndex(DATE);
             int amount_index = cursor.getColumnIndex(EXPENSE_AMOUNT);
-            int userSheetId_index = cursor.getColumnIndex(USER_SHEET_ID);
+            int userSheetId_index = cursor.getColumnIndex(SHEET_ID);
 
             do {
                 Long timeStamp = cursor.getLong(id_index);
@@ -236,7 +234,7 @@ public class ExpenseSql {
                 String date = cursor.getString(date_index);
                 int repeating = cursor.getInt(repeating_index);
                 double amount = cursor.getDouble(amount_index);
-                long userSheetId = cursor.getLong(cursor.getColumnIndex(USER_SHEET_ID));
+                String userSheetId = cursor.getString(cursor.getColumnIndex(SHEET_ID));
 
                 boolean isRepeating;
                 if (repeating == 1){
@@ -245,7 +243,7 @@ public class ExpenseSql {
                     isRepeating = false;
                 }
 
-                Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp, userSheetId_index);
+                Expense expense = new Expense(expenseName, isRepeating, date, imagePath, amount, category, timeStamp, userSheetId);
                 data.add(expense);
             } while (cursor.moveToNext());
         }
@@ -260,7 +258,7 @@ public class ExpenseSql {
         String query = "SELECT DISTINCT " + CATEGORY +
                 " FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                " AND " + USER_SHEET_ID + " != " + " 0 " +
+                " AND " + SHEET_ID + " = " + " 0 " +
                 " AND " + IS_SAVED + " = " + " 1 ";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -283,7 +281,7 @@ public class ExpenseSql {
                 " WHERE " + CATEGORY + " = " + "'" + selectedCategory + "'" +
                 " AND " + DATE + " > " + "'" + fromDate + "'" +
                 " AND " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
-                " AND " + USER_SHEET_ID + " != " + " 0 " +
+                " AND " + SHEET_ID + " = " + " 0 " +
                 " AND " + IS_SAVED + " = " + " 1 ";
 
         cursor = db.rawQuery(query, null);
@@ -294,19 +292,19 @@ public class ExpenseSql {
         return null;
     }
 
-    public static void syncSqlWithParse(final ModelSql.MyOpenHelper dbHelper, final Model.SyncSqlWithParseListener listener){
-        Model.instance().modelParse.getAllExpensesAsynch(new Model.GetExpensesListener() {
-            @Override
-            public void onResult(List<Expense> expenses) {
-                batchUpdateExpense(dbHelper, expenses, new Model.BatchUpdateListener() {
-                    @Override
-                    public void onResult() {
-                        listener.onResult();
-                    }
-                });
-            }
-        });
-    }
+//    public static void syncSqlWithParse(final ModelSql.MyOpenHelper dbHelper, final Model.SyncSqlWithParseListener listener){
+//        Model.instance().modelParse.getAllExpensesAsynch(new Model.GetExpensesListener() {
+//            @Override
+//            public void onResult(List<Expense> expenses) {
+//                batchUpdateExpense(dbHelper, expenses, new Model.BatchUpdateListener() {
+//                    @Override
+//                    public void onResult() {
+//                        listener.onResult();
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     public static void create(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE + " (" +
@@ -319,7 +317,7 @@ public class ExpenseSql {
                 USER_NAME + " TEXT, " +
                 IS_SAVED + " INTEGER, " +
                 EXPENSE_AMOUNT + " DOUBLE, " +
-                USER_SHEET_ID + " LONG " + ")");
+                SHEET_ID + " TEXT " + ")");
     }
 
     public static void drop(SQLiteDatabase db) {
