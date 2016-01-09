@@ -1,6 +1,7 @@
 package com.example.davide.myfinance.activities;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.adapters.AdapterViewPager;
@@ -24,11 +27,14 @@ import com.example.davide.myfinance.fragments.FragmentExpenseList;
 import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentSharedAccount;
 import com.example.davide.myfinance.models.Model;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.parse.ParseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -44,9 +50,11 @@ public class MainActivity extends AppCompatActivity
     public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
     public static List<String> allCategories = new ArrayList<>();
 
-    public static FragmentSharedAccount acc1 = new FragmentSharedAccount();
-    public static FragmentSharedAccount acc2 = new FragmentSharedAccount();
-    public static FragmentSharedAccount acc3 = new FragmentSharedAccount();
+    public static FragmentSharedAccount acc1 = FragmentSharedAccount.newInstance();
+    public static FragmentSharedAccount acc2 = FragmentSharedAccount.newInstance();
+    public static FragmentSharedAccount acc3 = FragmentSharedAccount.newInstance();
+    ViewPager viewPager;
+    FloatingActionsMenu fabMenu;
 
     Dialog dialog;
 
@@ -57,9 +65,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        acc2.setPageNumber(2);
-        acc3.setPageNumber(3);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -79,28 +84,30 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if(ParseUser.getCurrentUser() == null) {
-
+        if (ParseUser.getCurrentUser() == null) {
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        }else if(Model.instance().getLastUpdateTime(true) == null){
-            startUpdate();
-        }else if(Model.instance().checkUpdateInterval()){
-            startUpdate();
-        }else{
+        } else if (Model.instance().getLastUpdateTime(true) == null) {
+            startUpdate(false);
+        } else if (Model.instance().checkUpdateInterval()) {
+            startUpdate(true);
+        } else {
             setFragmentData();
             setTabLayout();
         }
 
         Intent intent = getIntent();
-        if(intent.hasExtra(Intent.EXTRA_TEXT)) {
+        if (intent.hasExtra(Intent.EXTRA_TEXT)) {
             String name;
             name = intent.getStringExtra(Intent.EXTRA_TEXT);
             Intent intentNew = new Intent(MainActivity.this, AddExpenseActivity.class);
             intentNew.putExtra("name", name);
             startActivityForResult(intentNew, RESULT_ADD_EXPENSE);
         }
+
+        fabMenu = (FloatingActionsMenu) findViewById(R.id.fab_menu);
+        fabMenu.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -113,12 +120,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void startUpdate(){
+    public void startUpdate(boolean needUpdate){
         dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         dialog.setContentView(R.layout.dialog_loading);
         dialog.show();
 
-        Model.instance().getAllExpensesOrUpdateAsync(true, new Model.GetAllExpensesOrUpdateAsync() {
+        Model.instance().getAllExpensesOrUpdateAsync(needUpdate, new Model.GetAllExpensesOrUpdateAsync() {
             @Override
             public void onResult() {
                 dialog.hide();
@@ -157,12 +164,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.drawer_home) {
-//            FragmentHome fragment = new FragmentHome();
-//            getSqlData(fragment, sdf.format(getStartOfWeek().getTime()), null);
-//            openFragment(fragment);
-//            setTitle("My Finance");
-
             setTabLayout();
+            setFragmentData();
 
         } else if (id == R.id.drawer_expense_list) {
             FragmentExpenseList fragment = new FragmentExpenseList();
@@ -178,13 +181,6 @@ public class MainActivity extends AppCompatActivity
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);
             startActivityForResult(intentLogIn, RESULT_LOG_IN_SIGN_UP);
 
-        } else if (id == R.id.nav_shared_accounts) {
-//            final Dialog dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-//            dialog.setContentView(R.layout.dialog_loading);
-//            dialog.show();
-
-            // TODO: 05/01/2016  
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -192,23 +188,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-//    private void openFragment(final Fragment fragment){
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.container,fragment)
-//                .commitAllowingStateLoss();
-//    }
-
     private void openFragment(final Fragment fragment){
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        }
-        transaction.replace(R.id.container, fragment)
-                .addToBackStack(null)
-                .commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container,fragment)
+                .commitAllowingStateLoss();
     }
 
     public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
@@ -283,18 +267,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setTabLayout(){
+        HashMap<String, String> map = Model.instance().returnMySheets();
 
-        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
-            getSupportFragmentManager().popBackStack();
-        }
-
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
 
         AdapterViewPager adapter = new AdapterViewPager(getSupportFragmentManager());
         adapter.addFragment(acc1, "My Account");
         acc1.setViewPager(viewPager);
+
+        acc2.setSheetId(map.get("Home"));
         adapter.addFragment(acc2, "Home");
         acc2.setViewPager(viewPager);
+
+        acc3.setSheetId(map.get("Trip"));
         adapter.addFragment(acc3, "Trip");
         acc3.setViewPager(viewPager);
         viewPager.setAdapter(adapter);
@@ -309,8 +294,8 @@ public class MainActivity extends AppCompatActivity
     public void setFragmentData() {
 
         getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
-        //acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
-        //acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
+        acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
+        acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
     }
 
 }

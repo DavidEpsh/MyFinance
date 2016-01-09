@@ -68,9 +68,11 @@ public class ModelParse {
                     for(ParseObject parseObject : objects){
                         String sheetId = parseObject.getString(SHEET_ID);
 
+                        Model.instance().addUserSheets(sheetId, ParseUser.getCurrentUser().getUsername());
                         collection.add(sheetId);
                     }
                     getExpensesForSheetIds(update, collection);
+                    getAllSheets(update,collection);
                 }
                 listener.onResult();
             }
@@ -107,6 +109,28 @@ public class ModelParse {
             }
         });
     }
+    public void getAllSheets(final boolean update, Collection<String> collection){
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(SHEET);
+        query.whereContainedIn(SHEET_ID, collection);
+
+        if(update){
+            query.whereGreaterThan(UPDATED_AT, getLastUpdateTime(false));
+        }
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e == null){
+                    for(ParseObject parseObject : objects){
+                        String sheetId = parseObject.getString(SHEET_ID);
+                        String sheetName = parseObject.getString(SHEET_NAME);
+
+                        Model.instance().addSheets(sheetId, sheetName, false);
+                    }
+                }
+            }
+        });
+    }
 
 
 
@@ -138,6 +162,7 @@ public class ModelParse {
                     } else {
                         newObject.put(IS_SAVED, 1);
                     }
+
 
                     newObject.saveEventually(new SaveCallback() {
                         @Override
@@ -512,7 +537,7 @@ public class ModelParse {
                         String sheetsId = po.getString(SHEET_ID);
                         String sheetName = po.getString(SHEET_NAME);
 
-                        Model.instance().addSheets(sheetsId, sheetName);
+                        Model.instance().addSheets(sheetsId, sheetName, false);
                     }
                 }
                 listener.onResult();

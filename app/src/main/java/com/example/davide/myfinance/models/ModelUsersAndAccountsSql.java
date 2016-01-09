@@ -4,7 +4,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.parse.ParseUser;
+
 import java.util.HashMap;
+import java.util.List;
 
 public class ModelUsersAndAccountsSql {
     private static final String TABLE_USER_SHEETS = "USER_SHEETS";
@@ -30,13 +33,11 @@ public class ModelUsersAndAccountsSql {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         HashMap<String, Double> map = new HashMap<>();
 
-        String query = "SELECT " + (TABLE_USER_SHEETS + "." + USER_NAME) + "," +
-                " SUM(" + (EXPENSES + "." + EXPENSE_AMOUNT) + ") as SUM_EXPENSE" +
+        String query = "SELECT " + USER_NAME + "," +
+                " SUM(" + EXPENSE_AMOUNT + ")" +
                 " FROM " + EXPENSES +
-                " LEFT JOIN " + TABLE_USER_SHEETS +
-                " ON " + (EXPENSES + "." + USER_SHEET_ID) + "=" + (TABLE_USER_SHEETS + "." + USER_SHEET_ID) +
-                " WHERE " + (TABLE_USER_SHEETS + "." + SHEET_ID) + " = " + "'" + sheetId + "'" +
-                " GROUP BY " + (TABLE_USER_SHEETS + "." + USER_NAME);
+                " WHERE " + SHEET_ID + " = " + "'" + sheetId + "'" +
+                " GROUP BY " + USER_NAME;
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -57,7 +58,7 @@ public class ModelUsersAndAccountsSql {
     public static void addUserSheets(ModelSql.MyOpenHelper dbHelper,String sheetId, String userName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        if (getExistingUsersSheet(sheetId, dbHelper) != null){
+        if (getExistingUsersSheetById(sheetId, dbHelper) != null){
             return;
         }
 
@@ -81,10 +82,10 @@ public class ModelUsersAndAccountsSql {
         db.insert(TABLE_SHEETS, null, values);
     }
 
-    public static String getExistingUsersSheet(String id, ModelSql.MyOpenHelper dbHelper){
+    public static String getExistingUsersSheetById(String id, ModelSql.MyOpenHelper dbHelper){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_USER_SHEETS +
-                " WHERE " + SHEET_ID + " = " + id;
+                " WHERE " + SHEET_ID + " = " + "'" + id + "'";
         Cursor cursor = db.rawQuery(query, null);
 
         String usersSheetId;
@@ -97,13 +98,12 @@ public class ModelUsersAndAccountsSql {
         }
 
         return null;
-
     }
 
     public static boolean isExistingSheet(ModelSql.MyOpenHelper dbHelper, String id){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_SHEETS +
-                " WHERE " + SHEET_ID + " = " + id;
+                " WHERE " + SHEET_ID + " = " + "'" + id + "'";
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.getCount() > 0) {
@@ -113,7 +113,32 @@ public class ModelUsersAndAccountsSql {
         }
     }
 
+    public static HashMap<String, String> returnMySheets(ModelSql.MyOpenHelper dbHelper) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        HashMap<String, String> map = new HashMap<>();
+        String query = "SELECT * FROM " + TABLE_SHEETS + " JOIN " + TABLE_USER_SHEETS +
+                " ON " + "(" + TABLE_USER_SHEETS + "." + SHEET_ID + " = " + TABLE_USER_SHEETS + "." + USER_SHEET_ID + ")" +
+                " WHERE " + "(" + TABLE_USER_SHEETS + "." + USER_NAME + ")" + " = " +
+                "'" + ParseUser.getCurrentUser().getUsername() + "'";
+        Cursor cursor = db.rawQuery(query, null);
 
+        //SELECT * FROM SHEETS JOIN USER_SHEETS ON (USER_SHEETS.SHEET_ID) WHERE (USER_SHEETS.USER_NAME) = 'a@a.com'
+
+        int temp = cursor.getCount();
+        if (cursor.moveToFirst()) {
+            int id_index = cursor.getColumnIndex(SHEET_ID);
+            int name_index = cursor.getColumnIndex(SHEET_NAME);
+
+            do {
+                String id = cursor.getString(id_index);
+                String name = cursor.getString(name_index);
+                map.put(name, id);
+
+            } while (cursor.moveToNext());
+
+        }
+        return map;
+    }
 
 
 /*

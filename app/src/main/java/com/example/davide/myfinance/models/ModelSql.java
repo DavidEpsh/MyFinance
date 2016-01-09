@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.davide.myfinance.activities.MainActivity;
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,6 +75,11 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
+    public HashMap<String, String> returnMySheets() {
+        return ModelUsersAndAccountsSql.returnMySheets(dbHelper);
+    }
+
+    @Override
     public Double getSumByCategory(String category,String fromDate, String toDate) {
         return ExpenseSql.getSumByCategory(dbHelper, category, fromDate, toDate);
     }
@@ -88,7 +91,7 @@ public class ModelSql implements Model.ModelInterface {
 
     @Override
     public String getExistingUsersSheet(String id){
-        return ModelUsersAndAccountsSql.getExistingUsersSheet(id, dbHelper);
+        return ModelUsersAndAccountsSql.getExistingUsersSheetById(id, dbHelper);
     }
 
     class MyOpenHelper extends SQLiteOpenHelper {

@@ -37,15 +37,23 @@ public class FragmentSharedAccount extends Fragment {
     public static boolean needsUpdatingChart = false;
     private Typeface tf;
 
+
+    public FragmentSharedAccount() {
+    }
+
+    public static FragmentSharedAccount newInstance() {
+        FragmentSharedAccount fragment = new FragmentSharedAccount();
+        return fragment;
+    }
+
     private PieChart mChart;
     List<String> categories = new ArrayList<>();
     List<Double> expenses = new ArrayList<>();
     String fromDate, toDate;
     boolean fabMenuVisible = false;
     boolean animate;
-    Long sheetId;
+    String sheetId;
     HashMap<String, Double> map;
-    int pageNumber;
     public ViewPager mPager;
     String fragName;
 
@@ -87,32 +95,62 @@ public class FragmentSharedAccount extends Fragment {
                 Intent intent = new Intent(getActivity(), AddExpenseActivity.class);
                 if (mPager.getCurrentItem() == 1) {
                     intent.putExtra(MainActivity.SHEET_ID, MainActivity.acc2.sheetId.toString());
-                }else if(mPager.getCurrentItem() == 2){
+                } else if (mPager.getCurrentItem() == 2) {
                     intent.putExtra(MainActivity.SHEET_ID, MainActivity.acc3.sheetId.toString());
                 }
                 startActivityForResult(intent, MainActivity.RESULT_ADD_EXPENSE);
             }
         });
 
+
         int i = mPager.getCurrentItem();
-        if(i == 0) {
+        HashMap<String, String> map = Model.instance().returnMySheets();
+        String checkHasAcc = map.get(fragName);
+        String checkHasAcc2 = map.get(fragName);
+        String checkHasAcc3 = map.get(fragName);
+
+        if(i == 0 && MainActivity.acc1.sheetId == null) {
             fabMenu.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.VISIBLE);
             fab.show();
-        }else if(i == 1 && MainActivity.acc2.sheetId == null) {
-            fabMenu.setVisibility(View.INVISIBLE);
-            fab.hide();
-            buildAlertDialog(true);// true: activate new account
-        }else if(i == 1 && MainActivity.acc2.sheetId != null) {
+
+            if(checkHasAcc == null) {
+                    MainActivity.acc1.sheetId = ParseUser.getCurrentUser().getUsername();
+                    Model.instance().addSheets(sheetId, "My Account", true);
+                    Model.instance().addUserSheets(sheetId, ParseUser.getCurrentUser().getUsername());
+            }else{
+                MainActivity.acc1.sheetId = checkHasAcc;
+            }
+        }else if(i == 0) {
+            if (MainActivity.acc1.sheetId != null){
+                fabMenu.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.VISIBLE);
+                fab.show();
+            }
+        }else if(i == 1 && MainActivity.acc2.getSheetId() == null) {
+
+            if(checkHasAcc2 != null){
+                MainActivity.acc2.sheetId = checkHasAcc2;
+            }else {
+                fabMenu.setVisibility(View.INVISIBLE);
+                fab.hide();
+                buildAlertDialog(true);// true: activate new account
+            }
+        }else if(i == 1 && MainActivity.acc2.getSheetId() != null) {
             fabMenu.setVisibility(View.VISIBLE);
             fab.hide();
-        }else if(i == 2 && MainActivity.acc3.sheetId != null) {
+
+        }else if(i == 2 && MainActivity.acc3.getSheetId() == null) {
+            if(checkHasAcc2 != null) {
+                MainActivity.acc2.sheetId = checkHasAcc2;
+            }else {
+                fabMenu.setVisibility(View.VISIBLE);
+                fab.hide();
+                buildAlertDialog(true);// true: activate new account
+            }
+        }else if(i == 2 && MainActivity.acc3.getSheetId() != null) {
             fabMenu.setVisibility(View.VISIBLE);
             fab.hide();
-            buildAlertDialog(true);// true: activate new account
-        }else if(i == 2 && MainActivity.acc3.sheetId == null) {
-            fabMenu.setVisibility(View.INVISIBLE);
-            fab.hide();
-            buildAlertDialog(true);// true: activate new account
         }
 
         return v;
@@ -178,7 +216,11 @@ public class FragmentSharedAccount extends Fragment {
     }
 
     public String getSheetId(){
-        return this.sheetId.toString();
+        return this.sheetId;
+    }
+
+    public void setSheetId(String sheetId){
+        this.sheetId = sheetId;
     }
 
     @Override
@@ -221,14 +263,16 @@ public class FragmentSharedAccount extends Fragment {
                         public void onClick(DialogInterface dialog, int whichButton) {
 
                             GregorianCalendar cal = new GregorianCalendar();
-                            Long id = cal.getTimeInMillis();
+                            Long temp = cal.getTimeInMillis();
+                            String id = temp.toString();
+
                             if (mPager.getCurrentItem() == 1) {
                                 MainActivity.acc2.sheetId = id;
-                                Model.instance().addSheets(id.toString(), MainActivity.acc2.fragName);
+                                Model.instance().addSheets(id.toString(), MainActivity.acc2.fragName, true);
                                 Model.instance().addUserSheets(id.toString(), ParseUser.getCurrentUser().getUsername());
                             }else{
                                 MainActivity.acc3.sheetId = id;
-                                Model.instance().addSheets(id.toString(), MainActivity.acc3.fragName);
+                                Model.instance().addSheets(id.toString(), MainActivity.acc3.fragName, true);
                                 Model.instance().addUserSheets(id.toString(), ParseUser.getCurrentUser().getUsername());
                             }
                             fabMenu.setVisibility(View.VISIBLE);
@@ -243,15 +287,15 @@ public class FragmentSharedAccount extends Fragment {
         }
     }
 
-    public void setPageNumber(int pageNumber){
-        this.pageNumber = pageNumber;
-    }
-
     public void setViewPager(ViewPager viewPager){
         this.mPager = viewPager;
     }
 
     public void setFragmentName(String name){
         this.fragName = name;
+    }
+
+    public String getFragmentName(){
+        return this.fragName;
     }
 }

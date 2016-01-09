@@ -22,6 +22,7 @@ public class ExpenseSql {
     private static final String USER_NAME = "USER_NAME";
     private static final String IS_SAVED =  "IS_SAVED";
     private static final String SHEET_ID = "SHEET_ID";
+    private static final String TABLE_SHEET = "";
 
     public static void addExpense(ModelSql.MyOpenHelper dbHelper, Expense expense) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -126,9 +127,7 @@ public class ExpenseSql {
     public static List<Expense> getExpenses(ModelSql.MyOpenHelper dbHelper) {
         List<Expense> data = new LinkedList<Expense>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        //    public Cursor query(String table, String[] columns, String selection,
-//        String[] selectionArgs, String groupBy, String having,
-//                String orderBy)
+
         String query = "SELECT * FROM " + TABLE +
                 " WHERE " + USER_NAME + " = " + "'" + ParseUser.getCurrentUser().getUsername() + "'" +
                 " AND " + IS_SAVED + " = " + " 1 ";
@@ -291,20 +290,6 @@ public class ExpenseSql {
         }
         return null;
     }
-
-//    public static void syncSqlWithParse(final ModelSql.MyOpenHelper dbHelper, final Model.SyncSqlWithParseListener listener){
-//        Model.instance().modelParse.getAllExpensesAsynch(new Model.GetExpensesListener() {
-//            @Override
-//            public void onResult(List<Expense> expenses) {
-//                batchUpdateExpense(dbHelper, expenses, new Model.BatchUpdateListener() {
-//                    @Override
-//                    public void onResult() {
-//                        listener.onResult();
-//                    }
-//                });
-//            }
-//        });
-//    }
 
     public static void create(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE + " (" +

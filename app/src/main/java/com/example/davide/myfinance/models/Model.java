@@ -33,6 +33,7 @@ public class Model {
         public HashMap<String, Double> getUsersAndSums(String sheetId);
         public String getExistingUsersSheet(String id);
         public void changeLastUpdateTime(ChangeTimeListener listener);
+        public HashMap<String, String> returnMySheets();
     }
 
     private static final Model instance = new Model();
@@ -59,7 +60,7 @@ public class Model {
     }
 
     public void changeLastUdateTime(ChangeTimeListener listener){
-        modelImpl.changeLastUpdateTime(listener);
+        modelParse.changeLastUpdateTime(listener);
     }
 
     public void addExpense(Expense expense){
@@ -154,9 +155,12 @@ public class Model {
         modelParse.addUsersSheet(sheetId, userName);
     }
 
-    public void addSheets(String id, String sheetName){
+    public void addSheets(String id, String sheetName, boolean withParseAdd){
         modelImpl.addSheets(id, sheetName);
-        modelParse.addSheet(id, sheetName);
+
+        if(withParseAdd) {
+            modelParse.addSheet(id, sheetName);
+        }
     }
 
     public HashMap<String, Double> getUsersAndSums(String sheetId){
@@ -169,6 +173,10 @@ public class Model {
 
     public String getExistingUsersSheet(String id){
         return modelImpl.getExistingUsersSheet(id);
+    }
+
+    public HashMap<String, String> returnMySheets(){
+        return modelImpl.returnMySheets();
     }
 
 

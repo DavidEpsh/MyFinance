@@ -74,7 +74,6 @@ public class FragmentSignIn extends Fragment {
         ParseUser.logInInBackground(email.getText().toString(), pass.getText().toString(), new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {
-
                 if (e == null) {
                     startUpdatingData();
                 }else{
@@ -87,7 +86,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     public void startUpdatingData(){
-        Model.instance().getAllExpensesOrUpdateAsync(true, new Model.GetAllExpensesOrUpdateAsync() {
+        Model.instance().getAllExpensesOrUpdateAsync(false, new Model.GetAllExpensesOrUpdateAsync() {
             @Override
             public void onResult() {
                 Model.instance().changeLastUdateTime(new Model.ChangeTimeListener() {
