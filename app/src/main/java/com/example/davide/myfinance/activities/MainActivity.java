@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     public static FragmentSharedAccount acc2 = FragmentSharedAccount.newInstance();
     public static FragmentSharedAccount acc3 = FragmentSharedAccount.newInstance();
     ViewPager viewPager;
+    AdapterViewPager viewPagerAdapter;
     FloatingActionsMenu fabMenu;
 
     Dialog dialog;
@@ -255,6 +256,15 @@ public class MainActivity extends AppCompatActivity
                 setTabLayout();
 
             }
+        }else if(resultCode == RESULT_ADD_EXPENSE){
+        if (resultCode == RESULT_OK) {
+            viewPagerAdapter.notifyDataSetChanged();
+            setFragmentData();
+
+        }
+        if (resultCode == RESULT_CANCELED) {
+            //User pressed back button
+        }
         }else {
             if (resultCode == RESULT_OK) {
                 getSqlData(acc1, sdf.format(getStartOfWeek().getTime()), null, false);
@@ -270,19 +280,18 @@ public class MainActivity extends AppCompatActivity
         HashMap<String, String> map = Model.instance().returnMySheets();
 
         viewPager = (ViewPager) findViewById(R.id.viewPager);
-
-        AdapterViewPager adapter = new AdapterViewPager(getSupportFragmentManager());
-        adapter.addFragment(acc1, "My Account");
+        viewPagerAdapter = new AdapterViewPager(getSupportFragmentManager());
+        viewPagerAdapter.addFragment(acc1, "My Account");
         acc1.setViewPager(viewPager);
 
         acc2.setSheetId(map.get("Home"));
-        adapter.addFragment(acc2, "Home");
+        viewPagerAdapter.addFragment(acc2, "Home");
         acc2.setViewPager(viewPager);
 
         acc3.setSheetId(map.get("Trip"));
-        adapter.addFragment(acc3, "Trip");
+        viewPagerAdapter.addFragment(acc3, "Trip");
         acc3.setViewPager(viewPager);
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(viewPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);

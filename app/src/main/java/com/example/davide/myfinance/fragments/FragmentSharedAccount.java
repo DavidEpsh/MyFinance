@@ -102,60 +102,81 @@ public class FragmentSharedAccount extends Fragment {
             }
         });
 
+        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-        if(mPager != null) {
-            int i = mPager.getCurrentItem();
-            HashMap<String, String> map = Model.instance().returnMySheets();
-            String checkHasAcc = map.get(fragName);
-            String checkHasAcc2 = map.get(fragName);
-            String checkHasAcc3 = map.get(fragName);
+            @Override
+            public void onPageSelected(int i) {
 
-            if (i == 0 && MainActivity.acc1.sheetId == null) {
-                fabMenu.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                fab.show();
+                HashMap<String, String> map = Model.instance().returnMySheets();
+                String checkHasAcc = map.get(MainActivity.acc1.getSheetId());
+                String checkHasAcc2 = map.get(MainActivity.acc2.getSheetId());
+                String checkHasAcc3 = map.get(MainActivity.acc3.getSheetId());
 
-                if (checkHasAcc == null) {
-                    MainActivity.acc1.sheetId = ParseUser.getCurrentUser().getUsername();
-                    Model.instance().addSheets(sheetId, "My Account", true);
-                    Model.instance().addUserSheets(sheetId, ParseUser.getCurrentUser().getUsername());
-                } else {
-                    MainActivity.acc1.sheetId = checkHasAcc;
+                if (i == 0 && MainActivity.acc1.sheetId == null) {
+                    showOrHideFabAndFabMenu(true);
+
+                    if (checkHasAcc == null) {
+                        MainActivity.acc1.sheetId = ParseUser.getCurrentUser().getUsername();
+                        Model.instance().addSheets(sheetId, "My Account", true);
+                        Model.instance().addUserSheets(sheetId, ParseUser.getCurrentUser().getUsername());
+                    } else {
+                        MainActivity.acc1.sheetId = checkHasAcc;
+                    }
+                } else if (i == 0 && MainActivity.acc1.sheetId != null) {
+                    showOrHideFabAndFabMenu(true);
+
+                } else if (i == 1 && MainActivity.acc2.getSheetId() == null) {
+
+                    if (checkHasAcc2 != null) {
+                        MainActivity.acc2.sheetId = checkHasAcc2;
+                    } else {
+                        fabMenu.setVisibility(View.INVISIBLE);
+                        fab.hide();
+                        buildAlertDialog(true);// true: activate new account
+                    }
+                } else if (i == 1 && MainActivity.acc2.getSheetId() != null) {
+                    showOrHideFabAndFabMenu(false);
+
+                } else if (i == 2 && MainActivity.acc3.getSheetId() == null) {
+                    if (checkHasAcc3 != null) {
+                        MainActivity.acc2.sheetId = checkHasAcc2;
+                    } else {
+                        fabMenu.setVisibility(View.INVISIBLE);
+                        fab.hide();
+                        buildAlertDialog(true);// true: activate new account
+                    }
+                } else if (i == 2 && MainActivity.acc3.getSheetId() != null) {
+                    showOrHideFabAndFabMenu(false);
                 }
-            } else if (i == 0) {
-                if (MainActivity.acc1.sheetId != null) {
-                    fabMenu.setVisibility(View.INVISIBLE);
-                    fab.setVisibility(View.VISIBLE);
-                    fab.show();
-                }
-            } else if (i == 1 && MainActivity.acc2.getSheetId() == null) {
 
-                if (checkHasAcc2 != null) {
-                    MainActivity.acc2.sheetId = checkHasAcc2;
-                } else {
-                    fabMenu.setVisibility(View.INVISIBLE);
-                    fab.hide();
-                    buildAlertDialog(true);// true: activate new account
-                }
-            } else if (i == 1 && MainActivity.acc2.getSheetId() != null) {
-                fabMenu.setVisibility(View.VISIBLE);
-                fab.hide();
 
-            } else if (i == 2 && MainActivity.acc3.getSheetId() == null) {
-                if (checkHasAcc2 != null) {
-                    MainActivity.acc2.sheetId = checkHasAcc2;
-                } else {
-                    fabMenu.setVisibility(View.VISIBLE);
-                    fab.hide();
-                    buildAlertDialog(true);// true: activate new account
-                }
-            } else if (i == 2 && MainActivity.acc3.getSheetId() != null) {
-                fabMenu.setVisibility(View.VISIBLE);
-                fab.hide();
+
             }
-        }
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+            }
+        });
+
+
+//        if(mPager != null) {
+//            int i = mPager.getCurrentItem();
+//
+//        }
 
         return v;
+    }
+
+    public void showOrHideFabAndFabMenu(boolean showFab){
+        if(showFab) {
+            fabMenu.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.VISIBLE);
+        }else {
+            fabMenu.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.INVISIBLE);
+        }
     }
 
     public PieData generatePieData(){
@@ -300,4 +321,6 @@ public class FragmentSharedAccount extends Fragment {
     public String getFragmentName(){
         return this.fragName;
     }
+
+
 }

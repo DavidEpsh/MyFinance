@@ -29,10 +29,13 @@ public class AdapterTabLayout extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "First Tab";
+                return "My Account";
             case 1:
+                return "Home";
+            case 2:
+                return "Trip";
             default:
-                return "Second Tab";
+                return "Home";
         }
     }
 }

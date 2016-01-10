@@ -204,7 +204,7 @@ public class ModelParse {
     }
 
 
-    // TODO: 1/9/2016  Change THIS
+
     public void getAllExpensesAsynch(final GetExpensesListener listener) {
         ParseQuery<ParseObject> query;
 
