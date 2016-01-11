@@ -15,12 +15,16 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
@@ -41,16 +45,18 @@ public class EditExpenseActivity extends AppCompatActivity {
     private CheckBox mIsRepeatedExpense;
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
+    private Spinner spinnerCategories;
 
     String imagePath;
     String category;
-    Long timeStamp;
+    String timeStamp;
     String userSheetId;
     String dateSql;
     GregorianCalendar cal = new GregorianCalendar();
     String imageFileName;
+    String userName;
 
-    Long itemId;
+    String itemId;
     private FloatingActionsMenu fab;
 
     @Override
@@ -68,6 +74,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         mPictureButton = (ImageButton) findViewById(R.id.pictureImageButton_edit_activity);
         mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event_edit_activity);
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_edit_activity);
+        spinnerCategories = (Spinner)findViewById(R.id.spinner_category_edit_expense);
 
         mNameOfExpense.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,25 +90,29 @@ public class EditExpenseActivity extends AppCompatActivity {
             }
         });
 
-        if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.SHEET_ID, 0);
-            Expense currExpense  = Model.instance().getExpense(itemId);
+        if(getIntent() != null) {
+            itemId = getIntent().getStringExtra(MainActivity.EXPENSE_ID);
+            Expense currExpense = Model.instance().getExpense(itemId);
 
-            timeStamp = currExpense.getTimeStamp();
             dateSql = currExpense.getDateSql();
             category = currExpense.getCategory();
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
             userSheetId = currExpense.getSheetId();
+            userName = currExpense.getUserName();
 
-            Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
-                @Override
-                public void onResult(Bitmap imageBmp) {
-                    mPictureButton.setImageBitmap(imageBmp);
-                }
-            });
+            if (currExpense.getExpenseImage() != null) {
+                Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
+                    @Override
+                    public void onResult(Bitmap imageBmp) {
+                        mPictureButton.setImageBitmap(imageBmp);
+                    }
+                });
+            }
         }
+
+        initializeSpinner();
 
         mPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,11 +198,11 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     private void saveExpense() {
 
-        Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), category, timeStamp, userSheetId);
+        Expense mExpense = new Expense(mNameOfExpense.getText().toString(), mIsRepeatedExpense.isChecked(), dateSql, imagePath, Double.valueOf(mExpenseAmount.getText().toString()), spinnerCategories.getSelectedItem().toString() , timeStamp, userSheetId, userName);
         Model.instance().updateOrAddExpense(mExpense, false);
 
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("result", SAVED_EXPENSE);
+        returnIntent.putExtra("result", MainActivity.RESULT_FINISHED_EDITING);
         setResult(this.RESULT_OK, returnIntent);
         finish();
 
@@ -233,6 +244,13 @@ public class EditExpenseActivity extends AppCompatActivity {
                 datePicker.show();
             }
         });
+    }
+
+
+    public void initializeSpinner(){
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ExpenseDB.getInstance().getCategoryNames());
+        spinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinnerCategories.setAdapter(spinnerAdapter);
     }
 
 }

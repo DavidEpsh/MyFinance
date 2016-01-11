@@ -51,8 +51,8 @@ public class FragmentExpenseList extends Fragment {
             fab.show();
         }
 
-        mStudentListDB = Model.instance().getExpensesByCategory(null, fromDate, toDate);
-        mAdapter = new AdapterExpenseList(mStudentListDB, getActivity());
+        mStudentListDB = Model.instance().getExpensesByCategory(category, fromDate, toDate);
+        mAdapter = new AdapterExpenseList(mStudentListDB, getContext());
         studentList.setAdapter(mAdapter);
 
         studentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -60,7 +60,7 @@ public class FragmentExpenseList extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("TAG", "row " + position + " selected");
                 Intent intent = new Intent(mRootView.getContext(), ViewExpenseActivity.class);
-                intent.putExtra(MainActivity.SHEET_ID, mStudentListDB.get(position).getTimeStamp());
+                intent.putExtra(MainActivity.EXPENSE_ID, mStudentListDB.get(position).getTimeStamp());
                 startActivityForResult(intent, MainActivity.RESULT_FINISHED_EDITING);
             }
         });

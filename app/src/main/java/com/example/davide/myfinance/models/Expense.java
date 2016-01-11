@@ -12,22 +12,24 @@ public class Expense{
     int tempExpenseImage;
     double expenseAmount;
     String category;
-    Long timeStamp;
+    String timeStamp;
     int isSaved = 1;
     String sheetId;
     String dateSql;
+    String userName;
 
 
-    public Long getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Long timeStamp) {
+    public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
     }
 
-    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, Long timeStamp, String sheetId){
+    public Expense(String name, Boolean isRepeating, String date, String expenseImage, double amount, String category, String timeStamp, String sheetId, String userName){
         this.expenseName = name;
+        this.userName = userName;
         this.isRepeatingExpense = isRepeating;
 
         if (isRepeating){
@@ -134,6 +136,14 @@ public class Expense{
 
     public void setSheetId(String sheetId){
         this.sheetId = sheetId;
+    }
+
+    public String getUserName(){
+        return this.userName;
+    }
+
+    public void setUserName(String userName){
+        this.sheetId = userName;
     }
 
 }

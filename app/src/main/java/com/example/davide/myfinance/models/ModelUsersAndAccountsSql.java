@@ -24,12 +24,13 @@ public class ModelUsersAndAccountsSql {
         db.execSQL("CREATE TABLE " + TABLE_SHEETS + " (" + SHEET_ID + " TEXT PRIMARY KEY," +
                 SHEET_NAME + " TEXT" + ")");
 
-        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + USER_NAME + " TEXT," + SHEET_ID + " TEXT," + " FOREIGN KEY(" + SHEET_ID + ")" +
+        db.execSQL("CREATE TABLE " + TABLE_USER_SHEETS + " (" + USER_NAME + " TEXT," + SHEET_ID + " TEXT," +
+                " FOREIGN KEY(" + SHEET_ID + ")" +
                 " REFERENCES " + TABLE_SHEETS + "(" +SHEET_ID +")" +
                 " PRIMARY KEY (" + USER_NAME + "," + SHEET_ID + ")" + ")");
     }
 
-    public static HashMap getUsersAndSum(ModelSql.MyOpenHelper dbHelper, String sheetId) {
+    public static HashMap getUsersAndSums(ModelSql.MyOpenHelper dbHelper, String sheetId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         HashMap<String, Double> map = new HashMap<>();
 
@@ -43,7 +44,7 @@ public class ModelUsersAndAccountsSql {
 
         if (cursor.moveToFirst()) {
             int name_index = cursor.getColumnIndex(USER_NAME);
-            int amount_index = cursor.getColumnIndex("SUM_EXPENSE");
+            int amount_index = cursor.getColumnIndex("SUM(EXPENSE_AMOUNT)");
 
             do {
                 String name = cursor.getString(name_index);
@@ -58,7 +59,7 @@ public class ModelUsersAndAccountsSql {
     public static void addUserSheets(ModelSql.MyOpenHelper dbHelper,String sheetId, String userName){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        if (getExistingUsersSheetById(sheetId, dbHelper) != null){
+        if (getExistingUsersSheetById(sheetId, userName, dbHelper) != null){
             return;
         }
 
@@ -82,10 +83,11 @@ public class ModelUsersAndAccountsSql {
         db.insert(TABLE_SHEETS, null, values);
     }
 
-    public static String getExistingUsersSheetById(String id, ModelSql.MyOpenHelper dbHelper){
+    public static String getExistingUsersSheetById(String id, String userName, ModelSql.MyOpenHelper dbHelper){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_USER_SHEETS +
-                " WHERE " + SHEET_ID + " = " + "'" + id + "'";
+                " WHERE " + SHEET_ID + " = " + "'" + id + "'" +
+                " AND " + USER_NAME + " = " + "'" + userName + "'";
         Cursor cursor = db.rawQuery(query, null);
 
         String usersSheetId;
@@ -117,14 +119,11 @@ public class ModelUsersAndAccountsSql {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         HashMap<String, String> map = new HashMap<>();
         String query = "SELECT * FROM " + TABLE_SHEETS + " JOIN " + TABLE_USER_SHEETS +
-                " ON " + "(" + TABLE_USER_SHEETS + "." + SHEET_ID + " = " + TABLE_USER_SHEETS + "." + USER_SHEET_ID + ")" +
+                " ON " + "(" + TABLE_USER_SHEETS + "." + SHEET_ID + " = " + TABLE_SHEETS + "." + USER_SHEET_ID + ")" +
                 " WHERE " + "(" + TABLE_USER_SHEETS + "." + USER_NAME + ")" + " = " +
                 "'" + ParseUser.getCurrentUser().getUsername() + "'";
         Cursor cursor = db.rawQuery(query, null);
 
-        //SELECT * FROM SHEETS JOIN USER_SHEETS ON (USER_SHEETS.SHEET_ID) WHERE (USER_SHEETS.USER_NAME) = 'a@a.com'
-
-        int temp = cursor.getCount();
         if (cursor.moveToFirst()) {
             int id_index = cursor.getColumnIndex(SHEET_ID);
             int name_index = cursor.getColumnIndex(SHEET_NAME);

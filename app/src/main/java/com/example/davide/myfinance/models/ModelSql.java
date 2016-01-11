@@ -20,12 +20,12 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public void deleteExpense(Long expense) {
+    public void deleteExpense(String expense) {
         ExpenseSql.deleteExpense(dbHelper, expense);
     }
 
     @Override
-    public Expense getExpense(Long id) {
+    public Expense getExpense(String id) {
         return  ExpenseSql.getExpense(dbHelper, id);
     }
 
@@ -71,7 +71,7 @@ public class ModelSql implements Model.ModelInterface {
 
     @Override
     public HashMap<String, Double> getUsersAndSums(String sheetId) {
-        return ModelUsersAndAccountsSql.getUsersAndSum(dbHelper, sheetId);
+        return ModelUsersAndAccountsSql.getUsersAndSums(dbHelper, sheetId);
     }
 
     @Override
@@ -90,8 +90,8 @@ public class ModelSql implements Model.ModelInterface {
     }
 
     @Override
-    public String getExistingUsersSheet(String id){
-        return ModelUsersAndAccountsSql.getExistingUsersSheetById(id, dbHelper);
+    public String getExistingUsersSheet(String id, String userName){
+        return ModelUsersAndAccountsSql.getExistingUsersSheetById(id, userName, dbHelper);
     }
 
     class MyOpenHelper extends SQLiteOpenHelper {

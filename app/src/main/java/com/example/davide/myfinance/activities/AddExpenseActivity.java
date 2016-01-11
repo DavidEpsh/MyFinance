@@ -133,7 +133,6 @@ public class AddExpenseActivity extends AppCompatActivity {
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ExpenseDB.getInstance().getCategoryNames());
         spinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spinnerCategories.setAdapter(spinnerAdapter);
-        //spinnerCategories.setOnItemSelectedListener(this);
     }
 
     private boolean requiredFieldCompleted() {
@@ -152,14 +151,17 @@ public class AddExpenseActivity extends AppCompatActivity {
     private void saveExpense() {
         Expense mExpense;
 
+        Long tempTimestamp = GregorianCalendar.getInstance().getTimeInMillis();
+
         mExpense = new Expense(mNameOfExpense.getText().toString(),
                 mIsRepeatedExpense.isChecked(),
                 dateSql,
                 imageFileName,
                 Double.valueOf(mExpenseAmount.getText().toString()),
                 spinnerCategories.getSelectedItem().toString(),
-                GregorianCalendar.getInstance().getTimeInMillis(),
-                sheetId);
+                tempTimestamp.toString(),
+                sheetId,
+                ParseUser.getCurrentUser().getUsername());
 
         Model.instance().addExpense(mExpense);
         Intent returnIntent = new Intent();

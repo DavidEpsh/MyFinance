@@ -1,7 +1,6 @@
 package com.example.davide.myfinance.activities;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,7 +8,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,12 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.adapters.AdapterViewPager;
 import com.example.davide.myfinance.fragments.FragmentExpenseList;
-import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.fragments.FragmentSharedAccount;
 import com.example.davide.myfinance.models.Model;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -41,10 +37,12 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static String SHEET_ID = "SHEET_ID";
+    public static String USER_ID = "USER_ID";
     public static int RESULT_FINISHED_EDITING = 1111;
     public static int RESULT_ADD_EXPENSE = 1112;
     public static int RESULT_LOG_IN_SIGN_UP = 1113;
     static final int REQUEST_IMAGE_CAPTURE = 1114;
+    public static String EXPENSE_ID = "EXPENSE_ID";
     public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static SimpleDateFormat sdfShort = new SimpleDateFormat("dd/MM/yyyy");
     public static SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
@@ -116,7 +114,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 0){
+            setTabLayout();
+            setFragmentData();
+            getSupportFragmentManager().popBackStack();
+        }else{
             super.onBackPressed();
         }
     }
@@ -152,6 +155,16 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            dialog=new Dialog(this,android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            dialog.setContentView(R.layout.dialog_loading);
+            dialog.show();
+
+            Model.instance().getAllExpensesOrUpdateAsync(true, new Model.GetAllExpensesOrUpdateAsync() {
+                @Override
+                public void onResult() {
+                    dialog.hide();
+                }
+            });
             return true;
         }
 
@@ -167,11 +180,13 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.drawer_home) {
             setTabLayout();
             setFragmentData();
+            getSupportFragmentManager().popBackStack();
+
 
         } else if (id == R.id.drawer_expense_list) {
             FragmentExpenseList fragment = new FragmentExpenseList();
             fragment.setData(null, null, null);
-            openFragment(fragment);
+            openFragmentBackStack(fragment);
             setTitle("My Expenses");
 
         } else if (id == R.id.overview) {
@@ -192,15 +207,28 @@ public class MainActivity extends AppCompatActivity
     private void openFragment(final Fragment fragment){
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container,fragment)
+                .replace(R.id.container, fragment)
                 .commitAllowingStateLoss();
     }
 
-    public void getSqlData(FragmentHome fragment, String fromDate, String toDate){
+    private void openFragmentBackStack(final Fragment fragment){
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        if(getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.replace(R.id.container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void getSqlDataForMainAccount(FragmentSharedAccount fragment, String fromDate, String toDate){
         //Getting all the categories that the user has
         this.allCategories = Model.instance().getCategories();
         List<String> usedCategories = new ArrayList<>();
         List<Double> expensesPerCategory = new ArrayList<>();
+        HashMap<String, Double> map = new HashMap<>();
 
 
         for(int i = 0; i < this.allCategories.size(); i++){
@@ -208,38 +236,39 @@ public class MainActivity extends AppCompatActivity
             if(temp != null){
                 usedCategories.add(this.allCategories.get(i));
                 expensesPerCategory.add(temp);
+                map.put(this.allCategories.get(i),temp);
             }
 
         }
 
-        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate);
+        fragment.setFragmentData(map, fromDate, toDate);
     }
 
-    public void getSqlData(FragmentSharedAccount fragment, String fromDate, String toDate, boolean fabMenu){
-        //Getting all the categories that the user has
-        this.allCategories = Model.instance().getCategories();
+    public void setDataForAccount(FragmentSharedAccount fragment, HashMap<String, Double> map) {
         List<String> usedCategories = new ArrayList<>();
         List<Double> expensesPerCategory = new ArrayList<>();
+        int size = map.size();
 
-
-        for(int i = 0; i < this.allCategories.size(); i++){
-            Double temp = Model.instance().getSumByCategory(this.allCategories.get(i), fromDate, null);
-            if(temp != null){
-                usedCategories.add(this.allCategories.get(i));
-                expensesPerCategory.add(temp);
+        if (size > 0) {
+            for (String name : map.keySet()) {
+                usedCategories.add(name);
+                expensesPerCategory.add(map.get(name));
             }
-
         }
-
-        fragment.setFragmentData(usedCategories, expensesPerCategory, fromDate, toDate, fabMenu);
+        fragment.setFragmentData(map, null, null);
     }
 
-    public Calendar getStartOfWeek(){
+    public static Calendar getStartOfWeek(boolean getPreviousWeek){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+
+        if(getPreviousWeek){
+            calendar.get(Calendar.WEEK_OF_YEAR);
+            //MainActivity.sdf.format(calendar.getTime());
+        }
 
         return calendar;
     }
@@ -252,22 +281,23 @@ public class MainActivity extends AppCompatActivity
                 finish();
 
             } else if (resultCode == RESULT_OK) {
-                setFragmentData();
                 setTabLayout();
+                setFragmentData();
+                viewPagerAdapter.notifyDataSetChanged();
 
             }
-        }else if(resultCode == RESULT_ADD_EXPENSE){
-        if (resultCode == RESULT_OK) {
-            viewPagerAdapter.notifyDataSetChanged();
-            setFragmentData();
+        }else if(requestCode == RESULT_ADD_EXPENSE){
+            if (resultCode == RESULT_OK) {
+                setFragmentData();
+                viewPagerAdapter.notifyDataSetChanged();
+                viewPager.setOffscreenPageLimit(1);
 
-        }
-        if (resultCode == RESULT_CANCELED) {
-            //User pressed back button
-        }
+            }else if (resultCode == RESULT_CANCELED) {
+                //User pressed back button
+            }
         }else {
             if (resultCode == RESULT_OK) {
-                getSqlData(acc1, sdf.format(getStartOfWeek().getTime()), null, false);
+                getSqlDataForMainAccount(acc1, sdf.format(getStartOfWeek(false).getTime()), null);
 
             }
             if (resultCode == RESULT_CANCELED) {
@@ -279,22 +309,27 @@ public class MainActivity extends AppCompatActivity
     public void setTabLayout(){
         HashMap<String, String> map = Model.instance().returnMySheets();
 
+        setTitle(R.string.app_name);
+        if(fabMenu != null) {
+            fabMenu.setVisibility(View.INVISIBLE);
+        }
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         viewPagerAdapter = new AdapterViewPager(getSupportFragmentManager());
         viewPagerAdapter.addFragment(acc1, "My Account");
-        acc1.setViewPager(viewPager);
+        acc1.setViewPagerAndAdapter(viewPager, viewPagerAdapter);
 
         acc2.setSheetId(map.get("Home"));
         viewPagerAdapter.addFragment(acc2, "Home");
-        acc2.setViewPager(viewPager);
+        acc2.setViewPagerAndAdapter(viewPager, viewPagerAdapter);
 
         acc3.setSheetId(map.get("Trip"));
         viewPagerAdapter.addFragment(acc3, "Trip");
-        acc3.setViewPager(viewPager);
+        acc3.setViewPagerAndAdapter(viewPager, viewPagerAdapter);
         viewPager.setAdapter(viewPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+        viewPager.setOffscreenPageLimit(1);
 
         tabLayout.setVisibility(View.VISIBLE);
         viewPager.setVisibility(View.VISIBLE);
@@ -302,9 +337,9 @@ public class MainActivity extends AppCompatActivity
 
     public void setFragmentData() {
 
-        getSqlData(acc1, MainActivity.sdf.format(getStartOfWeek().getTime()), null, false);
-        acc2.setDataForAccount(Model.instance().getUsersAndSums(acc2.getSheetId()), true);
-        acc3.setDataForAccount(Model.instance().getUsersAndSums(acc3.getSheetId()), true);
+        getSqlDataForMainAccount(acc1, MainActivity.sdf.format(getStartOfWeek(false).getTime()), null);
+        setDataForAccount(acc2, Model.instance().getUsersAndSums(MainActivity.acc2.getSheetId()));
+        setDataForAccount(acc3, Model.instance().getUsersAndSums(MainActivity.acc3.getSheetId()));
     }
 
 }

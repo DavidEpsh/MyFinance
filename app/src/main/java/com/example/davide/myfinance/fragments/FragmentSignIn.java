@@ -21,6 +21,8 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import java.util.HashMap;
+
 
 public class FragmentSignIn extends Fragment {
 
@@ -89,17 +91,19 @@ public class FragmentSignIn extends Fragment {
         Model.instance().getAllExpensesOrUpdateAsync(false, new Model.GetAllExpensesOrUpdateAsync() {
             @Override
             public void onResult() {
-                Model.instance().changeLastUdateTime(new Model.ChangeTimeListener() {
-                    @Override
-                    public void onResult() {
-                        finishAndSetResult();
-                    }
-                });
+                finishAndSetResult();
             }
         });
     }
 
     public void finishAndSetResult(){
+
+        if(!Model.instance().returnMySheets().containsKey("My Account")){
+            String userName = ParseUser.getCurrentUser().getUsername();
+            Model.instance().addSheets(userName, "My Account", true);
+            Model.instance().addUserSheets(userName, userName, true);
+        }
+
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", MainActivity.RESULT_LOG_IN_SIGN_UP);
         getActivity().setResult(MainActivity.RESULT_OK, returnIntent);

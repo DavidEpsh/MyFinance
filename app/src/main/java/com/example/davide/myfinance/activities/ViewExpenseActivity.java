@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.davide.myfinance.R;
 import com.example.davide.myfinance.models.Expense;
@@ -31,7 +33,8 @@ public class ViewExpenseActivity extends AppCompatActivity {
     private CheckBox mIsRepeatedExpense;
     private ImageButton mPictureButton;
     private EditText mExpenseAmount;
-    Long itemId;
+    private TextView mCategories;
+    String itemId;
     String dateSql;
 
     @Override
@@ -47,21 +50,25 @@ public class ViewExpenseActivity extends AppCompatActivity {
         mPictureButton = (ImageButton) findViewById(R.id.pictureImageButton_view_expense);
         mIsRepeatedExpense = (CheckBox)findViewById(R.id.checkbox_set_as_repeated_event_view_expense);
         mExpenseAmount = (EditText)findViewById(R.id.edit_text_expense_amount_view_expense);
+        mCategories = (TextView)findViewById(R.id.text_selected_category_picked);
 
-        if(getIntent() != null){
-            itemId = getIntent().getLongExtra(MainActivity.SHEET_ID, 0l);
+        if(getIntent() != null) {
+            itemId = getIntent().getStringExtra(MainActivity.EXPENSE_ID);
             Expense currExpense = Model.instance().getExpense(itemId);
             dateSql = currExpense.getDateSql();
             mNameOfExpense.setText(currExpense.getExpenseName());
             mIsRepeatedExpense.setChecked(currExpense.isRepeatingExpenseBool());
             mExpenseAmount.setText(Double.toString(currExpense.getExpenseAmount()));
+            mCategories.setText(currExpense.getCategory());
 
-            Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
-                @Override
-                public void onResult(Bitmap imageBmp) {
-                    mPictureButton.setImageBitmap(imageBmp);
-                }
-            });
+            if (currExpense.getExpenseImage() != null) {
+                Model.instance().loadImage(currExpense.getExpenseImage(), new Model.LoadImageListener() {
+                    @Override
+                    public void onResult(Bitmap imageBmp) {
+                        mPictureButton.setImageBitmap(imageBmp);
+                    }
+                });
+            }
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -70,8 +77,8 @@ public class ViewExpenseActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(ViewExpenseActivity.this, EditExpenseActivity.class);
-                intent.putExtra(MainActivity.SHEET_ID, itemId);
-                startActivityForResult(intent,1);
+                intent.putExtra(MainActivity.EXPENSE_ID, itemId);
+                startActivityForResult(intent,MainActivity.RESULT_FINISHED_EDITING);
                 }
         });
 
@@ -110,16 +117,11 @@ public class ViewExpenseActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-            if (resultCode == EditExpenseActivity.RESULT_OK) {
-
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("result", MainActivity.RESULT_OK);
-                setResult(this.RESULT_OK, returnIntent);
-                finish();
-            }
-
-                if (resultCode == EditExpenseActivity.RESULT_CANCELED) {
-                    //User pressed back button
-                }
-            }
+        if (resultCode == EditExpenseActivity.RESULT_OK) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result", MainActivity.RESULT_OK);
+            setResult(this.RESULT_OK, returnIntent);
+            finish();
+        }
+    }
 }

@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,8 +20,8 @@ public class Model {
 
     interface ModelInterface{
         public void addExpense(Expense expense);
-        public void deleteExpense(Long expense);
-        public Expense getExpense(Long id);
+        public void deleteExpense(String expense);
+        public Expense getExpense(String id);
         public List<Expense> getExpenses();
         public List<Expense> getExpensesByCategory(String category, String fromDate, String toDate);
         public Double getSumByCategory(String category, String fromDate, String toDate);
@@ -31,7 +32,7 @@ public class Model {
         public void addSheets(String id, String userName);
         public List<Expense> getAllExpensesAsynch();
         public HashMap<String, Double> getUsersAndSums(String sheetId);
-        public String getExistingUsersSheet(String id);
+        public String getExistingUsersSheet(String id, String userName);
         public void changeLastUpdateTime(ChangeTimeListener listener);
         public HashMap<String, String> returnMySheets();
     }
@@ -59,8 +60,8 @@ public class Model {
         return instance;
     }
 
-    public void changeLastUdateTime(ChangeTimeListener listener){
-        modelParse.changeLastUpdateTime(listener);
+    public void changeLastUdateTime(Collection collection, ChangeTimeListener listener){
+        modelParse.changeLastUpdateTime(collection, listener);
     }
 
     public void addExpense(Expense expense){
@@ -68,7 +69,7 @@ public class Model {
         modelParse.addExpenseAsync(expense);
     }
 
-    public void deleteExpense(Long expense){
+    public void deleteExpense(String expense){
         modelImpl.deleteExpense(expense);
         modelParse.updateOrDelete(getExpense(expense), true);
     }
@@ -77,7 +78,7 @@ public class Model {
         modelParse.getAllExpensesOrUpdateAsync(isUpdate, listener);
     }
 
-    public Expense getExpense(Long id){
+    public Expense getExpense(String id){
         return modelImpl.getExpense(id);
     }
 
@@ -114,10 +115,6 @@ public class Model {
         public void onResult(List<Expense> expenses);
     }
 
-    public interface GetRelevantExpensesListener{
-        public void onResult();
-    }
-
     public interface SyncSqlWithParseListener{
         public void onResult();
     }
@@ -150,9 +147,11 @@ public class Model {
         return modelParse.checkUpdateInterval();
     }
 
-    public void addUserSheets(String sheetId, String userName) {
+    public void addUserSheets(String sheetId, String userName, boolean withParse) {
         modelImpl.addUserSheets(sheetId, userName);
-        modelParse.addUsersSheet(sheetId, userName);
+        if(withParse) {
+            modelParse.addUsersSheet(sheetId, userName);
+        }
     }
 
     public void addSheets(String id, String sheetName, boolean withParseAdd){
@@ -171,8 +170,8 @@ public class Model {
         modelParse.getAllSheetsAndSync(usersSheetsId, listener);
     }
 
-    public String getExistingUsersSheet(String id){
-        return modelImpl.getExistingUsersSheet(id);
+    public String getExistingUsersSheet(String id, String userName){
+        return modelImpl.getExistingUsersSheet(id, userName);
     }
 
     public HashMap<String, String> returnMySheets(){
@@ -182,7 +181,7 @@ public class Model {
 
 
     public void saveImage(final Bitmap imageBitmap, final String imageName) {
-        saveImageToFile(imageBitmap,imageName); // synchronously save image locally
+        saveImageToFile(imageBitmap, imageName); // synchronously save image locally
         Thread d = new Thread(new Runnable() {  // asynchronously save image to parse
             @Override
             public void run() {

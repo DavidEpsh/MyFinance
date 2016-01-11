@@ -4,7 +4,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Refresh</string>
     <string name="expenses_list">My Expenses</string>
     <string name="add_event">Add Events</string>
     <string name="directions">Directions</string>
@@ -35,12 +35,14 @@
 
     <!-- View Expense ativity-->
     <string name="title_view_expense">Review Expense</string>
+    <string name="selected_category">Selected Category</string>
 
     <!-- Images-->
     <string name="pick_image_intent_text">Choose Source</string>
 
     <!-- Add Expense Activity-->
     <string name="pick_category">Select Category</string>
+
 
     <!-- Parse Related-->
     <string name="last_update_time">myfinance.lastupdatedate</string>

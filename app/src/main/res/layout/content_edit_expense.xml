@@ -116,6 +116,33 @@
                 android:layout_below="@+id/edit_text_expense_amount_edit_activity"
                 android:text="@string/set_as_repeated_event" />
 
+            <LinearLayout
+                android:id="@+id/linear_layout_category_edit_expense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_below="@id/checkbox_set_as_repeated_event_edit_activity"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_category_edit_expense"
+                    android:text="@string/pick_category"
+                    android:textSize="18sp"
+                    android:layout_width="110dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:gravity="left|center"
+                    />
+
+                <Spinner
+                    android:id="@+id/spinner_category_edit_expense"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="20dp"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
         </RelativeLayout>
 
     </android.support.v4.widget.NestedScrollView>

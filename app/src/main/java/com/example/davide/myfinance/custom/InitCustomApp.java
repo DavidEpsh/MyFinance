@@ -5,7 +5,7 @@ import android.app.Application;
 import com.example.davide.myfinance.models.Model;
 import com.parse.Parse;
 
-public class ParseCustomApp extends Application {
+public class InitCustomApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
