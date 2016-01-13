@@ -189,9 +189,6 @@ public class MainActivity extends AppCompatActivity
             openFragmentBackStack(fragment);
             setTitle("My Expenses");
 
-        } else if (id == R.id.overview) {
-
-
         } else if (id == R.id.nav_log_out) {
             ParseUser.logOut();
             Intent intentLogIn = new Intent(MainActivity.this, SignUpSignInActivity.class);

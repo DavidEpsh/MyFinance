@@ -2,11 +2,8 @@ package com.example.davide.myfinance.activities;
 
 import android.app.DatePickerDialog;
 
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,7 +25,6 @@ import android.widget.Toast;
 
 import com.example.davide.myfinance.ExpenseDB;
 import com.example.davide.myfinance.R;
-import com.example.davide.myfinance.fragments.FragmentHome;
 import com.example.davide.myfinance.models.Expense;
 import com.example.davide.myfinance.models.Model;
 import com.parse.ParseUser;

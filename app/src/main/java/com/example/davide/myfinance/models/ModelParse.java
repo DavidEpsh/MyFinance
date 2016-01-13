@@ -189,8 +189,8 @@ public class ModelParse {
         });
     }
 
-    public void addExpenseAsync(final Expense expense) {
-        final ParseObject newObject = new ParseObject(EXPENSE_OBJ);
+    public void addExpenseAsync(Expense expense) {
+        ParseObject newObject = new ParseObject(EXPENSE_OBJ);
         newObject.put(USER_NAME, expense.getUserName());
         newObject.put(TIMESTAMP, expense.getTimeStamp());
         newObject.put("name", expense.getExpenseName());
@@ -205,11 +205,11 @@ public class ModelParse {
         newObject.put(IS_SAVED, 1);
         newObject.put(SHEET_ID, expense.getSheetId());
 
-        newObject.saveEventually(new SaveCallback() {
+        newObject.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e != null) {
-                    Log.d("Parse", "Unable to save" + expense.getExpenseName());
+                    Log.d("Parse", "Unable to save expense");
                 }
             }
         });

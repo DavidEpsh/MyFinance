@@ -10,10 +10,6 @@
             android:id="@+id/drawer_expense_list"
             android:icon="@android:drawable/ic_menu_slideshow"
             android:title="My Expenses" />
-        <item
-            android:id="@+id/overview"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="Overview" />
     </group>
 
     <item android:title="Communicate">
@@ -22,10 +18,6 @@
                 android:id="@+id/nav_log_out"
                 android:icon="@android:drawable/ic_menu_share"
                 android:title="Log Out" />
-            <item
-                android:id="@+id/nav_shared_accounts"
-                android:icon="@android:drawable/ic_menu_send"
-                android:title="Send" />
         </menu>
     </item>
 

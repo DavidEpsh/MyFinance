@@ -190,6 +190,9 @@ public class FragmentSharedAccount extends Fragment {
                 float val = e.getVal();
                 for(String category : map.keySet()){
                     if(map.get(category) == val){
+                        if(mPager.getCurrentItem()>1){
+
+                        }
                         frag.setData(category, fromDate, toDate);
                         openFragmentBackStack(frag);
                         getActivity().setTitle("My " + category + " expenses");

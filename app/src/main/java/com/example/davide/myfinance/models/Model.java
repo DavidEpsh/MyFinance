@@ -78,6 +78,7 @@ public class Model {
         modelParse.getAllExpensesOrUpdateAsync(isUpdate, listener);
     }
 
+
     public Expense getExpense(String id){
         return modelImpl.getExpense(id);
     }
